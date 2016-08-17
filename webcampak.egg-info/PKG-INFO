@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: webcampak
+Version: 3.0
+Summary: Webcampak is a set of tools to reliably capture high definition pictures, at pre-defined interval, over a very long period of time and automatically generate timelapse videos. Built to scale and adapt to a variety of use cases, Webcampak will drive a DSLR camera from projects ranging from 6 months to years. Failsafe mechanisms are available to ensure no pictures get lost during that time.
+Home-page: http://www.webcampak.com/
+Author: Francois Gerthoffert
+Author-email: support@webcampak.com
+License: GPL v3
+Description: Webcampak is a set of tools to reliably capture high definition pictures, at pre-defined interval, over a very long period of time and automatically generate timelapse videos. Built to scale and adapt to a variety of use cases, Webcampak will drive a DSLR camera from projects ranging from 6 months to years. Failsafe mechanisms are available to ensure no pictures get lost during that time.
+Platform: UNKNOWN
