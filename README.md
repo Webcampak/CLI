@@ -1,2 +1,11 @@
-# CLI
-Webcampak Command Line Interface, Controls capture and internal processing
+Webcampak
+==============================================================================
+
+Installation
+------------
+
+```
+$ pip install -r requirements.txt
+
+$ python setup.py install
+```
