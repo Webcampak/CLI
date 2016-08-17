@@ -1,0 +1,4 @@
+
+        [console_scripts]
+        webcampak = webcampak.cli.main:main
+    
