@@ -1,0 +1,9 @@
+cement>=2.6.0
+configobj
+pyyaml
+pytz
+python-dateutil
+psutil
+Pillow
+jsonschema #https://github.com/Julian/jsonschema
+Phidgets
