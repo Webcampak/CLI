@@ -11,7 +11,7 @@ defaults = init_defaults('webcampak')
 
 # All internal/external plugin configurations are loaded from here
 #defaults['webcampak']['plugin_config_dir'] = '/etc/webcampak/plugins.d'
-defaults['webcampak']['plugin_config_dir'] = '/home/webcampak/webcampak/apps/cli/webcampak/config/plugins.d'
+defaults['webcampak']['plugin_config_dir'] = '/home/webcampak/webcampak/apps/cli/config/plugins.d'
 
 # External plugins (generally, do not ship with application code)
 defaults['webcampak']['plugin_dir'] = '/var/lib/webcampak/plugins'
