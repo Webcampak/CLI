@@ -74,7 +74,9 @@ class systemCronJobs:
 		os.remove(self.dirCache + "crontab")
 
 	fileUtils.CheckFilepath(self.dirCache + "crontab")
+
 	if os.path.isfile(self.dirInit + "config/crontab.init"):
+		self.log.info("systemCronJobs.update(): Adding default crontab.init content")
 		shutil.copy(self.dirInit + "config/crontab.init", self.dirCache + "crontab")
 	
 	cronttabFile = open(self.dirCache + "crontab", 'a')
