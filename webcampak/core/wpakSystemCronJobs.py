@@ -41,9 +41,9 @@ class systemCronJobs:
         
                 
         self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']
-		self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
-		self.dirConfig = self.configPaths.getConfig('parameters')['dir_config']
-		self.dirCache = self.configPaths.getConfig('parameters')['dir_cache']
+        self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
+        self.dirConfig = self.configPaths.getConfig('parameters')['dir_config']
+        self.dirCache = self.configPaths.getConfig('parameters')['dir_cache']
         self.dirInit = self.configPaths.getConfig('parameters')['dir_init']
         self.dirBin = self.configPaths.getConfig('parameters')['dir_bin']
 
