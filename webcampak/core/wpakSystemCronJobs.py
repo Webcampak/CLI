@@ -88,23 +88,23 @@ class systemCronJobs:
 				newcronhours="*"
 				newcrondays="*"
 				if currentSourceConfig.getConfig('cfgcroncaptureinterval') == "minutes":	
-					cronttabFile.write("*/" + currentSourceConfig.getConfig('cfgcroncapturevalue') + " " +  newcronhours + " * * " + newcrondays + " python " + self.dirBin + "webcampak.py -t capture -s " + str(sources) + "\n")
+					cronttabFile.write("*/" + currentSourceConfig.getConfig('cfgcroncapturevalue') + " " +  newcronhours + " * * " + newcrondays + " /usr/local/bin/webcampak capture -s " + str(sources) + "\n")
 				elif currentSourceConfig.getConfig('cfgcroncaptureinterval') == "seconds":
-					cronttabFile.write("* " +  newcronhours + " * * " + newcrondays + " python " + self.dirBin + "webcampak.py -t capture -s " + str(sources) + "\n")
+					cronttabFile.write("* " +  newcronhours + " * * " + newcrondays + " /usr/local/bin/webcampak capture -s " + str(sources) + "\n")
 					i = 0
 					for secloop in range(1, 30):
 						i = i + int(currentSourceConfig.getConfig('cfgcroncapturevalue'))
 						if i < 60:
-							cronttabFile.write("* " +  newcronhours + " * * " + newcrondays + " sleep " + str(i) + " && python " + self.dirBin + "webcampak.py -t capture -s " + str(sources) + "\n")
+							cronttabFile.write("* " +  newcronhours + " * * " + newcrondays + " sleep " + str(i) + " && /usr/local/bin/webcampak capture -s " + str(sources) + "\n")
                                 self.log.info("systemCronJobs.update(): Processing source %(SourceNumber)s: Videos" % {'SourceNumber': str(sources)})                                
-				cronttabFile.write(currentSourceConfig.getConfig('cfgcrondailyminute') + " " +  currentSourceConfig.getConfig('cfgcrondailyhour') + " * * * python " + self.dirBin + "webcampak.py -t video -s " + str(sources) + " > " + self.dirLogs + "cronlog-" + str(sources) + "-dailyvid \n")
+				cronttabFile.write(currentSourceConfig.getConfig('cfgcrondailyminute') + " " +  currentSourceConfig.getConfig('cfgcrondailyhour') + " * * * /usr/local/bin/webcampak video daily -s " + str(sources) + " > " + self.dirLogs + "cronlog-" + str(sources) + "-dailyvid \n")
                                 self.log.info("systemCronJobs.update(): Processing source %(SourceNumber)s: Videos Custom " % {'SourceNumber': str(sources)})                                
 				if currentSourceConfig.getConfig('cfgcroncustominterval') == "minutes":		
-					cronttabFile.write("*/" + currentSourceConfig.getConfig('cfgcroncustomvalue') + " * * * * flock -xn " + self.dirCache + "createcustom" + str(sources) + ".lock python " + self.dirBin + "webcampak.py -t videocustom -s " + str(sources) + " > " + self.dirLogs + "cronlog-" + str(sources) + "-customvid \n")
-					cronttabFile.write("*/" + currentSourceConfig.getConfig('cfgcroncustomvalue') + " * * * * flock -xn " + self.dirCache + "createpost" + str(sources) + ".lock python " + self.dirBin + "webcampak.py -t videopost -s " + str(sources) + " > " + self.dirLogs + "cronlog-" + str(sources) + "-post \n")
+					cronttabFile.write("*/" + currentSourceConfig.getConfig('cfgcroncustomvalue') + " * * * * flock -xn " + self.dirCache + "createcustom" + str(sources) + ".lock /usr/local/bin/webcampak video custom -s " + str(sources) + " > " + self.dirLogs + "cronlog-" + str(sources) + "-customvid \n")
+					cronttabFile.write("*/" + currentSourceConfig.getConfig('cfgcroncustomvalue') + " * * * * flock -xn " + self.dirCache + "createpost" + str(sources) + ".lock /usr/local/bin/webcampak video videopost -s " + str(sources) + " > " + self.dirLogs + "cronlog-" + str(sources) + "-post \n")
 				elif currentSourceConfig.getConfig('cfgcroncustominterval') == "hours":	
-					cronttabFile.write("* */" + currentSourceConfig.getConfig('cfgcroncustomvalue') + " * * * flock -xn " + self.dirCache + "createcustom" + str(sources) + ".lock python " + self.dirBin + "webcampak.py -t videocustom -s " + str(sources) + " > " + self.dirLogs + "cronlog-" + str(sources) + "-customvid \n")
-					cronttabFile.write("* */" + currentSourceConfig.getConfig('cfgcroncustomvalue') + " * * * flock -xn " + self.dirCache + "createpost" + str(sources) + ".lock python " + self.dirBin + "webcampak.py -t videopost -s " + str(sources) + " > " + self.dirLogs + "cronlog-" + str(sources) + "-post \n")
+					cronttabFile.write("* */" + currentSourceConfig.getConfig('cfgcroncustomvalue') + " * * * flock -xn " + self.dirCache + "createcustom" + str(sources) + ".lock /usr/local/bin/webcampak video custom -s " + str(sources) + " > " + self.dirLogs + "cronlog-" + str(sources) + "-customvid \n")
+					cronttabFile.write("* */" + currentSourceConfig.getConfig('cfgcroncustomvalue') + " * * * flock -xn " + self.dirCache + "createpost" + str(sources) + ".lock /usr/local/bin/webcampak video videopost -s " + str(sources) + " > " + self.dirLogs + "cronlog-" + str(sources) + "-post \n")
                                 self.log.info("systemCronJobs.update(): Processing source %(SourceNumber)s: RRD Graph " % {'SourceNumber': str(sources)})                                				
 				cronttabFile.write("*/5 * * * * python " + self.dirBin + "webcampak.py -t rrdgraph -s " + str(sources) + " > " + self.dirLogs + "cronlog-" + str(sources) + "-rrdgraph \n")
 				
