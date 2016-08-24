@@ -60,7 +60,8 @@ class Video:
         self.videoType = videoType
         
         self.configPaths = Config(self.log, self.config_dir + 'param_paths.yml')
-        self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']        
+        self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
+        self.dirConfig = self.configPaths.getConfig('parameters')['dir_config']
         self.dirLocale = self.configPaths.getConfig('parameters')['dir_locale']
         self.dirLocaleMessage = self.configPaths.getConfig('parameters')['dir_locale_message']        
         self.dirSources = self.configPaths.getConfig('parameters')['dir_sources']
@@ -80,7 +81,7 @@ class Video:
 
         self.setupLog()
         
-        self.configGeneral = Config(self.log, self.dirEtc + 'config-general.cfg')
+        self.configGeneral = Config(self.log, self.dirConfig + 'config-general.cfg')
         self.configSource = Config(self.log, self.dirEtc + 'config-source' + str(self.currentSourceId) + '.cfg')
         self.configSourceFTP = Config(self.log, self.dirEtc + 'config-source' + str(self.currentSourceId) + '-ftpservers.cfg')
         self.configSourceVideo = Config(self.log, self.dirEtc + 'config-source' + str(self.currentSourceId) + '-' + self.videoType + '.cfg')    

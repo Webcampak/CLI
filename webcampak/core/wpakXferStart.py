@@ -41,12 +41,13 @@ class xferStart:
         self.config_dir = config_dir
         self.configPaths = Config(self.log, self.config_dir + 'param_paths.yml')
         self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
+        self.dirConfig = self.configPaths.getConfig('parameters')['dir_config']
         self.dirSources = self.configPaths.getConfig('parameters')['dir_sources']
         self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']          
         
         self.setupLog()
         
-        self.configGeneral = Config(self.log, self.dirEtc + 'config-general.cfg')
+        self.configGeneral = Config(self.log, self.dirConfig + 'config-general.cfg')
         
         self.xferUtils = xferUtils(self.log, self.config_dir)
         self.timeUtils = timeUtils(self)

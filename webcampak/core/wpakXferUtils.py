@@ -47,10 +47,11 @@ class xferUtils:
         self.configPaths = Config(self.log, self.config_dir + 'param_paths.yml')
         
         self.dirXferThreads = self.configPaths.getConfig('parameters')['dir_xfer'] + 'threads/'
-        self.dirXferQueue = self.configPaths.getConfig('parameters')['dir_xfer'] + 'queued/'  
+        self.dirXferQueue = self.configPaths.getConfig('parameters')['dir_xfer'] + 'queued/'
         self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
-        
-        self.configGeneral = Config(self.log, self.dirEtc + 'config-general.cfg')        
+        self.dirConfig = self.configPaths.getConfig('parameters')['dir_config']
+
+        self.configGeneral = Config(self.log, self.dirConfig + 'config-general.cfg')
         
         self.maxFilesPerThread = 10        
 

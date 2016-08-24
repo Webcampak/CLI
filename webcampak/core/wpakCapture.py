@@ -69,6 +69,7 @@ class Capture(object):
                 
         self.configPaths = Config(self.log, self.config_dir + 'param_paths.yml')   
         self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
+        self.dirConfig = self.configPaths.getConfig('parameters')['dir_config']
         self.dirBin = self.configPaths.getConfig('parameters')['dir_bin']
         self.dirSources = self.configPaths.getConfig('parameters')['dir_sources']
         self.dirSourceLive = self.configPaths.getConfig('parameters')['dir_source_live']
@@ -90,7 +91,7 @@ class Capture(object):
         self.setupLog()
         self.log.info("capture(): Start")        
         
-        self.configGeneral = Config(self.log, self.dirEtc + 'config-general.cfg')
+        self.configGeneral = Config(self.log, self.dirConfig + 'config-general.cfg')
         self.configSource = Config(self.log, self.dirEtc + 'config-source' + str(self.getSourceId()) + '.cfg')
         self.configSourceFTP = Config(self.log, self.dirEtc + 'config-source' + str(self.currentSourceId) + '-ftpservers.cfg')        
 

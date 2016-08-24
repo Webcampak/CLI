@@ -43,15 +43,16 @@ class xferClear:
         
         self.dirXferThreads = fileUtils.CheckDir(self.configPaths.getConfig('parameters')['dir_xfer'] + 'threads/')
         self.dirXferQueue = fileUtils.CheckDir(self.configPaths.getConfig('parameters')['dir_xfer'] + 'queued/')
-        self.dirXferFailed = fileUtils.CheckDir(self.configPaths.getConfig('parameters')['dir_xfer'] + 'failed/')  
+        self.dirXferFailed = fileUtils.CheckDir(self.configPaths.getConfig('parameters')['dir_xfer'] + 'failed/')
         self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
+        self.dirConfig = self.configPaths.getConfig('parameters')['dir_config']
         self.dirSources = self.configPaths.getConfig('parameters')['dir_sources']
         self.dirLocale = self.configPaths.getConfig('parameters')['dir_locale']        
         self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']  
         
         self.setupLog()
                         
-        self.configGeneral = Config(self.log, self.dirEtc + 'config-general.cfg')
+        self.configGeneral = Config(self.log, self.dirConfig + 'config-general.cfg')
         
         self.initGetText()
         

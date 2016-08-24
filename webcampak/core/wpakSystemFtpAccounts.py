@@ -42,13 +42,14 @@ class systemFtpAccounts:
                 
         self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']
         self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
+        self.dirConfig = self.configPaths.getConfig('parameters')['dir_config']
         self.dirSources = self.configPaths.getConfig('parameters')['dir_sources']
         self.dirInit = self.configPaths.getConfig('parameters')['dir_init']
         self.dirLocale = self.configPaths.getConfig('parameters')['dir_locale']
         
         self.setupLog()
 
-        self.configGeneral = Config(self.log, self.dirEtc + 'config-general.cfg')
+        self.configGeneral = Config(self.log, self.dirConfig + 'config-general.cfg')
                  
         self.timeUtils = timeUtils(self)
                  
