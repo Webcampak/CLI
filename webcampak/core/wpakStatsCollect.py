@@ -97,12 +97,13 @@ class statsCollect:
 		if os.path.isfile("/usr/bin/ifstat"):
 			self.log.info("statsCollect.run(): Gathering Bandwidth stats over 10 seconds")
 			IfstatCommand = "sudo /usr/bin/ifstat -i " + cfgnetif + " 10 1"
+            self.log.info("statsCollect.run(): Running command: " + IfstatCommand)
 			args = shlex.split(IfstatCommand)
 			p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 			output, errors = p.communicate()
-			systemStats['BandwidthIn'] = str(re.findall("\d+.\d+", output)[0])
-			systemStats['BandwidthOut'] = str(re.findall("\d+.\d+", output)[1])
-			systemStats['BandwidthTotal'] = str(float(re.findall("\d+.\d+", output)[0]) + float(re.findall("\d+.\d+", output)[1]))
+			systemStats['BandwidthIn'] = str(re.findall("\d+\.\d+", output)[0])
+			systemStats['BandwidthOut'] = str(re.findall("\d+\.\d+", output)[1])
+			systemStats['BandwidthTotal'] = str(float(re.findall("\d+\.\d+", output)[0]) + float(re.findall("\d+\.\d+", output)[1]))
 			StatsFile.setSensor(cfgcurrentdaytime, 'BandwidthIn', systemStats['BandwidthIn'])
 			StatsFile.setSensor(cfgcurrentdaytime, 'BandwidthOut', systemStats['BandwidthOut'])
 			StatsFile.setSensor(cfgcurrentdaytime, 'BandwidthTotal', systemStats['BandwidthTotal'])
