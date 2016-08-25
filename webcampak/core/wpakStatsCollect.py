@@ -41,41 +41,41 @@ from wpakTimeUtils import timeUtils
 # This class is used to start & process stored in the transfer queue 
 
 class statsCollect:
-	def __init__(self, log, appConfig, config_dir):
-		self.log = log
-		self.appConfig = appConfig
-		self.config_dir = config_dir
-		self.configPaths = Config(self.log, self.config_dir + 'param_paths.yml')
+    def __init__(self, log, appConfig, config_dir):
+        self.log = log
+        self.appConfig = appConfig
+        self.config_dir = config_dir
+        self.configPaths = Config(self.log, self.config_dir + 'param_paths.yml')
 
-		self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
-		self.dirConfig = self.configPaths.getConfig('parameters')['dir_config']
-		self.dirSources = self.configPaths.getConfig('parameters')['dir_sources']
-		self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']
-		self.dirStats = self.configPaths.getConfig('parameters')['dir_stats']
+        self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
+        self.dirConfig = self.configPaths.getConfig('parameters')['dir_config']
+        self.dirSources = self.configPaths.getConfig('parameters')['dir_sources']
+        self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']
+        self.dirStats = self.configPaths.getConfig('parameters')['dir_stats']
 
-		self.setupLog()
+        self.setupLog()
 
-		self.configGeneral = Config(self.log, self.dirConfig + 'config-general.cfg')
-		self.cfgLogfile = "gatherstats.log"
+        self.configGeneral = Config(self.log, self.dirConfig + 'config-general.cfg')
+        self.cfgLogfile = "gatherstats.log"
 
-		self.timeUtils = timeUtils(self)
+        self.timeUtils = timeUtils(self)
 
-	def setupLog(self):
-		""" Setup logging to file """
-		statsLogs = self.dirLogs + "stats/"
-		if not os.path.exists(statsLogs):
-			os.makedirs(statsLogs)
-		logFilename = statsLogs + "collect.log"
-		self.appConfig.set(self.log._meta.config_section, 'file', logFilename)
-		self.appConfig.set(self.log._meta.config_section, 'rotate', True)
-		self.log._setup_file_log()
+    def setupLog(self):
+        """ Setup logging to file """
+        statsLogs = self.dirLogs + "stats/"
+        if not os.path.exists(statsLogs):
+            os.makedirs(statsLogs)
+        logFilename = statsLogs + "collect.log"
+        self.appConfig.set(self.log._meta.config_section, 'file', logFilename)
+        self.appConfig.set(self.log._meta.config_section, 'rotate', True)
+        self.log._setup_file_log()
 
 	# Collect stats from the system and store it in a log file
 	# Function: run
 	# Description: Start the threads processing process
 	# Each thread will get started in its own thread.
 	# Return: Nothing
-	def run(self):
+    def run(self):
         self.log.info("statsCollect.run(): Running Stats Collection")
 
         cfgnow = self.timeUtils.getCurrentDate()
