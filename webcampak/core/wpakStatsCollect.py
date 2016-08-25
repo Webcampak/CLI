@@ -76,104 +76,104 @@ class statsCollect:
 	# Each thread will get started in its own thread.
 	# Return: Nothing
 	def run(self):
-		self.log.info("statsCollect.run(): Running Stats Collection")
+        self.log.info("statsCollect.run(): Running Stats Collection")
 
-		cfgnow = self.timeUtils.getCurrentDate()
-		cfgcurrentday = cfgnow.strftime("%Y%m%d")
-		cfgcurrenttimestamp = cfgnow.strftime("%s")
-		cfgcurrentdaytime = cfgnow.strftime("%Y%m%d%H%M%S")
+        cfgnow = self.timeUtils.getCurrentDate()
+        cfgcurrentday = cfgnow.strftime("%Y%m%d")
+        cfgcurrenttimestamp = cfgnow.strftime("%s")
+        cfgcurrentdaytime = cfgnow.strftime("%Y%m%d%H%M%S")
 
-		cfgnetif = self.configGeneral.getConfig('cfgnetif')
+        cfgnetif = self.configGeneral.getConfig('cfgnetif')
 
-		systemStats = OrderedDict()
-		systemStats['date'] = self.timeUtils.getCurrentDateIso()
+        systemStats = OrderedDict()
+        systemStats['date'] = self.timeUtils.getCurrentDateIso()
 
-		self.log.info("Gather Stats: Set timestamp into file:" + self.dirStats + cfgcurrentday + ".txt")
-		fileUtils.CheckFilepath(self.dirStats + cfgcurrentday + ".txt")
-		StatsFile = Config(self.log, self.dirStats + cfgcurrentday + ".txt")
-		StatsFile.setSensor(cfgcurrentdaytime, "", "")
-		StatsFile.setSensor(cfgcurrentdaytime, 'Timestamp', cfgnow.strftime("%s"))
+        self.log.info("Gather Stats: Set timestamp into file:" + self.dirStats + cfgcurrentday + ".txt")
+        fileUtils.CheckFilepath(self.dirStats + cfgcurrentday + ".txt")
+        StatsFile = Config(self.log, self.dirStats + cfgcurrentday + ".txt")
+        StatsFile.setSensor(cfgcurrentdaytime, "", "")
+        StatsFile.setSensor(cfgcurrentdaytime, 'Timestamp', cfgnow.strftime("%s"))
 
-		if os.path.isfile("/usr/bin/ifstat"):
-			self.log.info("statsCollect.run(): Gathering Bandwidth stats over 10 seconds")
-			IfstatCommand = "sudo /usr/bin/ifstat -i " + cfgnetif + " 10 1"
+        if os.path.isfile("/usr/bin/ifstat"):
+            self.log.info("statsCollect.run(): Gathering Bandwidth stats over 10 seconds")
+            IfstatCommand = "sudo /usr/bin/ifstat -i " + cfgnetif + " 10 1"
             self.log.info("statsCollect.run(): Running command: " + IfstatCommand)
-			args = shlex.split(IfstatCommand)
-			p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-			output, errors = p.communicate()
-			systemStats['BandwidthIn'] = str(re.findall("\d+\.\d+", output)[0])
-			systemStats['BandwidthOut'] = str(re.findall("\d+\.\d+", output)[1])
-			systemStats['BandwidthTotal'] = str(float(re.findall("\d+\.\d+", output)[0]) + float(re.findall("\d+\.\d+", output)[1]))
-			StatsFile.setSensor(cfgcurrentdaytime, 'BandwidthIn', systemStats['BandwidthIn'])
-			StatsFile.setSensor(cfgcurrentdaytime, 'BandwidthOut', systemStats['BandwidthOut'])
-			StatsFile.setSensor(cfgcurrentdaytime, 'BandwidthTotal', systemStats['BandwidthTotal'])
+            args = shlex.split(IfstatCommand)
+            p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            output, errors = p.communicate()
+            systemStats['BandwidthIn'] = str(re.findall("\d+\.\d+", output)[0])
+            systemStats['BandwidthOut'] = str(re.findall("\d+\.\d+", output)[1])
+            systemStats['BandwidthTotal'] = str(float(re.findall("\d+\.\d+", output)[0]) + float(re.findall("\d+\.\d+", output)[1]))
+            StatsFile.setSensor(cfgcurrentdaytime, 'BandwidthIn', systemStats['BandwidthIn'])
+            StatsFile.setSensor(cfgcurrentdaytime, 'BandwidthOut', systemStats['BandwidthOut'])
+            StatsFile.setSensor(cfgcurrentdaytime, 'BandwidthTotal', systemStats['BandwidthTotal'])
 
-		self.log.info("statsCollect.run(): Gathering Memory usage")
-		#memoryusage = psutil.phymem_usage()
-		memoryusage = psutil.virtual_memory()
+        self.log.info("statsCollect.run(): Gathering Memory usage")
+        #memoryusage = psutil.phymem_usage()
+        memoryusage = psutil.virtual_memory()
 
-		systemStats['MemoryUsageTotal'] = str(memoryusage.total)
-		systemStats['MemoryUsageUsed'] = str(memoryusage.used)
-		systemStats['MemoryUsageFree'] = str(memoryusage.free)
-		systemStats['MemoryUsagePercent'] = str(memoryusage.percent)
-		StatsFile.setSensor(cfgcurrentdaytime, 'MemoryUsageTotal', systemStats['MemoryUsageTotal'])
-		StatsFile.setSensor(cfgcurrentdaytime, 'MemoryUsageUsed', systemStats['MemoryUsageUsed'])
-		StatsFile.setSensor(cfgcurrentdaytime, 'MemoryUsageFree', systemStats['MemoryUsageFree'])
-		StatsFile.setSensor(cfgcurrentdaytime, 'MemoryUsagePercent', systemStats['MemoryUsagePercent'])
+        systemStats['MemoryUsageTotal'] = str(memoryusage.total)
+        systemStats['MemoryUsageUsed'] = str(memoryusage.used)
+        systemStats['MemoryUsageFree'] = str(memoryusage.free)
+        systemStats['MemoryUsagePercent'] = str(memoryusage.percent)
+        StatsFile.setSensor(cfgcurrentdaytime, 'MemoryUsageTotal', systemStats['MemoryUsageTotal'])
+        StatsFile.setSensor(cfgcurrentdaytime, 'MemoryUsageUsed', systemStats['MemoryUsageUsed'])
+        StatsFile.setSensor(cfgcurrentdaytime, 'MemoryUsageFree', systemStats['MemoryUsageFree'])
+        StatsFile.setSensor(cfgcurrentdaytime, 'MemoryUsagePercent', systemStats['MemoryUsagePercent'])
 
-		self.log.info("statsCollect.run(): Gathering Disk usage")
-		diskusage = psutil.disk_usage('/home/')
+        self.log.info("statsCollect.run(): Gathering Disk usage")
+        diskusage = psutil.disk_usage('/home/')
 
-		systemStats['DiskUsageTotal'] = str(diskusage.total)
-		systemStats['DiskUsageUsed'] = str(diskusage.used)
-		systemStats['DiskUsageFree'] = str(diskusage.free)
-		systemStats['DiskUsagePercent'] = str(diskusage.percent)
-		StatsFile.setSensor(cfgcurrentdaytime, 'DiskUsageTotal', systemStats['DiskUsageTotal'])
-		StatsFile.setSensor(cfgcurrentdaytime, 'DiskUsageUsed', systemStats['DiskUsageUsed'])
-		StatsFile.setSensor(cfgcurrentdaytime, 'DiskUsageFree', systemStats['DiskUsageFree'])
-		StatsFile.setSensor(cfgcurrentdaytime, 'DiskUsagePercent', systemStats['DiskUsagePercent'])
+        systemStats['DiskUsageTotal'] = str(diskusage.total)
+        systemStats['DiskUsageUsed'] = str(diskusage.used)
+        systemStats['DiskUsageFree'] = str(diskusage.free)
+        systemStats['DiskUsagePercent'] = str(diskusage.percent)
+        StatsFile.setSensor(cfgcurrentdaytime, 'DiskUsageTotal', systemStats['DiskUsageTotal'])
+        StatsFile.setSensor(cfgcurrentdaytime, 'DiskUsageUsed', systemStats['DiskUsageUsed'])
+        StatsFile.setSensor(cfgcurrentdaytime, 'DiskUsageFree', systemStats['DiskUsageFree'])
+        StatsFile.setSensor(cfgcurrentdaytime, 'DiskUsagePercent', systemStats['DiskUsagePercent'])
 
-		self.log.info("statsCollect.run(): Gathering CPU usage")
-		cpuusage = psutil.cpu_percent(interval=10)
-		systemStats['CPUUsagePercent'] = str(cpuusage)
-		StatsFile.setSensor(cfgcurrentdaytime, 'CPUUsagePercent', systemStats['CPUUsagePercent'])
+        self.log.info("statsCollect.run(): Gathering CPU usage")
+        cpuusage = psutil.cpu_percent(interval=10)
+        systemStats['CPUUsagePercent'] = str(cpuusage)
+        StatsFile.setSensor(cfgcurrentdaytime, 'CPUUsagePercent', systemStats['CPUUsagePercent'])
 
-		with open(self.dirStats + cfgcurrentday + ".jsonl", "a") as systemStatsFile:
-			systemStatsFile.write(json.dumps(systemStats) + "\n")
+        with open(self.dirStats + cfgcurrentday + ".jsonl", "a") as systemStatsFile:
+            systemStatsFile.write(json.dumps(systemStats) + "\n")
 
-		self.log.info("statsCollect.run(): Gathering Per-Sources usage")
-		# We list all files from configuration directory
-		for scanfile in sorted(os.listdir(self.dirEtc), reverse=True):
-				if re.findall('config-source[0-9]+.cfg', scanfile):
-					sourceid = str(re.findall('\d+', scanfile)[0])
-					if os.path.isdir(self.dirSources + "source" + sourceid + "/"):
-						self.log.info("statsCollect.run(): Getting details for source: " + sourceid)
-						fileUtils.CheckFilepath(self.dirSources + "source" + sourceid + "/resources/stats/" + cfgcurrentday + ".txt")
-						sourceStats = OrderedDict()
-						sourceStats['date'] = cfgnow.isoformat()
-						StatsFile = Config(self.log, self.dirSources + "source" + sourceid + "/resources/stats/" + cfgcurrentday + ".txt")
-						if os.path.isdir(self.dirSources + "source" + sourceid + "/pictures/"):
-							StatsFile.setSensor('PicDirScan', "", "")
-							daysStats = OrderedDict()
-							for listpictdir in sorted(os.listdir(self.dirSources + "source" + sourceid + "/pictures/"), reverse=False):
-								if listpictdir[:2] == "20" and os.path.isdir(self.dirSources + "source" + sourceid + "/pictures/" + listpictdir):
-									self.log.info("statsCollect.run(): Scanning directory:" + self.dirSources + "source" + sourceid + "/pictures/" + listpictdir)
-									daysStats[listpictdir] = {'count': len(glob.glob(self.dirSources + "source" + sourceid + "/pictures/" + listpictdir + "/*.jpg")), 'size': fileUtils.CheckDirDu(self.dirSources + "source" + sourceid + "/pictures/" + listpictdir + "/")}
-									StatsFile.setSensor('PicDirScan', 'ScannedDay' + listpictdir, [len(glob.glob(self.dirSources + "source" + sourceid + "/pictures/" + listpictdir + "/*.jpg")), fileUtils.CheckDirDu(self.dirSources + "source" + sourceid + "/pictures/" + listpictdir + "/")])
-							sourceStats['days'] = daysStats
-						StatsFile.setSensor(cfgcurrentdaytime, "", "")
-						StatsFile.setSensor(cfgcurrentdaytime, 'Timestamp', cfgnow.strftime("%s"))
-						if os.path.isdir(self.dirSources + "source" + sourceid + "/pictures/"):
-							sourceStats['PicturesSize'] = fileUtils.CheckDirDu(self.dirSources + "source" + sourceid + "/pictures/")
-							StatsFile.setSensor(cfgcurrentdaytime, 'PicturesSize', sourceStats['PicturesSize'])
-						if os.path.isdir(self.dirSources + "source" + sourceid + "/videos/"):
-							sourceStats['VideoSize'] = fileUtils.CheckDirDu(self.dirSources + "source" + sourceid + "/videos/")
-							StatsFile.setSensor(cfgcurrentdaytime, 'VideoSize', sourceStats['VideoSize'])
-						if os.path.isdir(self.dirSources + "source" + sourceid + "/"):
-							sourceStats['GlobalSize'] = fileUtils.CheckDirDu(self.dirSources + "source" + sourceid + "/")
-							StatsFile.setSensor(cfgcurrentdaytime, 'GlobalSize', sourceStats['GlobalSize'])
-						with open(self.dirSources + "source" + sourceid + "/resources/stats/" + cfgcurrentday + ".jsonl", "a") as sourceStatsFile:
-							sourceStatsFile.write(json.dumps(sourceStats) + "\n")
-					else:
-						self.log.info("statsCollect.run(): Error, there is no directory for source:" + sourceid)
+        self.log.info("statsCollect.run(): Gathering Per-Sources usage")
+        # We list all files from configuration directory
+        for scanfile in sorted(os.listdir(self.dirEtc), reverse=True):
+                if re.findall('config-source[0-9]+.cfg', scanfile):
+                    sourceid = str(re.findall('\d+', scanfile)[0])
+                    if os.path.isdir(self.dirSources + "source" + sourceid + "/"):
+                        self.log.info("statsCollect.run(): Getting details for source: " + sourceid)
+                        fileUtils.CheckFilepath(self.dirSources + "source" + sourceid + "/resources/stats/" + cfgcurrentday + ".txt")
+                        sourceStats = OrderedDict()
+                        sourceStats['date'] = cfgnow.isoformat()
+                        StatsFile = Config(self.log, self.dirSources + "source" + sourceid + "/resources/stats/" + cfgcurrentday + ".txt")
+                        if os.path.isdir(self.dirSources + "source" + sourceid + "/pictures/"):
+                            StatsFile.setSensor('PicDirScan', "", "")
+                            daysStats = OrderedDict()
+                            for listpictdir in sorted(os.listdir(self.dirSources + "source" + sourceid + "/pictures/"), reverse=False):
+                                if listpictdir[:2] == "20" and os.path.isdir(self.dirSources + "source" + sourceid + "/pictures/" + listpictdir):
+                                    self.log.info("statsCollect.run(): Scanning directory:" + self.dirSources + "source" + sourceid + "/pictures/" + listpictdir)
+                                    daysStats[listpictdir] = {'count': len(glob.glob(self.dirSources + "source" + sourceid + "/pictures/" + listpictdir + "/*.jpg")), 'size': fileUtils.CheckDirDu(self.dirSources + "source" + sourceid + "/pictures/" + listpictdir + "/")}
+                                    StatsFile.setSensor('PicDirScan', 'ScannedDay' + listpictdir, [len(glob.glob(self.dirSources + "source" + sourceid + "/pictures/" + listpictdir + "/*.jpg")), fileUtils.CheckDirDu(self.dirSources + "source" + sourceid + "/pictures/" + listpictdir + "/")])
+                            sourceStats['days'] = daysStats
+                        StatsFile.setSensor(cfgcurrentdaytime, "", "")
+                        StatsFile.setSensor(cfgcurrentdaytime, 'Timestamp', cfgnow.strftime("%s"))
+                        if os.path.isdir(self.dirSources + "source" + sourceid + "/pictures/"):
+                            sourceStats['PicturesSize'] = fileUtils.CheckDirDu(self.dirSources + "source" + sourceid + "/pictures/")
+                            StatsFile.setSensor(cfgcurrentdaytime, 'PicturesSize', sourceStats['PicturesSize'])
+                        if os.path.isdir(self.dirSources + "source" + sourceid + "/videos/"):
+                            sourceStats['VideoSize'] = fileUtils.CheckDirDu(self.dirSources + "source" + sourceid + "/videos/")
+                            StatsFile.setSensor(cfgcurrentdaytime, 'VideoSize', sourceStats['VideoSize'])
+                        if os.path.isdir(self.dirSources + "source" + sourceid + "/"):
+                            sourceStats['GlobalSize'] = fileUtils.CheckDirDu(self.dirSources + "source" + sourceid + "/")
+                            StatsFile.setSensor(cfgcurrentdaytime, 'GlobalSize', sourceStats['GlobalSize'])
+                        with open(self.dirSources + "source" + sourceid + "/resources/stats/" + cfgcurrentday + ".jsonl", "a") as sourceStatsFile:
+                            sourceStatsFile.write(json.dumps(sourceStats) + "\n")
+                    else:
+                        self.log.info("statsCollect.run(): Error, there is no directory for source:" + sourceid)
 
