@@ -80,7 +80,8 @@ class Video:
         self.dirCurrentSourceLogs = self.dirLogs + 'source' + self.currentSourceId +'/'                        
 
         self.setupLog()
-        
+        self.log.info("===START===")
+
         self.configGeneral = Config(self.log, self.dirConfig + 'config-general.cfg')
         self.configSource = Config(self.log, self.dirEtc + 'config-source' + str(self.currentSourceId) + '.cfg')
         self.configSourceFTP = Config(self.log, self.dirEtc + 'config-source' + str(self.currentSourceId) + '-ftpservers.cfg')
@@ -282,4 +283,5 @@ class Video:
             self.currentVideoDetails.setVideoValue('scriptRuntime', totalCaptureTime)            
             self.currentVideoDetails.archiveVideoFile()
             self.log.info("video.run(): " + _("-----------------------------------------------------------------------"))
-            
+            self.log.info("===END===")
+
