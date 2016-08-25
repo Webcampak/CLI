@@ -62,7 +62,7 @@ class Capture(object):
     """    
     def __init__(self, log, appConfig, config_dir, sourceId):    
         self.log = log
-        self.log.info("START")
+        self.log.info("===START===")
 
         self.appConfig = appConfig
         self.config_dir = config_dir
@@ -369,7 +369,7 @@ class Capture(object):
                 self.currentCaptureDetails.writeCaptureFile()
             self.currentCaptureDetails.archiveCaptureFile()
             self.log.info("capture.run(): " + _("-----------------------------------------------------------------------"))
-            self.log.info("END")
+            self.log.info("===END===")
 
 
 
