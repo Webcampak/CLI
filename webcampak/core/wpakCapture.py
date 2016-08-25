@@ -61,8 +61,10 @@ class Capture(object):
         tbc
     """    
     def __init__(self, log, appConfig, config_dir, sourceId):    
-        self.log = log        
-        self.appConfig = appConfig        
+        self.log = log
+        self.log.info("START")
+
+        self.appConfig = appConfig
         self.config_dir = config_dir
         self.currentSourceId = sourceId
         self.setSourceId(sourceId)
@@ -367,5 +369,9 @@ class Capture(object):
                 self.currentCaptureDetails.writeCaptureFile()
             self.currentCaptureDetails.archiveCaptureFile()
             self.log.info("capture.run(): " + _("-----------------------------------------------------------------------"))
+            self.log.info("END")
+
+
+
      
                
