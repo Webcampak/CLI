@@ -220,7 +220,7 @@ class Capture(object):
     def run(self):
         """ Initiate the capture process for the source """           
         self.log.info("capture.run(): " + _("Initiate capture process for source: %(currentSourceId)s") % {'currentSourceId': str(self.sourceId)} )
-        
+
         # There might be a need to delay the capture by a couple of seconds
         if self.configSource.getConfig('cfgcapturedelay') != "0":
             self.log.info("capture.run(): " + _("Delaying capture by %(CaptureDelay)s seconds.") % {'CaptureDelay': str(self.configSource.getConfig('cfgcapturedelay'))})            
@@ -354,6 +354,10 @@ class Capture(object):
 
             if self.configSource.getConfig('cfgemailcapturestats') == "yes":
                 self.captureEmails.sendCaptureStats()	
+
+            if self.configGeneral.getConfig('cfgphidgetactivate') == "yes" and self.configSource.getConfig('cfgphidgetactivate') == "yes":
+                capturedSensors = capturePhidget(self).capture()
+                self.currentCaptureDetails.setCaptureValue('sensors', capturedSensors)
 
             scriptEndDate = self.timeUtils.getCurrentSourceTime(self.configSource)
             totalCaptureTime = int((scriptEndDate-self.getScriptStartTime()).total_seconds()*1000)

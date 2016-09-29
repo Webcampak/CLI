@@ -25,7 +25,9 @@ import zlib
 import gzip
 import gettext
 import random
+import hashlib
 
+from ...wpakPhidgets import phidgets
 from ...wpakConfigObj import Config
 
 class capturePhidget(object):
@@ -39,7 +41,7 @@ class capturePhidget(object):
         self.dirCache = self.configPaths.getConfig('parameters')['dir_cache']
         self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']
         self.dirResources = self.configPaths.getConfig('parameters')['dir_resources']
-        self.dir_bin = self.configPaths.getConfig('parameters')['dir_bin']                                                  
+        self.dirBin = self.configPaths.getConfig('parameters')['dir_bin']
                                                             
         self.configGeneral = parentClass.configGeneral
         self.configSource = parentClass.configSource
@@ -54,52 +56,57 @@ class capturePhidget(object):
         
         self.fileUtils = parentClass.fileUtils
         self.pictureTransformations = parentClass.pictureTransformations
+        self.phidgetsUtils = parentClass.phidgetsUtils
         
     # Function: Capture
-    # Description; This function is used to capture a sample picture
+    # Description; This function is used to capture a sensor values
     # Return: Nothing
     def capture(self):
-        self.log.info("capturePhidget.capture(): " + _("Start Capture"))
-        self.fileUtils.CheckFilepath(self.dirCurrentSourcePictures + self.captureDay + "/" + self.configGeneral.getConfig('cfgphidgetcapturefile'))			
-        Sensors = Config(self.log, self.dirCurrentSourcePictures + self.captureDay + "/" + self.configGeneral.getConfig('cfgphidgetcapturefile'))
-        Sensors.setSensor(self.captureDate, "", "")
-        Sensors.setSensor(self.captureDate, 'Timestamp', self.captureTimestamp)
-        if self.configGeneral.getConfig('cfgphidgetactivate') == "yes":
-            for ListSourceSensors in range(1,int(self.configSource.getConfig('cfgphidgetsensornb')) + 1):
-                if self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] != "":
-                    for ListPhidgetSensors in range(1,int(self.configGeneral.getConfig('cfgphidgetsensortypenb')) + 1):
-                        if self.configGeneral.getConfig('cfgphidgetsensortype' + str(ListPhidgetSensors))[0] == self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] and self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] != "":
-                            try:							
-                                SensorValue = int(self.GetSensor(self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[1]))
-                                PhidgetResult = round(eval(self.configGeneral.getConfig('cfgphidgetsensortype' + str(ListPhidgetSensors))[3]),1)
-                                Sensors.setSensor(self.captureDate, str(self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0]), str(PhidgetResult))
-                                self.log.info("capturePhidget.capture(): " + _("%(SensorType)s = %(PhidgetResult)s (source: %(SensorValue)s)") % {'SensorType': str(self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[2]), 'PhidgetResult': str(PhidgetResult), 'SensorValue': str(SensorValue)} )
-                            except:
-                                self.log.info("capturePhidget.capture(): " + _("Capture error"))
-            if self.configSource.getConfig('cfgftpphidgetserverid') != "no" and os.path.isfile(self.dirCurrentSourcePictures + self.captureDay + "/" + self.configGeneral.getConfig('cfgphidgetcapturefile')): 
-                FTPResult = FTPClass.FTPUpload(self.Cfgcurrentsource, self.configSource.getConfig('cfgftpphidgetserverid'), self.captureDay + "/", self.dirCurrentSourcePictures + self.captureDay + "/",  self.configGeneral.getConfig('cfgphidgetcapturefile'), self.Debug, self.configSource.getConfig('cfgftpphidgetserverretry'))
+        self.log.info("capturePhidget.capture(): " + _("Start capturing sensor values"))
+        # Get a list of all sensors for the source
+        allSensors = self.getConfigSensors()
+        capturedSensors = {}
+        if len(allSensors) > 0:
+            phidgetsClass = phidgets(self)
+            phidgetsClass.createInterfaceKit()
+            phidgetsClass.openPhidget()
+            if phidgetsClass.attachPhidgetKit() == True:
+                for currentSensor in allSensors:
+                    #cfgphidgetsensor1="1","2","Inside Temperature","FF0000"
+                    sensorType = currentSensor[0]
+                    sensorPort = int(currentSensor[1])
+                    sensorLegend = currentSensor[2]
+                    if sensorType != '' and sensorPort != '':
+                        #cfgphidgetsensortype1="Temperature", "-30", "80", "(SensorValue / 4.095) * 0.22222 - 61.111"
+                        sensorTypeConfig = self.configGeneral.getConfig('cfgphidgetsensortype' + str(sensorType))
+                        sensorTypeName = sensorTypeConfig[0]
+                        sensorTypeFormula = sensorTypeConfig[3]
+                        self.log.info("capturePhidget.capture(): " + _("Capturing sensor: %(sensorTypeName)s from port: %(sensorPort)s") % {'sensorTypeName': str(sensorTypeName), 'sensorPort': str(sensorPort)} )
+                        SensorValue = int(phidgetsClass.getSensorRawValue(sensorPort))
+                        sensorCalculatedValue = round(eval(sensorTypeFormula),1)
+                        self.log.info("capturePhidget.capture(): " + _("Captured value, RAW: %(SensorValue)s Interpreted: %(sensorCalculatedValue)s") % {'SensorValue': str(SensorValue), 'sensorCalculatedValue': str(sensorCalculatedValue)} )
 
-    # Function: GetSensor 
-    # Description; This function get a sensor value
-    # Return: Sensor value
-    def GetSensor(self, Sensor):
-        self.log.info("capturePhidget.GetSensor(): " + _("Start Capture"))
-        if self.configGeneral.getConfig('cfgphidgetactivate') == "yes":
-            #global PhidgetError
-            #if os.path.isfile(self.Cfgphidgetbin) and PhidgetError == False:
-            #print self.Cfgphidgetbin
-            if os.path.isfile(self.dir_bin + self.configGeneral.getConfig('cfgphidgetbin')):
-                #try:
-                Command = "sudo " + self.dir_bin + self.configGeneral.getConfig('cfgphidgetbin') + ' getanalog ' + str(Sensor)
-                import shlex, subprocess
-                args = shlex.split(Command)
-                p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-                output, errors = p.communicate()
-                if "ERREUR" in output:
-                        PhidgetError = True
-                #self.log.info(output)
-                self.log.info(errors)
-                SensorValue = output.strip()
-                return SensorValue
-                #except:
-                #	self.log.info(_("Phidget: Missing device"))
+                        currentSensor = {}
+                        sensorHash = hashlib.sha224(sensorLegend + sensorTypeName).hexdigest()
+                        currentSensor['legend'] = sensorLegend
+                        currentSensor['type'] = sensorTypeName
+                        currentSensor['value'] = sensorCalculatedValue
+                        currentSensor['valueRaw'] = SensorValue
+                        capturedSensors[sensorHash] = currentSensor
+                phidgetsClass.closePhidget()
+        if len(capturedSensors) > 0:
+            return capturedSensors
+        else:
+            return None
+
+    # Function: getConfigSensors
+    # Description; This function find all sensors in the config file
+    # Return: An array containing all sensors
+    def getConfigSensors(self):
+        fullSourceConfig = self.configSource.getFullConfig()
+        sensorsCfg = []
+        for configIdx in fullSourceConfig:
+            if "cfgphidgetsensor" in configIdx and configIdx != "cfgphidgetsensornb" and "cfgphidgetsensorinsert" not in configIdx and "cfgphidgetsensorsgraph" not in configIdx:
+                if fullSourceConfig[configIdx][0] != '' and fullSourceConfig[configIdx][1] != '':
+                    sensorsCfg.append(fullSourceConfig[configIdx])
+        return sensorsCfg

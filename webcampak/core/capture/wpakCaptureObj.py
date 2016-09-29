@@ -53,7 +53,7 @@ class captureObj(object):
             , "title": "captureObj"
             , "description": "Used to log details associated with a capture"   
             , "type": "object"
-            , "additionalProperties": False             
+            , "additionalProperties": False
             , "properties": {
                 "storedJpgSize":            {"type": "number", "description": "Size in bytes of the JPG file(s)"}
                 , "storedRawSize":          {"type": "number", "description": "Size in bytes of the RAW file(s)"}
@@ -64,6 +64,21 @@ class captureObj(object):
                 , "processedPicturesCount": {"type": "number", "description": "Number of pictures captued, in some situations multiple files might be processed in batch"}
                 , "captureSuccess":         {"type": ["boolean", "null"],"description": "Record if capture was successful"}
                 , "captureDate":            {"type": ["string", "null"], "description": "Date of the capture"}
+                , "sensors":                {
+                    "type": ["object", "null"]
+                    , "description": "Sensor values captures on a phidget board"
+                    , "patternProperties": {
+                        "^(.)+": {
+                            "type": "object"
+                            , "properties": {
+                                "description":  {"type": "string", "description": "Description of the sensor"}
+                                , "type":       {"type": "string", "description": "Sensor Type"}
+                                , "value":      {"type": "number", "description": "Captured value after applying formula"}
+                                , "valueRaw":   {"type": "number", "description": "Captured value before applying formula"}
+                            }
+                        }
+                    }
+                }
             }
         }
         self.initCapture()

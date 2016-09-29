@@ -58,16 +58,26 @@ class phidgets(object):
         try:
             self.interfaceKit.closePhidget()
         except PhidgetException as e:
-            self.log.error("phidgets.createInterfaceKit(): " + _("Unable to close InterfaceKit (code %(Code)i, %(Details)s)") % {'Code': e.code, 'Details': e.details})
+            self.log.error("phidgets.closePhidget(): " + _("Unable to close InterfaceKit (code %(Code)i, %(Details)s)") % {'Code': e.code, 'Details': e.details})
 
     def attachPhidgetKit(self):
         """Documentation To be completed"""
         self.log.info("phidgets.attachPhidgetKit(): " + _("Attaching Phidget Kit"))
         try:
-            self.interfaceKit.waitForAttach(10000)
+            self.interfaceKit.waitForAttach(1000)
+            return True
         except PhidgetException as e:
-            self.log.error("phidgets.createInterfaceKit(): " + _("Unable to connect to InterfaceKit (code %(Code)i, %(Details)s)") % {'Code': e.code, 'Details': e.details})
+            self.log.error("phidgets.attachPhidgetKit(): " + _("Unable to connect to InterfaceKit (code %(Code)i, %(Details)s)") % {'Code': e.code, 'Details': e.details})
             self.closePhidget()
+            return False
+
+    def getSensorRawValue(self, input):
+        """Documentation To be completed"""
+        try:
+            inputlevel = self.interfaceKit.getSensorRawValue(input)
+        except PhidgetException as e:
+            self.log.error("phidgets.getSensorValue(): " + _("Unable to connect to obtain sensor value (code %(Code)i, %(Details)s)") % {'Code': e.code, 'Details': e.details})
+        return inputlevel
 
     def getSensorValue(self, sensor):
         """Documentation To be completed"""
