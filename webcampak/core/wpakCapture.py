@@ -150,9 +150,6 @@ class Capture(object):
         elif self.configSource.getConfig('cfgsourcetype') == "rtsp":          
             # If the source is a RTSP stream
             self.captureDriver = captureRtsp(self)
-        elif self.configSource.getConfig('cfgsourcetype') == "sensor":        
-            # If the source is a Phidget sensor
-            self.captureDriver = capturePhidget(self)
                     
         self.captureFilename = None
 
