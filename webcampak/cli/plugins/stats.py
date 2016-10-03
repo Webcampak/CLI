@@ -5,6 +5,7 @@ from cement.core import handler, hook, foundation
 
 from webcampak.core.wpakStatsCollect import statsCollect
 from webcampak.core.wpakStatsConsolidate import statsConsolidate
+from webcampak.core.wpakStatsRrd import statsRrd
 #from webcampak.core.wpakXferStart import xferStart
 #from webcampak.core.wpakXferStop import xferStop
 
@@ -29,13 +30,13 @@ class ExamplePluginController(CementBaseController):
         # these arguments are only going to display under
         # ``$ webcampak stats --help``
         arguments = [
-            #(
-            #    ['-tbc', '--tbd'],
-            #    dict(
-            #        help='Start/Stop a specific XFer job thread',
-            #        action='store',
-            #        )
-            #)
+            (
+                ['-s', '--sourceid'],
+                dict(
+                    help='Source ID to capture from',
+                    action='store',
+                )
+            )
         ]
 
     @expose(hide=True)
@@ -62,7 +63,21 @@ class ExamplePluginController(CementBaseController):
             config_dir = self.app.config.get('webcampak', 'config_dir')
             
         consolidate = statsConsolidate(self.app.log, self.app.config, config_dir)
-        consolidate.run()        
+        consolidate.run()
+
+    @expose(help="Generate a RRD Graph for a source")
+    def rrd(self):
+        self.app.log.info("Starting Webcampak RRD Graph creation", __file__)
+        if self.app.pargs.config_dir != None:
+            config_dir = self.app.pargs.config_dir
+        else:
+            config_dir = self.app.config.get('webcampak', 'config_dir')
+
+        if self.app.pargs.sourceid == None:
+            self.app.log.error("Please specify a Source ID")
+        else:
+            rrd = statsRrd(self.app.log, self.app.config, config_dir, self.app.pargs.sourceid)
+            rrd.run()
 
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled
