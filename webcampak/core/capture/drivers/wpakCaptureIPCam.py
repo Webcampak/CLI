@@ -152,10 +152,10 @@ class captureIPCam(object):
                 if currentProcessedPictures != None:
                     capturedFiles.append(currentProcessedPictures)
                     
-        if len(capturedFiles) == 0:
-            return False
-        else:
-            return capturedFiles
+        #if len(capturedFiles) == 0:
+        #    return False
+        #else:
+        return capturedFiles
 
                     
        
