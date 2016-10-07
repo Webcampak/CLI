@@ -110,9 +110,9 @@ class systemFtpAccounts:
                 if os.path.isfile("/etc/vsftpd/vsftpd_user_conf/source" + sourceid) == False:
                     self.log.info("systemFtpAccounts.create(): " + _("There was no VSFTPD configuration file for source: %(sourceid)s, creating ..")% {'sourceid': sourceid})                                     
                     vsftpdFile = "/etc/vsftpd/vsftpd_user_conf/source" + sourceid
-                    FileManager.CheckDir(vsftpdFile)
+                    fileUtils.CheckDir(vsftpdFile)
                     fvs = open(vsftpdFile,'w')
-                    fvs.write('local_root=/home/francois/webcampak/sources/\n')
+                    fvs.write('local_root=/home/webcampak/webcampak/sources/\n')
                     fvs.write(' \n')
                     vsftpdTemplateFile = self.dirInit + "config/vsftpd-source"
                     with open(vsftpdTemplateFile) as ftf:
