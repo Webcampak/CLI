@@ -112,7 +112,7 @@ class systemFtpAccounts:
                     fileUtils.CheckDir('/etc/vsftpd/vsftpd_user_conf/')
                     vsftpdFile = "/etc/vsftpd/vsftpd_user_conf/source" + sourceid
                     fvs = open(vsftpdFile,'w')
-                    fvs.write('local_root=/home/webcampak/webcampak/sources/\n')
+                    fvs.write('local_root=/home/webcampak/webcampak/sources/source' + sourceid + '/ \n')
                     fvs.write(' \n')
                     vsftpdTemplateFile = self.dirInit + "vsftpd-source"
                     with open(vsftpdTemplateFile) as ftf:
