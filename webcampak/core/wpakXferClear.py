@@ -56,7 +56,7 @@ class xferClear:
                         
         self.configGeneral = Config(self.log, self.dirConfig + 'config-general.cfg')
         self.initGetText(self.dirLocale, self.configGeneral.getConfig('cfgsystemlang'), self.configGeneral.getConfig('cfggettextdomain'))
-                
+
         self.maxFilesPerThread = 10
 
     def initGetText(self, dirLocale, cfgsystemlang, cfggettextdomain):

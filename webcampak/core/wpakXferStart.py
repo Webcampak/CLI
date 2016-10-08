@@ -261,7 +261,7 @@ class xferStart:
         currentFTP = FTPTransfer(self.log, self.config_dir)                     
         jobJsonContent = self.xferUtils.logToJson(firstThreadFile, jobJsonContent, 'Establishing FTP connection')                
         currentFTPConnectionStatus = currentFTP.initByServerId(jobJsonContent['job'][ftpFileLocation]['sourceid'], jobJsonContent['job'][ftpFileLocation]['ftpserverid'])
-        localFilepath = self.dirSources + 'source' + str(jobJsonContent['job'][localFileLocation]['sourceid']) + '/' + jobJsonContent['job'][localFileLocation]['filepath']
+        localFilepath = self.dirSources + 'source' + str(jobJsonContent['job'][localFileLocation]['sourceid']) + '/pictures/' + jobJsonContent['job'][localFileLocation]['filepath']
         ftpServerConfig = Config(self.log, self.dirEtc + "config-source" + str(jobJsonContent['job'][ftpFileLocation]['sourceid']) + "-ftpservers.cfg")
         remoteFilepath = ftpServerConfig.getConfig('cfgftpserverslist' + str(jobJsonContent['job'][ftpFileLocation]['ftpserverid']))[4] + jobJsonContent['job'][ftpFileLocation]['filepath']
         startDate = self.timeUtils.getCurrentDate()
@@ -297,7 +297,7 @@ class xferStart:
         self.log.info("(" + str(os.getpid()) + ")xferStart.getJobFilesize(): Start") 
         fileSize = 0
         if (job['type'] == 'filesystem'):
-            filesystemPath = self.dirSources + 'source' + str(job['sourceid']) + '/' + job['filepath']
+            filesystemPath = self.dirSources + 'source' + str(job['sourceid']) + '/pictures/' + job['filepath']
             self.log.info("(" + str(os.getpid()) + ")xferStart.getJobFilesize(): Filesystem path: " + filesystemPath)              
             if (os.path.isfile(filesystemPath)):                
                 fileSize = os.path.getsize(filesystemPath)
