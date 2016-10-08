@@ -91,19 +91,7 @@ class xferClear:
         self.appConfig.set(self.log._meta.config_section, 'file', logFilename)
         self.appConfig.set(self.log._meta.config_section, 'rotate', True)
         self.log._setup_file_log()
-        
-    # Loading gettext translation functions                
-    def initGetText(self):
-        self.log.info("capture.initGetText(): Start")        
-        try:
-            languages = []
-            languages.append(self.configGeneral.getConfig('cfgsystemlang'))
-            t = gettext.translation(self.configGeneral.getConfig('cfggettextdomain'), self.dirLocale, languages, fallback=True)
-            _ = t.ugettext
-            t.install()
-        except:
-            self.log.error("No translation file available")    
-    
+            
     # Clear all files from the transfer queue
     # Function: run
     # Description: Remove all files from the transfer queue
