@@ -45,7 +45,9 @@ class xferStart:
         self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
         self.dirConfig = self.configPaths.getConfig('parameters')['dir_config']
         self.dirSources = self.configPaths.getConfig('parameters')['dir_sources']
-        self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']          
+        self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']
+        self.dirLocale = self.configPaths.getConfig('parameters')['dir_locale']
+        self.dirLocaleMessage = self.configPaths.getConfig('parameters')['dir_locale_message']
         
         self.setupLog()
         
