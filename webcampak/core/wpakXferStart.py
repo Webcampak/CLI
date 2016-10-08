@@ -208,6 +208,9 @@ class xferStart:
             elif (jobJsonContent['job']['source']['type'] == 'ftp' and jobJsonContent['job']['destination']['type'] == 'ftp'):
                 jobJsonContent['job']['status'] = 'completed'            
                 jobJsonContent = self.xferUtils.logToJson(firstThreadFile, jobJsonContent, 'ERROR: Copying from FTP to FTP is not yet supported')
+        elif (int(jobSourceFilesize)):
+            self.log.info("(" + str(os.getpid()) + ")xferStart.processJob(): Error, file does not exist on source, verify your configuration")
+            os.remove(firstThreadFile)
         else:
             self.log.info("(" + str(os.getpid()) + ")xferStart.processJob(): File already exists, not copying anything")
             os.remove(firstThreadFile)
