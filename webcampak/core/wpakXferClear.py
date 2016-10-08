@@ -48,16 +48,40 @@ class xferClear:
         self.dirConfig = self.configPaths.getConfig('parameters')['dir_config']
         self.dirSources = self.configPaths.getConfig('parameters')['dir_sources']
         self.dirLocale = self.configPaths.getConfig('parameters')['dir_locale']        
-        self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']  
-        
+        self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']
+        self.dirLocale = self.configPaths.getConfig('parameters')['dir_locale']
+        self.dirLocaleMessage = self.configPaths.getConfig('parameters')['dir_locale_message']
+
         self.setupLog()
                         
         self.configGeneral = Config(self.log, self.dirConfig + 'config-general.cfg')
+        self.initGetText(self.dirLocale, self.configGeneral.getConfig('cfgsystemlang'), self.configGeneral.getConfig('cfggettextdomain'))
         
         self.initGetText()
         
         self.maxFilesPerThread = 10
-    
+
+    def initGetText(self, dirLocale, cfgsystemlang, cfggettextdomain):
+        """ Initialize Gettext with the corresponding translation domain
+
+        Args:
+            dirLocale: A string, directory location of the file
+            cfgsystemlang: A string, webcampak-level language configuration parameter from config-general.cfg
+            cfggettextdomain: A string, webcampak-level gettext domain configuration parameter from config-general.cfg
+
+        Returns:
+            None
+        """
+        self.log.debug("capture.initGetText(): Start")
+        try:
+            t = gettext.translation(cfggettextdomain, dirLocale, [cfgsystemlang], fallback=True)
+            _ = t.ugettext
+            t.install()
+            self.log.info("capture.initGetText(): " + _("Initialized gettext with Domain: %(cfggettextdomain)s - Language: %(cfgsystemlang)s - Path: %(dirLocale)s")
+                          % {'cfggettextdomain': cfggettextdomain, 'cfgsystemlang': cfgsystemlang, 'dirLocale': dirLocale} )
+        except:
+            self.log.error("No translation file available")
+
     def setupLog(self):      
         """ Setup logging to file """
         xferLogs = self.dirLogs + "xfer/"
