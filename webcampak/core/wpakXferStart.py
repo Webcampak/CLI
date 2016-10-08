@@ -274,12 +274,12 @@ class xferStart:
                         
         if ftpTransferSuccess:
             endDate = self.timeUtils.getCurrentDate()
-            transferTime = int((endDate-startDate).total_seconds())
+            transferTime = int((endDate-startDate).total_seconds()*1000)
             jobJsonContent['job']['xfer_report'] = {}
             jobJsonContent['job']['xfer_report']['date_started'] = startDate.isoformat()
             jobJsonContent['job']['xfer_report']['date_completed'] = endDate.isoformat()
             jobJsonContent['job']['xfer_report']['bytes'] = sourceFilesize
-            jobJsonContent['job']['xfer_report']['seconds'] = transferTime
+            jobJsonContent['job']['xfer_report']['transfertime'] = transferTime
             jobJsonContent['job']['xfer_report']['direction'] = ftpDirection
             jobJsonContent = self.xferUtils.logToJson(firstThreadFile, jobJsonContent, 'File successfully transferred in ' + str(transferTime) + ' seconds')    
         else:
