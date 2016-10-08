@@ -56,9 +56,7 @@ class xferClear:
                         
         self.configGeneral = Config(self.log, self.dirConfig + 'config-general.cfg')
         self.initGetText(self.dirLocale, self.configGeneral.getConfig('cfgsystemlang'), self.configGeneral.getConfig('cfggettextdomain'))
-        
-        self.initGetText()
-        
+                
         self.maxFilesPerThread = 10
 
     def initGetText(self, dirLocale, cfgsystemlang, cfggettextdomain):
@@ -91,7 +89,7 @@ class xferClear:
         self.appConfig.set(self.log._meta.config_section, 'file', logFilename)
         self.appConfig.set(self.log._meta.config_section, 'rotate', True)
         self.log._setup_file_log()
-            
+
     # Clear all files from the transfer queue
     # Function: run
     # Description: Remove all files from the transfer queue
