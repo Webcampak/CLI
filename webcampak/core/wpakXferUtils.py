@@ -201,13 +201,16 @@ class xferUtils:
                 Boolean: Thread running or not
         """
         self.log.debug("xferUtils.isPidAlive(): " + _("Start"))
-        try:
-            os.kill(pid, 0)
-            self.log.info("xferUtils.isPidAlive(): " + _("Process is running: %(pid)s ") % {'pid': str(pid)})
-            return True
-        except OSError:
-            self.log.info("xferUtils.isPidAlive(): " + _("Process does not exist: %(pid)s ") % {'pid': str(pid)})
+        if pid == None:
             return False
+        else:
+            try:
+                os.kill(pid, 0)
+                self.log.info("xferUtils.isPidAlive(): " + _("Process is running: %(pid)s ") % {'pid': str(pid)})
+                return True
+            except OSError:
+                self.log.info("xferUtils.isPidAlive(): " + _("Process does not exist: %(pid)s ") % {'pid': str(pid)})
+                return False
 
     def killThreadByPid(self, pid):
         """ Aggressively kill a PID
