@@ -23,6 +23,7 @@ import json
 import dateutil.parser
 import zlib
 import gzip
+import gettext
 
 from wpakConfigObj import Config
 from wpakFileUtils import fileUtils
@@ -53,7 +54,28 @@ class xferUtils:
 
         self.configGeneral = Config(self.log, self.dirConfig + 'config-general.cfg')
         
-        self.maxFilesPerThread = 10        
+        self.maxFilesPerThread = 10
+
+    def initGetText(self, dirLocale, cfgsystemlang, cfggettextdomain):
+        """ Initialize Gettext with the corresponding translation domain
+
+        Args:
+            dirLocale: A string, directory location of the file
+            cfgsystemlang: A string, webcampak-level language configuration parameter from config-general.cfg
+            cfggettextdomain: A string, webcampak-level gettext domain configuration parameter from config-general.cfg
+
+        Returns:
+            None
+        """
+        self.log.debug("capture.initGetText(): Start")
+        try:
+            t = gettext.translation(cfggettextdomain, dirLocale, [cfgsystemlang], fallback=True)
+            _ = t.ugettext
+            t.install()
+            self.log.info("capture.initGetText(): " + _("Initialized gettext with Domain: %(cfggettextdomain)s - Language: %(cfgsystemlang)s - Path: %(dirLocale)s")
+                          % {'cfggettextdomain': cfggettextdomain, 'cfgsystemlang': cfgsystemlang, 'dirLocale': dirLocale} )
+        except:
+            self.log.error("No translation file available")
 
     # Getters and Setters
     def getMaxFilesPerThread(self):
