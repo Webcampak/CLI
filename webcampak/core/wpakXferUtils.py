@@ -52,8 +52,7 @@ class xferUtils:
         self.dirConfig = self.configPaths.getConfig('parameters')['dir_config']
 
         self.configGeneral = Config(self.log, self.dirConfig + 'config-general.cfg')
-        
-        self.maxFilesPerThread = 50
+        self.maxFilesPerThread = int(self.configGeneral.getConfig('cfgxfermaxfilesperthread'))
 
     # Getters and Setters
     def getMaxFilesPerThread(self):
