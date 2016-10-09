@@ -103,9 +103,10 @@ class statsCollect:
             args = shlex.split(IfstatCommand)
             p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output, errors = p.communicate()
-            systemStats['BandwidthIn'] = str(re.findall("\d+\.\d+", output)[0])
-            systemStats['BandwidthOut'] = str(re.findall("\d+\.\d+", output)[1])
-            systemStats['BandwidthTotal'] = str(float(re.findall("\d+\.\d+", output)[0]) + float(re.findall("\d+\.\d+", output)[1]))
+            systemStats['BandwidthIn'] = int(float(re.findall("\d+\.\d+", output)[0])*1000)
+            systemStats['BandwidthOut'] = int(float(re.findall("\d+\.\d+", output)[1])*1000)
+            systemStats['BandwidthTotal'] = systemStats['BandwidthIn'] + systemStats['BandwidthOut']
+            #systemStats['BandwidthTotal'] = str(float(re.findall("\d+\.\d+", output)[0]) + float(re.findall("\d+\.\d+", output)[1]))
             StatsFile.setSensor(cfgcurrentdaytime, 'BandwidthIn', systemStats['BandwidthIn'])
             StatsFile.setSensor(cfgcurrentdaytime, 'BandwidthOut', systemStats['BandwidthOut'])
             StatsFile.setSensor(cfgcurrentdaytime, 'BandwidthTotal', systemStats['BandwidthTotal'])
