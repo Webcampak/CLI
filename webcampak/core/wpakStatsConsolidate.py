@@ -85,15 +85,22 @@ class statsConsolidate:
         #convertTxtArchive(g, self.dirStats)
         #convertTxtArchive(g, '/home/webcampak/webcampak/sources/source1/resources/stats/')
 
+        # Remove and recreate consolidated stats directory
+        self.log.info("statsConsolidate.run(): Step 0: Deleting consolidated/ directory")
+        shutil.rmtree(self.dirStats + "consolidated/")
+        os.makedirs(self.dirStats + "consolidated/")
+
         #1- Convert start - with days (contains hours), month (contains days), and year (contains months)
         self.log.info("statsConsolidate.run(): Step 1: Crunching hours")
         skipCount = 0
         for scanFile in sorted(os.listdir(self.dirStats), reverse=True):
             if os.path.splitext(scanFile)[1].lower() == '.jsonl' and len(os.path.splitext(scanFile)[0]) == 8 and skipCount < 2:
+                self.log.info("statsConsolidate.run(): Step 1: Source File: " + self.dirStats + scanFile)
+                self.log.info("statsConsolidate.run(): Step 1: Destination File: " + self.dirStats + "consolidated/" + scanFile)
                 skipCount = self.checkProcessFile(scanFile, "consolidated/" + scanFile, skipCount, '23:55', 11, 16)
                 dayStats = self.parseSourceHoursFile(scanFile)
                 dayStats = self.crunchHourFile(dayStats)
-                dayStats = self.saveHourFile(dayStats, scanFile)
+                self.saveHourFile(dayStats, scanFile)
 
         #2- Convert Months, using days previously converted
         self.log.info("statsConsolidate.run(): Step 2: Crunching days")        
@@ -101,12 +108,14 @@ class statsConsolidate:
         for scanFile in sorted(os.listdir(self.dirStats + "/consolidated"), reverse=True):
             #201601.jsonl
             monthFile = scanFile[0:6] + '.jsonl'
+            self.log.info("statsConsolidate.run(): Step 2: Saving to month File: " + monthFile)
             if os.path.splitext(scanFile)[1].lower() == '.jsonl' and len(os.path.splitext(scanFile)[0]) == 8 and skipCount < 2:
+                self.log.info("statsConsolidate.run(): Step 2: Source File: " + self.dirStats + "consolidated/" + scanFile)
+                self.log.info("statsConsolidate.run(): Step 2: Destination File: " + self.dirStats + "consolidated/" + monthFile)
                 skipCount = self.checkProcessFile("consolidated/" + scanFile, "consolidated/" + monthFile,  skipCount, '31', 8, 10)
-                print 'COUNT: ' + str(skipCount)
                 dayStats = self.parseSourceDaysFile(scanFile)
                 dayStats = self.crunchDayFile(dayStats)
-                dayStats = self.saveDayFile(dayStats, monthFile)                
+                self.saveDayFile(dayStats, monthFile)
 
         #3- Convert Years
         self.log.info("statsConsolidate.run(): Step 2: Crunching years")                
@@ -123,7 +132,7 @@ class statsConsolidate:
                 #print 'COUNT: ' + str(skipCount)
                 dayStats = self.parseSourceMonthsFile(scanFile)
                 dayStats = self.crunchDayFile(dayStats)
-                dayStats = self.saveDayFile(dayStats, yearFile)           
+                self.saveDayFile(dayStats, yearFile)
 
         
     def convertTxtArchive(self, targetDirectory):
@@ -298,7 +307,8 @@ class statsConsolidate:
     # Identify if we want to process this file
     # If scanned date is 23:55 and target file  exists then increase count
     def checkProcessFile(self, sourceFile, targetFile, skipCount, searchTime, searchStart, searchEnd):
-        self.log.info("statsConsolidate.checkProcessFile() - File: " + sourceFile)                
+        #self.log.info("statsConsolidate.checkProcessFile() - Source File: " + sourceFile)
+        #self.log.info("statsConsolidate.checkProcessFile() - Target File: " + targetFile)
         for line in reversed(open(self.dirStats + sourceFile).readlines()):
             currentStatsLine = json.loads(line, object_pairs_hook=OrderedDict)
             #if currentStatsLine['date'][11:16] == searchTime and os.path.isfile(targetFile):
