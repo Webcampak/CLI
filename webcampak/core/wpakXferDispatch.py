@@ -120,8 +120,9 @@ class xferDispatch:
         Once all threads are full, the function stop looping through queued files.
         """    	
         self.log.info("xferDispatch.populateThreads(): Start")        
-        allQueuedFiles = self.xferUtils.getAllQueuedFiles() # List all files currently queued      
-        cpt = 0
+        allQueuedFiles = self.xferUtils.getAllQueuedFiles() # List all files currently queued
+        fullServers = set([]) # List ftp server hash which are full
+
         for currentQueuedFile in allQueuedFiles:
             self.log.info("xferDispatch.run(): Processing: " + currentQueuedFile)
             if self.xferUtils.areThreadsFull():
@@ -139,13 +140,17 @@ class xferDispatch:
                 if (ftpserverHash != None): 
                     self.log.info("xferDispatch.populateThreads(): FTP Server Hash: " + ftpserverHash)
                     self.log.info("xferDispatch.populateThreads(): FTP Server Threads: " + ftpserverMaxThreads)
-                    threadStats = self.getThreadStats(ftpserverHash)
-                    targetThread = self.identifyTargetThread(threadStats, int(ftpserverMaxThreads))
-                    if (targetThread == None):
+                    if ftpserverHash in fullServers:
                         self.log.info("xferDispatch.populateThreads(): All threads are full for this server, skipping ... ")
                     else:
-                        self.log.info("xferDispatch.populateThreads(): Move file to: " + self.dirXferThreads + targetThread + '/' + os.path.basename(currentQueuedFile))                    
-                        shutil.move(currentQueuedFile, self.dirXferThreads + targetThread + '/' + os.path.basename(currentQueuedFile))
+                        threadStats = self.getThreadStats(ftpserverHash)
+                        targetThread = self.identifyTargetThread(threadStats, int(ftpserverMaxThreads))
+                        if (targetThread == None):
+                            self.log.info("xferDispatch.populateThreads(): All threads are full for this server, adding FTP Hash to list of full servers ... ")
+                            fullServers.add(ftpserverHash)
+                        else:
+                            self.log.info("xferDispatch.populateThreads(): Move file to: " + self.dirXferThreads + targetThread + '/' + os.path.basename(currentQueuedFile))
+                            shutil.move(currentQueuedFile, self.dirXferThreads + targetThread + '/' + os.path.basename(currentQueuedFile))
             
     def identifyTargetThread(self, threadStats, ftpserverMaxThreads):  
         """ Identify the least occupied thread into which the file should be added
