@@ -69,6 +69,8 @@ class statsConsolidate:
         logFilename = statsLogs + "consolidate.log"
         self.appConfig.set(self.log._meta.config_section, 'file', logFilename)
         self.appConfig.set(self.log._meta.config_section, 'rotate', True)
+        self.appConfig.set(self.log._meta.config_section, 'max_bytes', 512000)
+        self.appConfig.set(self.log._meta.config_section, 'max_files', 10)
         self.log._setup_file_log()
         
     # Collect stats from the system and store it in a log file

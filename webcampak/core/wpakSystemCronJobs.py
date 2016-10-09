@@ -35,11 +35,11 @@ from wpakTimeUtils import timeUtils
 class systemCronJobs:
     def __init__(self, log, appConfig, config_dir):
         self.log = log
-        self.appConfig = appConfig                
+        self.appConfig = appConfig
         self.config_dir = config_dir
         self.configPaths = Config(self.log, self.config_dir + 'param_paths.yml')
-        
-                
+
+
         self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']
         self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
         self.dirConfig = self.configPaths.getConfig('parameters')['dir_config']
@@ -50,22 +50,24 @@ class systemCronJobs:
         self.setupLog()
 
         self.configGeneral = Config(self.log, self.dirConfig + 'config-general.cfg')
-        
+
         self.timeUtils = timeUtils(self)
-        
-    def setupLog(self):      
+
+    def setupLog(self):
         """ Setup logging to file """
         systemLogs = self.dirLogs + "system/"
         if not os.path.exists(systemLogs):
-            os.makedirs(systemLogs)  
+            os.makedirs(systemLogs)
         logFilename = systemLogs + "cron.log"
         self.appConfig.set(self.log._meta.config_section, 'file', logFilename)
         self.appConfig.set(self.log._meta.config_section, 'rotate', True)
+        self.appConfig.set(self.log._meta.config_section, 'max_bytes', 512000)
+        self.appConfig.set(self.log._meta.config_section, 'max_files', 10)
         self.log._setup_file_log()
-        
+
     # Function: update
     # Description: Update System crontab
-    # Return: Nothing     
+    # Return: Nothing
     def update(self):
         self.log.info("systemCronJobs.update(): Update System crontab")
         self.log.info("systemCronJobs.update(): Deleting previous temporary cron file")
@@ -85,7 +87,7 @@ class systemCronJobs:
 		if re.findall('config-source[0-9]+.cfg', scanfile):
 			if scanfile[-1] != "~":
 				sources = re.findall('\d+', scanfile)[0]
-                                self.log.info("systemCronJobs.update(): Processing source %(SourceNumber)s: Captures" % {'SourceNumber': str(sources)})                                
+                                self.log.info("systemCronJobs.update(): Processing source %(SourceNumber)s: Captures" % {'SourceNumber': str(sources)})
 				currentSourceConfig = Config(self.log, self.dirEtc + "config-source" + str(sources) + ".cfg")
 				cronttabFile.write("#Tasks source:" + str(sources) + "\n")
 				newcronhours="*"
@@ -99,16 +101,16 @@ class systemCronJobs:
 						i = i + int(currentSourceConfig.getConfig('cfgcroncapturevalue'))
 						if i < 60:
 							cronttabFile.write("* " +  newcronhours + " * * " + newcrondays + " sleep " + str(i) + " && /usr/local/bin/webcampak capture -s " + str(sources) + "\n")
-                                self.log.info("systemCronJobs.update(): Processing source %(SourceNumber)s: Videos" % {'SourceNumber': str(sources)})                                
+                                self.log.info("systemCronJobs.update(): Processing source %(SourceNumber)s: Videos" % {'SourceNumber': str(sources)})
 				cronttabFile.write(currentSourceConfig.getConfig('cfgcrondailyminute') + " " +  currentSourceConfig.getConfig('cfgcrondailyhour') + " * * * /usr/local/bin/webcampak video daily -s " + str(sources) + " \n")
-                                self.log.info("systemCronJobs.update(): Processing source %(SourceNumber)s: Videos Custom " % {'SourceNumber': str(sources)})                                
+                                self.log.info("systemCronJobs.update(): Processing source %(SourceNumber)s: Videos Custom " % {'SourceNumber': str(sources)})
 				if currentSourceConfig.getConfig('cfgcroncustominterval') == "minutes":		
 					cronttabFile.write("*/" + currentSourceConfig.getConfig('cfgcroncustomvalue') + " * * * * flock -xn " + self.dirCache + "createcustom" + str(sources) + ".lock /usr/local/bin/webcampak video custom -s " + str(sources) + " \n")
 					cronttabFile.write("*/" + currentSourceConfig.getConfig('cfgcroncustomvalue') + " * * * * flock -xn " + self.dirCache + "createpost" + str(sources) + ".lock /usr/local/bin/webcampak video videopost -s " + str(sources) + " \n")
 				elif currentSourceConfig.getConfig('cfgcroncustominterval') == "hours":	
 					cronttabFile.write("* */" + currentSourceConfig.getConfig('cfgcroncustomvalue') + " * * * flock -xn " + self.dirCache + "createcustom" + str(sources) + ".lock /usr/local/bin/webcampak video custom -s " + str(sources) + " \n")
 					cronttabFile.write("* */" + currentSourceConfig.getConfig('cfgcroncustomvalue') + " * * * flock -xn " + self.dirCache + "createpost" + str(sources) + ".lock /usr/local/bin/webcampak video videopost -s " + str(sources) + " \n")
-                                self.log.info("systemCronJobs.update(): Processing source %(SourceNumber)s: RRD Graph " % {'SourceNumber': str(sources)})                                				
+                                self.log.info("systemCronJobs.update(): Processing source %(SourceNumber)s: RRD Graph " % {'SourceNumber': str(sources)})
 				#cronttabFile.write("*/5 * * * * python " + self.dirBin + "webcampak.py -t rrdgraph -s " + str(sources) + " > " + self.dirLogs + "cronlog-" + str(sources) + "-rrdgraph \n")
 				cronttabFile.write("*/5 * * * * /usr/local/bin/webcampak stats rrd -s " + str(sources) + " \n")
 
@@ -122,8 +124,8 @@ class systemCronJobs:
 	args = shlex.split(Command)
 	p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 	output, errors = p.communicate()
-        self.log.info("systemFtpAccounts.create(): Crontab Create Output: " + output)                        
-        self.log.info("systemFtpAccounts.create(): Crontab Create Errors: " + errors)           
+        self.log.info("systemFtpAccounts.create(): Crontab Create Output: " + output)
+        self.log.info("systemFtpAccounts.create(): Crontab Create Errors: " + errors)
 
         self.log.info("systemCronJobs.update(): Listing content of the crontab file")
 
@@ -132,6 +134,6 @@ class systemCronJobs:
 	args = shlex.split(Command)
 	p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 	output, errors = p.communicate()
-        self.log.info("systemFtpAccounts.create(): Crontab List Output: " + output)                        
-        self.log.info("systemFtpAccounts.create(): Crontab List Errors: " + errors)           
-        
+        self.log.info("systemFtpAccounts.create(): Crontab List Output: " + output)
+        self.log.info("systemFtpAccounts.create(): Crontab List Errors: " + errors)
+
