@@ -2,8 +2,8 @@ Webcampak 3.0 CLI
 ==============================================================================
 
 [![Build Status](https://travis-ci.org/Webcampak/cli.svg?branch=develop)](https://travis-ci.org/Webcampak/cli) 
-[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d825354d498648afb120abb4b3efa89a)](https://www.codacy.com/app/FrancisG/cli?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Webcampak/cli&amp;utm_campaign=Badge_Grade)
+
+Please refer to [Core](https://github.com/Webcampak/core) for an entry point into Webcampak Code.
 
 Webcampak CLI is the tool in charge of picture acquisition, video creation, xfer queue management and other backend related tasks.
 It is currently being called by CRON jobs or through the API.
