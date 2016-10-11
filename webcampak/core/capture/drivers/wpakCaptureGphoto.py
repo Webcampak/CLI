@@ -45,8 +45,7 @@ class captureGphoto(object):
         self.dirCurrentSourceTmp = self.dirSources + 'source' + self.currentSourceId +'/' + self.configPaths.getConfig('parameters')['dir_source_tmp']
         
         self.fileUtils = parentClass.fileUtils
-        self.fileUtils.setCurrentSourceId(self.currentSourceId)
-        self.captureUtils = parentClass.captureUtils        
+        self.captureUtils = parentClass.captureUtils
         self.timeUtils = parentClass.timeUtils        
         self.pictureTransformations = parentClass.pictureTransformations
         self.phidgetsUtils = parentClass.phidgetsUtils
