@@ -299,7 +299,7 @@ class xferStart:
         self.log.info("(" + str(os.getpid()) + ")xferStart.getJobFilesize(): Start") 
         fileSize = 0
         if (job['type'] == 'filesystem'):
-            filesystemPath = self.dirSources + 'source' + str(job['sourceid']) + '/pictures/' + job['filepath']
+            filesystemPath = self.dirSources + 'source' + str(job['sourceid']) + job['filepath']
             self.log.info("(" + str(os.getpid()) + ")xferStart.getJobFilesize(): Filesystem path: " + filesystemPath)              
             if (os.path.isfile(filesystemPath)):                
                 fileSize = os.path.getsize(filesystemPath)
