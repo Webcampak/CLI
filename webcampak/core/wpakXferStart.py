@@ -192,6 +192,7 @@ class xferStart:
                 jobJsonContent['job']['filesourceid'] = jobJsonContent['job']['source']['sourceid']
                 jobJsonContent = self.xferUtils.logToJson(firstThreadFile, jobJsonContent, 'Copying from source filesystem to destination FTP')                    
                 jobJsonContent = self.processFTPFile(firstThreadFile, jobJsonContent, 'destination', 'source', jobSourceFilesize)
+                print jobJsonContent
                 self.xferUtils.setThreadLastJob(threadUUID, jobJsonContent['job']['xfer_report'])
                 self.moveThreadFileAfterTransfer(jobJsonContent, firstThreadFile)
                 
@@ -283,10 +284,10 @@ class xferStart:
             jobJsonContent['job']['xfer_report']['bytes'] = sourceFilesize
             jobJsonContent['job']['xfer_report']['transfertime'] = transferTime
             jobJsonContent['job']['xfer_report']['direction'] = ftpDirection
-            jobJsonContent = self.xferUtils.logToJson(firstThreadFile, jobJsonContent, 'File successfully transferred in ' + str(transferTime) + ' seconds')    
+            jobJsonContent = self.xferUtils.logToJson(firstThreadFile, jobJsonContent, 'File successfully transferred in ' + str(transferTime) + ' ms')
         else:
             jobJsonContent = self.xferUtils.logToJson(firstThreadFile, jobJsonContent, 'Unable to upload file')
-            jobJsonContent['job']['xfer_report'] = None            
+            jobJsonContent['job']['xfer_report'] = {}
         currentFTP.closeFtp()
         return jobJsonContent
 
