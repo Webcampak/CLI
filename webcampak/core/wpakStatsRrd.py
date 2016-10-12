@@ -146,28 +146,26 @@ class statsRrd(object):
             self.log.info("statsrrd.run(): " + _("Initiate RRD Graph creation for source: %(currentSourceId)s") % {'currentSourceId': str(self.currentSourceId)} )
 
             # List Capture files contained in the directory
-            allCaptureFiles = []
-            for dirpath, dirnames, filenames in os.walk(self.dirCurrentSourceCapture):
-                for filename in [f for f in filenames if f.endswith(".jsonl")]:
-                    allCaptureFiles.append(os.path.join(dirpath, filename))
-            allCaptureFiles.sort(reverse=True)
+            allSensorsFiles = []
+            for dirpath, dirnames, filenames in os.walk(self.dirCurrentSourcePictures):
+                for filename in [f for f in filenames if f.endswith("sensors.jsonl")]:
+                    allSensorsFiles.append(os.path.join(dirpath, filename))
+            allSensorsFiles.sort(reverse=True)
 
             processedCpt = 0
-            for currentCaptureFile in allCaptureFiles:
+            for currentCaptureFile in allSensorsFiles:
                 self.log.info("statsrrd.run(): " + _("Processing: %(currentCaptureFile)s") % {'currentCaptureFile': currentCaptureFile} )
                 processedCpt = processedCpt + 1
 
                 #List all sensors contained in the file
                 sensors = self.getSensorsFromFile(currentCaptureFile)
-
+                sensorsDay = self.getSensorDayFromFile(currentCaptureFile)
                 #{"scriptEndDate": "2016-09-29T04:59:43.956108+02:00", "totalCaptureSize": 10945697, "captureSuccess": true, "scriptRuntime": 2531, "storedRawSize": 0
                 # , "scriptStartDate": "2016-09-29T04:59:41.424850+02:00", "processedPicturesCount": 1, "storedJpgSize": 10945697, "captureDate": "2016-09-29T04:59:41.472365+02:00"
                 # , "sensors": {"789275965fe98d9ad9275648a21b095982d673a189f5cb3fad8155f9": {"type": "Temperature", "legend": "Outside Tempe abcd", "value": 25.8, "valueRaw": 1601}, "574eb9c9ee7e0bbe610a7aab0e359864fdd7810d113edee1da80a5af": {"type": "Temperature", "legend": "Inside Temperature", "value": 25.8, "valueRaw": 1601}, "fbdde0c3fe0b6aecc5f1027262ec79813f2cf77c9361642c4a7d57a3": {"type": "Luminosity", "legend": "Humidity", "value": 460.8, "valueRaw": 1887}}}
 
-                currentCaptureDay = os.path.splitext(basename(currentCaptureFile))[0]
-
                 for currentSensor in sensors:
-                    if os.path.isfile(self.dirCurrentSourcePictures + currentCaptureDay + "/sensor-" + currentSensor + ".rrd") == False or processedCpt <= 1:
+                    if os.path.isfile(self.dirCurrentSourcePictures + sensorsDay + "/sensor-" + currentSensor + ".rrd") == False or processedCpt <= 1:
                         self.log.info("statsrrd.run(): " + _("Currently processing Sensor: %(currentSensor)s") % {'currentSensor': currentSensor} )
 
                         ValueTable = {}
@@ -196,12 +194,12 @@ class statsRrd(object):
                         ValueTableKeys = ValueTable.keys()
                         ValueTableKeys.sort()
 
-                        self.log.info("statsrrd.run(): " + _("Preparing the RRD base file: %(SensorRRDFile)s") % {'SensorRRDFile': str(self.dirCurrentSourcePictures + currentCaptureDay + "/sensor-" + currentSensor + ".rrd")} )
+                        self.log.info("statsrrd.run(): " + _("Preparing the RRD base file: %(SensorRRDFile)s") % {'SensorRRDFile': str(self.dirCurrentSourcePictures + sensorsDay + "/sensor-" + currentSensor + ".rrd")} )
 
                         rrdstart = str(int(min(ValueTableKeys)))
                         #rrdstart = str(int(min(ValueTableKeys)))
                         rrdend = str(max(ValueTableKeys))
-                        ret = rrdtool.create(str(self.dirCurrentSourcePictures + str(currentCaptureDay) + "/sensor-" + currentSensor + ".rrd")\
+                        ret = rrdtool.create(str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".rrd")\
                                              , "--step", str(DefinedInterval)\
                                              , "--start"\
                                              , rrdstart\
@@ -214,92 +212,17 @@ class statsRrd(object):
                                 CurrentTimestamp = int(ValueTableKeys[i])
                             else:
                                 CurrentTimestamp = CurrentTimestamp + DefinedInterval
-                                ret = rrdtool.update(str(self.dirCurrentSourcePictures + str(currentCaptureDay) + "/sensor-" + currentSensor + ".rrd"), str(int(CurrentTimestamp)) + ':' + str(ValueTable[ValueTableKeys[i]]))
+                                ret = rrdtool.update(str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".rrd"), str(int(CurrentTimestamp)) + ':' + str(ValueTable[ValueTableKeys[i]]))
 
-                        ret = rrdtool.graph(str(self.dirCurrentSourcePictures + str(currentCaptureDay) + "/sensor-" + currentSensor + ".png")\
+                        ret = rrdtool.graph(str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".png")\
                                             , "--start"\
                                             , rrdstart\
                                             , "--end"\
                                             , rrdend\
                                             , "--vertical-label="+ str(SensorLegend)\
-                                            , "DEF:GRAPHAREA=" + str(self.dirCurrentSourcePictures + str(currentCaptureDay) + "/sensor-" + currentSensor + ".rrd") + ":GRAPHAREA:AVERAGE" \
+                                            , "DEF:GRAPHAREA=" + str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".rrd") + ":GRAPHAREA:AVERAGE" \
                                             , "AREA:GRAPHAREA#FF0000:" + str(SensorLegend))
 
-            """
-            cptdir = 0
-            for listpictdir in sorted(os.listdir(self.Cfgpictdir), reverse=True): # Browse all directories
-                if listpictdir[:2] == "20" and os.path.isdir(self.Cfgpictdir + listpictdir):
-                    cptdir = cptdir + 1
-                    self.Debug.Display(_("Graph: RRD: Processing %(CurrentDirectory)s directory") % {'CurrentDirectory': str(listpictdir)} )
-                    if os.path.isfile(self.Cfgpictdir + listpictdir + "/" + self.G.getConfig('cfgphidgetcapturefile')):
-                        self.Debug.Display(_("Graph: RRD: %(SensorFile)s found") % {'SensorFile': self.G.getConfig('cfgphidgetcapturefile')} )
-                        for ListSourceSensors in range(1,int(self.configSource.getConfig('cfgphidgetsensornb')) + 1):
-                            if self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] != "":
-                                if os.path.isfile(self.Cfgpictdir + listpictdir + "/" + self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] + ".rrd") == False or cptdir <= 1:
-                                    print("Graph: RRD: RRD file: Start parsing values")
-                                    ValueTable = {}
-                                    #ValueKeys = []
-                                    ValueTableKeys = []
-                                    ValueKeysDiff = []
-                                    ValueInsertTable = {}
-                                    if self.configSource.getConfig('cfgcroncaptureinterval') == "minutes":
-                                        DefinedInterval = int(self.configSource.getConfig('cfgcroncapturevalue')) * 60
-                                    elif self.configSource.getConfig('cfgcroncaptureinterval') == "seconds":
-                                        DefinedInterval = int(self.configSource.getConfig('cfgcroncapturevalue'))
-
-                                    Sensors = Config(self.Cfgpictdir + listpictdir + "/" + self.G.getConfig('cfgphidgetcapturefile'))
-                                    for capturetime in Sensors.getFullConfig():
-                                        if Sensors.getSensor(capturetime, self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0]) == False:
-                                            ValueTable[Sensors.getSensor(capturetime, "Timestamp")] = "NaN"
-                                        else:
-                                            ValueTable[Sensors.getSensor(capturetime, "Timestamp")] = Sensors.getSensor(capturetime, self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0])
-                                    NumberOfValues = len(ValueTable)
-                                    print("Number of Values source: " + str(NumberOfValues))
-                                    #print ValueTable.keys()
-                                    cpt = 0
-                                    ValueTableKeys = ValueTable.keys()
-                                    ValueTableKeys.sort()
-                                    #print ValueTableKeys
-                                    cpt = 0
-
-                                    self.Debug.Display(_("Graph: RRD: RRD file: begninning creation of %(SensorRRDFile)s file ...") % {'SensorRRDFile': self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] + ".rrd"} )
-
-                                    rrdstart = str(int(min(ValueTableKeys)))
-                                    #rrdstart = str(int(min(ValueTableKeys)))
-                                    rrdend = str(max(ValueTableKeys))
-                                    ret = rrdtool.create(self.Cfgpictdir + listpictdir + "/" + self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] + ".rrd", "--step", str(DefinedInterval), "--start", rrdstart,
-                                                         "DS:"+ self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] + ":GAUGE:600:U:U",
-                                                         "RRA:AVERAGE:0.5:1:" + str(len(Sensors.getFullConfig())))
-                                    if ret:
-                                        print(rrdtool.error())
-
-                                    for i in xrange(len(ValueTableKeys)):
-                                        #print "Timestamp: " +  ValueTableKeys[i] + " - Value: " + ValueTable[ValueTableKeys[i]]
-                                        if i == 0:
-                                            CurrentTimestamp = int(ValueTableKeys[i])
-                                        else:
-                                            CurrentTimestamp = CurrentTimestamp + DefinedInterval
-                                            ret = rrdtool.update(self.Cfgpictdir + listpictdir + "/" + self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] + ".rrd", str(int(CurrentTimestamp)) + ':' + ValueTable[ValueTableKeys[i]])
-                                            #print "Timestamp:" + str(i) + "/" + str(len(Sensors.getFullConfig())) + ":" + str(CurrentTimestamp) + ":" + str(rrdtool.error())
-                                            #print "Timestamp: " +  str(CurrentTimestamp) + " - Value: " + ValueTable[ValueTableKeys[i]]
-
-                                    ret = rrdtool.graph(self.Cfgpictdir + listpictdir + "/Sensor-" + self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] + ".png", "--start", rrdstart, "--end", rrdend, "--vertical-label="+ self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[2],
-                                                        "DEF:" + self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] + "=" + self.Cfgpictdir + listpictdir + "/" + self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] + ".rrd" + ":" + self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] + ":AVERAGE",
-                                                        "AREA:" + self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] + "#" + self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[3]+ ":" + self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[2],
-                                                        )
-                                    if ret:
-                                        print(rrdtool.error())
-
-                                    cfgdispday = self.Cfgnow.strftime("%Y%m%d")
-
-                                    if self.configSource.getConfig('cfgftpphidgetserverid') != "" and os.path.isfile(self.Cfgpictdir + listpictdir + "/Sensor-" + self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] + ".png") and cfgdispday == listpictdir:
-                                        FTPResult = FTPClass.FTPUpload(self.Cfgcurrentsource, self.configSource.getConfig('cfgftpphidgetserverid'), listpictdir + "/", self.Cfgpictdir + listpictdir + "/", "Sensor-" + self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] + ".png", self.Debug, self.configSource.getConfig('cfgftpphidgetserverretry'))
-                                else:
-                                    self.Debug.Display(_("Graph: RRD: RRD file: %(SensorRRDFile)s found, cancelling ...") % {'SensorRRDFile': self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] + ".rrd"} )
-                    else:
-                        self.Debug.Display(_("Graph: RRD: %(SensorFile)s not found, moving to next directory") % {'SensorFile': self.G.getConfig('cfgphidgetcapturefile')} )
-
-            """
         else:
             self.log.info("statsrrd.run(): " + _("Creation of the RRD Graph disabled for source: %(currentSourceId)s") % {'currentSourceId': str(self.currentSourceId)} )
 
@@ -311,7 +234,7 @@ class statsRrd(object):
             Returns:
                 Dict: number of occurence for each of the sensors contained in the file
         """
-        self.log.debug("xferUtils.checkThreadUUID(): " + _("Start"))
+        self.log.debug("statsrrd.checkThreadUUID(): " + _("Start"))
         sensors = {}
         for line in open(currentCaptureFile).readlines():
             #currentCaptureLine = json.loads(line, object_pairs_hook=OrderedDict)
@@ -326,6 +249,22 @@ class statsRrd(object):
                             sensors[sensorId] = 1
         return sensors
 
+    def getSensorDayFromFile(self, currentCaptureFile):
+        """ Scan a file and returns its day
+            Args:
+                None
+
+            Returns:
+                String: YYYYMMDD date
+        """
+        self.log.debug("statsrrd.getDayFromFile(): " + _("Start"))
+        date = None
+        for line in open(currentCaptureFile).readlines():
+            currentSensorLine = json.loads(line)
+            if 'date' in currentSensorLine:
+                currentSensorDate = dateutil.parser.parse(currentSensorLine['date'])
+                return currentSensorDate.strftime("%Y%m%d")
+        return date
 
 
 
