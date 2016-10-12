@@ -39,7 +39,7 @@ class captureObj(object):
     Attributes:
         log: A class, the logging interface
         fileCaptureLog: A string, path to a jsonl file containing an archive of all capture objects for a specific day
-        lastCapture: A dictionary, containing all values of the capture object        
+        lastCapture: A dictionary, containing all values of the capture object
     """    
     
     def __init__(self, log, fileCaptureLog = None):
@@ -51,7 +51,7 @@ class captureObj(object):
         self.schema = {
             "$schema": "http://json-schema.org/draft-04/schema#"
             , "title": "captureObj"
-            , "description": "Used to log details associated with a capture"   
+            , "description": "Used to log details associated with a capture"
             , "type": "object"
             , "additionalProperties": False
             , "properties": {
@@ -64,21 +64,6 @@ class captureObj(object):
                 , "processedPicturesCount": {"type": "number", "description": "Number of pictures captued, in some situations multiple files might be processed in batch"}
                 , "captureSuccess":         {"type": ["boolean", "null"],"description": "Record if capture was successful"}
                 , "captureDate":            {"type": ["string", "null"], "description": "Date of the capture"}
-                , "sensors":                {
-                    "type": ["object", "null"]
-                    , "description": "Sensor values captures on a phidget board"
-                    , "patternProperties": {
-                        "^(.)+": {
-                            "type": "object"
-                            , "properties": {
-                                "description":  {"type": "string", "description": "Description of the sensor"}
-                                , "type":       {"type": "string", "description": "Sensor Type"}
-                                , "value":      {"type": "number", "description": "Captured value after applying formula"}
-                                , "valueRaw":   {"type": "number", "description": "Captured value before applying formula"}
-                            }
-                        }
-                    }
-                }
             }
         }
         self.initCapture()
@@ -103,14 +88,14 @@ class captureObj(object):
         return self.lastCapture
     
     def setCaptureFile(self, captureFile):
-        self.log.info("captureObj.setCaptureFile(): " + _("Capture file set to: %(captureFile)s") % {'captureFile': captureFile})            
+        self.log.info("captureObj.setCaptureFile(): " + _("Capture file set to: %(captureFile)s") % {'captureFile': captureFile})
         self.captureFile = captureFile
- 
+
     def getCaptureFile(self):
         return self.captureFile
 
-    def initCapture(self):   
-        """Initialize the object values to 0 or None"""        
+    def initCapture(self):
+        """Initialize the object values to 0 or None"""
         self.log.debug("captureObj.initCapture(): " + _("Start"))
         self.lastCapture = {}
         self.setCaptureValue('storedJpgSize', 0)
@@ -121,28 +106,28 @@ class captureObj(object):
         self.setCaptureValue('scriptRuntime', None)
         self.setCaptureValue('processedPicturesCount', 0)
         self.setCaptureValue('captureSuccess', None)
-            
-    def getLastCaptureTime(self): 
-        """Return the last capture date from the object"""                
+
+    def getLastCaptureTime(self):
+        """Return the last capture date from the object"""
         self.log.debug("captureObj.getLastCaptureTime(): " + _("Start"))
         try:
             lastCaptureTime = dateutil.parser.parse(self.getCaptureValue('captureDate'))
-            self.log.info("captureObj.getLastCaptureTime(): " + _("Last capture time: %(lastCaptureTime)s") % {'lastCaptureTime': lastCaptureTime})            
+            self.log.info("captureObj.getLastCaptureTime(): " + _("Last capture time: %(lastCaptureTime)s") % {'lastCaptureTime': lastCaptureTime})
             return lastCaptureTime
         except:
-            return None    
-    
+            return None
+
     def loadCaptureFile(self):
-        """Load the capture file into memory, if there was no previous capture, return an initialized version of the object"""                        
+        """Load the capture file into memory, if there was no previous capture, return an initialized version of the object"""
         self.log.debug("captureObj.loadCaptureFile(): " + _("Start"))
         lastCapture = self.loadJsonFile(self.getCaptureFile())
         if lastCapture != None:
             self.setCapture(lastCapture)
         else:
             self.initCapture()
-            
+
     def writeCaptureFile(self):
-        """Write the content of the object into a capture file"""                                
+        """Write the content of the object into a capture file"""
         self.log.debug("captureObj.writeCaptureFile(): " + _("Start"))
         if self.writeJsonFile(self.captureFile, self.getCapture()) == True:
             self.log.info("captureObj.writeCaptureFile(): " + _("Successfully saved last capture file to: %(captureFile)s") % {'captureFile': str(self.captureFile)})
@@ -160,29 +145,29 @@ class captureObj(object):
         else:
             self.log.error("captureObj.archiveCaptureFile(): " + _("Error saving last capture file"))
             return False
-                                        
+
     def loadJsonFile(self, jsonFile):
         """Loads the content of a JSON file"""
-        self.log.debug("captureObj.loadJsonFile(): " + _("Start"))                
+        self.log.debug("captureObj.loadJsonFile(): " + _("Start"))
         if os.path.isfile(jsonFile):
-            self.log.info("captureObj.loadJsonFile(): " + _("Load JSON file into memory: %(jsonFile)s") % {'jsonFile': jsonFile} )                    
-            with open(jsonFile) as threadJsonFile:    
+            self.log.info("captureObj.loadJsonFile(): " + _("Load JSON file into memory: %(jsonFile)s") % {'jsonFile': jsonFile} )
+            with open(jsonFile) as threadJsonFile:
                 threadJson = json.load(threadJsonFile)
                 return threadJson
         return None
-        
-    def writeJsonFile(self, jsonFile, jsonContent): 
-        """Write the content of a dictionary to a JSON file"""                
-        self.log.info("captureObj.writeJsonFile(): " + _("Writing to: %(jsonFile)s") % {'jsonFile': jsonFile} )        
-        if fileUtils.CheckFilepath(jsonFile) != "":                
+
+    def writeJsonFile(self, jsonFile, jsonContent):
+        """Write the content of a dictionary to a JSON file"""
+        self.log.info("captureObj.writeJsonFile(): " + _("Writing to: %(jsonFile)s") % {'jsonFile': jsonFile} )
+        if fileUtils.CheckFilepath(jsonFile) != "":
             with open(jsonFile, "w") as threadJsonFile:
                 threadJsonFile.write(json.dumps(jsonContent))
             return True
         return False
-    
-    def archiveJsonFile(self, jsonFile, jsonContent):    
-        """Append the content of a dictionary to a JSONL file"""                        
-        self.log.info("captureObj.archiveJsonFile(): " + _("Writing to: %(jsonFile)s") % {'jsonFile': jsonFile} )        
+
+    def archiveJsonFile(self, jsonFile, jsonContent):
+        """Append the content of a dictionary to a JSONL file"""
+        self.log.info("captureObj.archiveJsonFile(): " + _("Writing to: %(jsonFile)s") % {'jsonFile': jsonFile} )
         if fileUtils.CheckFilepath(jsonFile) != "":                
             with open(jsonFile, "a+") as threadJsonFile:
                 threadJsonFile.write(json.dumps(jsonContent) + '\n')

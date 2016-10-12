@@ -35,6 +35,7 @@ from wpakPhidgetsUtils import phidgetsUtils
 from capture.wpakCaptureUtils import captureUtils
 from capture.wpakCaptureEmails import captureEmails
 from capture.wpakCaptureObj import captureObj
+from capture.wpakSensorsObj import sensorsObj
 
 from capture.drivers.wpakCaptureGphoto import captureGphoto
 from capture.drivers.wpakCaptureIPCam import captureIPCam
@@ -355,8 +356,12 @@ class Capture(object):
                 self.captureEmails.sendCaptureStats()	
 
             if self.configGeneral.getConfig('cfgphidgetactivate') == "yes" and self.configSource.getConfig('cfgphidgetactivate') == "yes":
+                fileCaptureLog = self.dirCurrentSourcePictures + self.getCaptureTime().strftime("%Y%m%d") + "/sensors.jsonl"
                 capturedSensors = capturePhidget(self).capture()
-                self.currentCaptureDetails.setCaptureValue('sensors', capturedSensors)
+                currentSensorsDetails = sensorsObj(self.log, fileCaptureLog)
+                currentSensorsDetails.setSensorsValue('date', self.getCaptureTime().isoformat())
+                currentSensorsDetails.setSensorsValue('sensors', capturedSensors)
+                currentSensorsDetails.archiveSensorsFile()
 
             scriptEndDate = self.timeUtils.getCurrentSourceTime(self.configSource)
             totalCaptureTime = int((scriptEndDate-self.getScriptStartTime()).total_seconds()*1000)
