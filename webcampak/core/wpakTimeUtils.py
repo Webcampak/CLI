@@ -56,11 +56,11 @@ class timeUtils:
         self.log.debug("timeUtils.getCurrentSourceTime(): " + _("Start"))
         cfgnowsource = datetime.utcnow()
         if sourceConfig.getConfig('cfgcapturetimezone') != "": # Update the timezone from UTC to the source's timezone
-            self.log.debug("timeUtils.getCurrentSourceTime(): " + _("Source Timezone is: %(sourceTimezone)s") % {'sourceTimezone': sourceConfig.getConfig('cfgcapturetimezone')})        
+            self.log.info("timeUtils.getCurrentSourceTime(): " + _("Source Timezone is: %(sourceTimezone)s") % {'sourceTimezone': sourceConfig.getConfig('cfgcapturetimezone')})        
             sourceTimezone = tz.gettz(sourceConfig.getConfig('cfgcapturetimezone'))
             cfgnowsource = cfgnowsource.replace(tzinfo=tz.gettz('UTC'))				
             cfgnowsource = cfgnowsource.astimezone(sourceTimezone)
-        self.log.debug("timeUtils.getCurrentSourceTime(): " + _("Current source time: %(cfgnowsource)s") % {'cfgnowsource': cfgnowsource.isoformat()})  
+        self.log.info("timeUtils.getCurrentSourceTime(): " + _("Current source time: %(cfgnowsource)s") % {'cfgnowsource': cfgnowsource.isoformat()})  
         return cfgnowsource
         
     # Using a webcampak timestamp, capture the file date and time
