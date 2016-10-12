@@ -425,12 +425,12 @@ class captureUtils(object):
             rawFileName = self.dirCurrentSourcePictures + "raw/" + captureDirectory + "/" + captureFilename + ".raw"
             if os.path.isfile(jpgFileName):
                 self.log.info("captureUtils.sendPicture(): " + _("Preparing to send JPG file located in  %(jpgFileName)s") % {'jpgFileName': jpgFileName} )                     
-                self.transferUtils.transferFile(self.captureClass.getCaptureTime(), jpgFileName, "pictures/" + captureDirectory + "/" + captureFilename + ".jpg", FTPServerId, FTPServerRetries)
+                self.transferUtils.transferFile(self.captureClass.getCaptureTime(), jpgFileName, captureDirectory + "/" + captureFilename + ".jpg", FTPServerId, FTPServerRetries)
                 #self.transferFile(jpgFileName, "pictures/" + captureDirectory + "/" + captureFilename + ".jpg", FTPServerId, FTPServerRetries)
                             
             if os.path.isfile(rawFileName) and FTPSendRaw == "yes":
                 self.log.info("captureUtils.sendPicture(): " + _("Preparing to send RAW file located in  %(rawFileName)s") % {'rawFileName': rawFileName} ) 
-                self.transferFile(self.captureClass.getCaptureTime(), rawFileName,  "pictures/" + captureDirectory + "/" + captureFilename + ".raw", FTPServerId, FTPServerRetries)
+                self.transferFile(self.captureClass.getCaptureTime(), rawFileName,  "raw/" + captureDirectory + "/" + captureFilename + ".raw", FTPServerId, FTPServerRetries)
                 #self.transferFile(rawFileName,  "pictures/" + captureDirectory + "/" + captureFilename + ".raw", FTPServerId, FTPServerRetries)
     
     def copyPicture(self, destinationSourceId, copyRaw, captureFilename):
