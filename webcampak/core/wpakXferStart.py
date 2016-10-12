@@ -192,7 +192,6 @@ class xferStart:
                 jobJsonContent['job']['filesourceid'] = jobJsonContent['job']['source']['sourceid']
                 jobJsonContent = self.xferUtils.logToJson(firstThreadFile, jobJsonContent, 'Copying from source filesystem to destination FTP')                    
                 jobJsonContent = self.processFTPFile(firstThreadFile, jobJsonContent, 'destination', 'source', jobSourceFilesize)
-                print jobJsonContent
                 self.xferUtils.setThreadLastJob(threadUUID, jobJsonContent['job']['xfer_report'])
                 self.moveThreadFileAfterTransfer(jobJsonContent, firstThreadFile)
                 
