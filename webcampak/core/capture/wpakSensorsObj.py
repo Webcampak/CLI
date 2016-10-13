@@ -105,7 +105,7 @@ class sensorsObj(object):
         """Append the content of the object into a log file containing previous captures"""
         self.log.debug("sensorsObj.archiveSensorsFile(): " + _("Start"))
         if self.archiveJsonFile(self.fileSensorsLog, self.getSensors()) == True:
-            self.log.info("sensorsObj.archiveSensorsFile(): " + _("Successfully archived capture file to: %(captureFile)s") % {'captureFile': str(self.fileSensorsLog)})
+            self.log.info("sensorsObj.archiveSensorsFile(): " + _("Successfully archived sensor file to: %(captureFile)s") % {'captureFile': str(self.fileSensorsLog)})
             return True
         else:
             self.log.error("sensorsObj.archiveSensorsFile(): " + _("Error saving last capture file"))

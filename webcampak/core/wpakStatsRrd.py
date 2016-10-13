@@ -182,7 +182,7 @@ class statsRrd(object):
                         SensorLegend = "UNAVAILABLE"
                         for line in open(currentCaptureFile).readlines():
                             currentCaptureLine = json.loads(line)
-                            sensorDate = dateutil.parser.parse(currentCaptureLine['scriptStartDate'])
+                            sensorDate = dateutil.parser.parse(currentCaptureLine['date'])
                             currentTimestamp = int(time.mktime(sensorDate.timetuple()))
                             ValueTable[currentTimestamp] = "NaN"
                             if 'sensors' in currentCaptureLine:
