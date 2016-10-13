@@ -224,7 +224,7 @@ class statsRrd(object):
                                             , rrdend\
                                             , "--vertical-label="+ str(SensorLegend)\
                                             , "DEF:GRAPHAREA=" + str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".rrd") + ":GRAPHAREA:AVERAGE" \
-                                            , "AREA:GRAPHAREA" + SensorColor + ":" + str(SensorLegend))
+                                            , "AREA:GRAPHAREA" + str(SensorColor) + ":" + str(SensorLegend))
 
         else:
             self.log.info("statsrrd.run(): " + _("Creation of the RRD Graph disabled for source: %(currentSourceId)s") % {'currentSourceId': str(self.currentSourceId)} )
