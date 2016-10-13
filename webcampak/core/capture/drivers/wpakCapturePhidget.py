@@ -76,6 +76,7 @@ class capturePhidget(object):
                     sensorType = currentSensor[0]
                     sensorPort = int(currentSensor[1])
                     sensorLegend = currentSensor[2]
+                    sensorColor = currentSensor[3]
                     if sensorType != '' and sensorPort != '':
                         #cfgphidgetsensortype1="Temperature", "-30", "80", "(SensorValue / 4.095) * 0.22222 - 61.111"
                         sensorTypeConfig = self.configGeneral.getConfig('cfgphidgetsensortype' + str(sensorType))
@@ -92,6 +93,7 @@ class capturePhidget(object):
                         currentSensor['type'] = sensorTypeName
                         currentSensor['value'] = sensorCalculatedValue
                         currentSensor['valueRaw'] = SensorValue
+                        currentSensor['color'] = sensorColor
                         capturedSensors[sensorHash] = currentSensor
                 phidgetsClass.closePhidget()
         if len(capturedSensors) > 0:

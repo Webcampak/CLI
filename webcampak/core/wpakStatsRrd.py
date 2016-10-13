@@ -180,6 +180,7 @@ class statsRrd(object):
 
 
                         SensorLegend = "UNAVAILABLE"
+                        SensorColor = "#FF0000"
                         for line in open(currentCaptureFile).readlines():
                             currentCaptureLine = json.loads(line)
                             sensorDate = dateutil.parser.parse(currentCaptureLine['date'])
@@ -190,6 +191,8 @@ class statsRrd(object):
                                     if currentSensor in currentCaptureLine['sensors']:
                                         ValueTable[currentTimestamp] = currentCaptureLine['sensors'][currentSensor]['value']
                                         SensorLegend = currentCaptureLine['sensors'][currentSensor]['legend']
+                                        if 'color' in currentCaptureLine['sensors'][currentSensor]:
+                                            SensorColor = currentCaptureLine['sensors'][currentSensor]['color']
 
                         ValueTableKeys = ValueTable.keys()
                         ValueTableKeys.sort()
@@ -221,7 +224,7 @@ class statsRrd(object):
                                             , rrdend\
                                             , "--vertical-label="+ str(SensorLegend)\
                                             , "DEF:GRAPHAREA=" + str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".rrd") + ":GRAPHAREA:AVERAGE" \
-                                            , "AREA:GRAPHAREA#FF0000:" + str(SensorLegend))
+                                            , "AREA:GRAPHAREA" + SensorColor + ":" + str(SensorLegend))
 
         else:
             self.log.info("statsrrd.run(): " + _("Creation of the RRD Graph disabled for source: %(currentSourceId)s") % {'currentSourceId': str(self.currentSourceId)} )
