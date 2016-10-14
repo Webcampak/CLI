@@ -310,6 +310,8 @@ class videoUtils(object):
                         # Applying date restrictions where necessary
                         if os.path.splitext(scanPictureFile)[0].isdigit() == True and int(os.path.splitext(scanPictureFile)[0]) > int(self.videoClass.getCustomVideoStart()) and int(os.path.splitext(scanPictureFile)[0]) < int(self.videoClass.getCustomVideoEnd()):
                             copyFile = False
+                            keepstart = self.videoClass.getKeepStart()
+                            keepend = self.videoClass.getKeepEnd()
                             if (self.videoType == "videocustom" or self.videoType == "videopost") and (keepstart != 0 or keepend != 0):
                                 currentfilestamp  = int(scanPictureFile[8] + scanPictureFile[9] + scanPictureFile[10] + scanPictureFile[11])
                                 if currentfilestamp >= keepstart and currentfilestamp <= keepend:
