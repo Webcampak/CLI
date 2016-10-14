@@ -152,7 +152,14 @@ class videoUtils(object):
             AllowCreation = False 
             self.log.info("videoUtils.isCreationAllowed(): " + _("Video: Source disabled ... Cancelling ..."))
         return AllowCreation
-    
+
+    def addZero(self, number):
+        """ Take a numbe and append a 0 if less than 10 """
+        returnNb = int(number)
+        if returnNb < 10:
+            returnNb = "0" + returnNb
+        return str(returnNb)
+
     def identifyCustomStartEnd(self):
         """ Identify custom start and end dates for custom videos
         Args:
@@ -163,32 +170,16 @@ class videoUtils(object):
         """         
         self.log.debug("videoUtils.identifyCustomStartEnd(): " + _("Start"))
         
-        customstart = self.configSourceVideo.getConfig('cfgcustomstartyear') + self.configSourceVideo.getConfig('cfgcustomstartmonth') + self.configSourceVideo.getConfig('cfgcustomstartday') + self.configSourceVideo.getConfig('cfgcustomstarthour') + self.configSourceVideo.getConfig('cfgcustomstartminute') + "00"
+        customstart = self.configSourceVideo.getConfig('cfgcustomstartyear') + self.addZero(self.configSourceVideo.getConfig('cfgcustomstartmonth')) + self.addZero(self.configSourceVideo.getConfig('cfgcustomstartday')) + self.addZero(self.configSourceVideo.getConfig('cfgcustomstarthour')) + self.addZero(self.configSourceVideo.getConfig('cfgcustomstartminute')) + "00"
         self.videoClass.setCustomVideoStart(customstart)
-        customend = self.configSourceVideo.getConfig('cfgcustomendyear') + self.configSourceVideo.getConfig('cfgcustomendmonth') + self.configSourceVideo.getConfig('cfgcustomendday') + self.configSourceVideo.getConfig('cfgcustomendhour') +  self.configSourceVideo.getConfig('cfgcustomendminute') + "59"		
+        customend = self.configSourceVideo.getConfig('cfgcustomendyear') + self.addZero(self.configSourceVideo.getConfig('cfgcustomendmonth')) + self.addZero(self.configSourceVideo.getConfig('cfgcustomendday')) + self.addZero(self.configSourceVideo.getConfig('cfgcustomendhour')) +  self.addZero(self.configSourceVideo.getConfig('cfgcustomendminute')) + "59"
         self.videoClass.setCustomVideoEnd(customend)
-        # Precaution in case start/end dates were not configured properly
-        if (int(self.configSourceVideo.getConfig('cfgcustomkeepstarthour')) < 10): 
-            cfgcustomkeepstarthour = "0" + str(int(self.configSourceVideo.getConfig('cfgcustomkeepstarthour')))
-        else :
-            cfgcustomkeepstarthour = self.configSourceVideo.getConfig('cfgcustomkeepstarthour')
-        if (int(self.configSourceVideo.getConfig('cfgcustomkeepstartminute')) < 10):
-            cfgcustomkeepstartminute = "0" + str(int(self.configSourceVideo.getConfig('cfgcustomkeepstartminute')))
-        else :
-            cfgcustomkeepstartminute = self.configSourceVideo.getConfig('cfgcustomkeepstartminute')
-        if (int(self.configSourceVideo.getConfig('cfgcustomkeependhour')) < 10):
-            cfgcustomkeependhour = "0" + str(int(self.configSourceVideo.getConfig('cfgcustomkeependhour')))
-        else :
-            cfgcustomkeependhour = self.configSourceVideo.getConfig('cfgcustomkeependhour')
-        if (int(self.configSourceVideo.getConfig('cfgcustomkeependminute')) < 10):
-            cfgcustomkeependminute = "0" + str(int(self.configSourceVideo.getConfig('cfgcustomkeependminute')))
-        else :
-            cfgcustomkeependminute = self.configSourceVideo.getConfig('cfgcustomkeependminute')
 
-        keepstart = int(cfgcustomkeepstarthour + cfgcustomkeepstartminute)
+        keepstart = int(self.addZero(self.configSourceVideo.getConfig('cfgcustomkeepstarthour')) + self.addZero(self.configSourceVideo.getConfig('cfgcustomkeepstartminute')))
         self.videoClass.setKeepStart(keepstart)
-        keepend = int(cfgcustomkeependhour + cfgcustomkeependminute)
-        self.videoClass.setKeepEnd(keepend)        
+        keepend = int(self.addZero(self.configSourceVideo.getConfig('cfgcustomkeependhour')) + self.addZero(self.configSourceVideo.getConfig('cfgcustomkeependminute')))
+        self.videoClass.setKeepEnd(keepend)
+        
 #				keepstart = int(self.configSourceVideo.getConfig('cfgcustomkeepstarthour') + self.configSourceVideo.getConfig('cfgcustomkeepstartminute'))
 #				keepend = int(self.configSourceVideo.getConfig('cfgcustomkeependhour') + self.configSourceVideo.getConfig('cfgcustomkeependminute'))
         self.log.info("videoUtils.identifyCustomStartEnd(): " + _("Creation from: %(customstart)s to: %(customend)s") % {'customstart': customstart, 'customend': customend})
@@ -305,7 +296,7 @@ class videoUtils(object):
                         self.videoClass.setVideoFilename(scanPictureDay[:8])
                         VideoTag = True
                     self.log.info("videoUtils.copyFilesToVideoDirectory(): " + _("Creation requested from: %(customstart)s to: %(customend)s ") % {'customstart': self.videoClass.getCustomVideoStart(), 'customend': self.videoClass.getCustomVideoEnd() } )
-                    self.log.info("videoUtils.copyFilesToVideoDirectory(): " + _("Only keeping pictures between: %(keepstart)s and: %(keepend)s ") % {'keepstart': self.videoClass.getKeepStart(), 'keepend': self.videoClass.getKeepEnd() } )
+                    self.log.info("videoUtils.copyFilesToVideoDirectory(): " + _("Keeping pictures between: %(keepstart)s and: %(keepend)s ") % {'keepstart': self.videoClass.getKeepStart(), 'keepend': self.videoClass.getKeepEnd() } )
                     for scanPictureFile in sorted(os.listdir(self.dirCurrentSourcePictures + scanPictureDay), reverse=True):
                         # Only keep file if they have a numerical filename
                         # Applying date restrictions where necessary
