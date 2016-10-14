@@ -304,7 +304,8 @@ class videoUtils(object):
                         self.videoClass.setCustomVideoEnd(scanPictureDay[:8] + "235959")
                         self.videoClass.setVideoFilename(scanPictureDay[:8])
                         VideoTag = True
-                        self.log.info("videoUtils.copyFilesToVideoDirectory(): " + _("Creation from: %(customstart)s to: %(customend)s ") % {'customstart': self.videoClass.getCustomVideoStart(), 'customend': self.videoClass.getCustomVideoEnd() } )
+                    self.log.info("videoUtils.copyFilesToVideoDirectory(): " + _("Creation requested from: %(customstart)s to: %(customend)s ") % {'customstart': self.videoClass.getCustomVideoStart(), 'customend': self.videoClass.getCustomVideoEnd() } )
+                    self.log.info("videoUtils.copyFilesToVideoDirectory(): " + _("Only keeping pictures between: %(keepstart)s and: %(keepend)s ") % {'keepstart': self.videoClass.getKeepStart(), 'keepend': self.videoClass.getKeepEnd() } )
                     for scanPictureFile in sorted(os.listdir(self.dirCurrentSourcePictures + scanPictureDay), reverse=True):
                         # Only keep file if they have a numerical filename
                         # Applying date restrictions where necessary
