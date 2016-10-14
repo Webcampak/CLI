@@ -157,7 +157,7 @@ class videoUtils(object):
         """ Take a numbe and append a 0 if less than 10 """
         returnNb = int(number)
         if returnNb < 10:
-            returnNb = "0" + returnNb
+            returnNb = "0" + str(returnNb)
         return str(returnNb)
 
     def identifyCustomStartEnd(self):
@@ -179,7 +179,7 @@ class videoUtils(object):
         self.videoClass.setKeepStart(keepstart)
         keepend = int(self.addZero(self.configSourceVideo.getConfig('cfgcustomkeependhour')) + self.addZero(self.configSourceVideo.getConfig('cfgcustomkeependminute')))
         self.videoClass.setKeepEnd(keepend)
-        
+
 #				keepstart = int(self.configSourceVideo.getConfig('cfgcustomkeepstarthour') + self.configSourceVideo.getConfig('cfgcustomkeepstartminute'))
 #				keepend = int(self.configSourceVideo.getConfig('cfgcustomkeependhour') + self.configSourceVideo.getConfig('cfgcustomkeependminute'))
         self.log.info("videoUtils.identifyCustomStartEnd(): " + _("Creation from: %(customstart)s to: %(customend)s") % {'customstart': customstart, 'customend': customend})
