@@ -266,7 +266,7 @@ class Video:
                                 formatDictionary['mp4'] = os.path.getsize(self.dirCurrentSourceVideos + TargetVideoFilename + ".mp4")                            
                             if self.videoType == "video":
                                 self.videoUtils.sendVideos(TargetVideoFilename, videoformats)
-                            if self.videoType == "videocustom" and self.configSourceVideo.getConfig("cfgvideoemailactivate") == "yes":
+                            if self.videoType == "videocustom" and self.configSourceVideo.getConfig("cfgemailmovieactivate") == "yes":
                                 self.videoEmails.sendVideoSuccess(TargetVideoFilename)
                         else:
                             self.log.error("video.run(): " + _("Error for creating video for format: %(videoformats)s") % {'videoformats': videoformats} )   
