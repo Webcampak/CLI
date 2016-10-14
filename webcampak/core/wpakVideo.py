@@ -264,7 +264,8 @@ class Video:
                                 formatDictionary['avi'] = os.path.getsize(self.dirCurrentSourceVideos + TargetVideoFilename)
                             if os.path.isfile(self.dirCurrentSourceVideos + TargetVideoFilename + ".mp4"):
                                 formatDictionary['mp4'] = os.path.getsize(self.dirCurrentSourceVideos + TargetVideoFilename + ".mp4")                            
-                            self.videoUtils.sendVideos(TargetVideoFilename, videoformats)
+                            if self.videoType == "video":
+                                self.videoUtils.sendVideos(TargetVideoFilename, videoformats)
                             if self.videoType == "videocustom" and self.configSourceVideo.getConfig("cfgvideoemailactivate") == "yes":
                                 self.videoEmails.sendVideoSuccess(TargetVideoFilename)
                         else:
