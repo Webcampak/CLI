@@ -175,7 +175,7 @@ class Video:
         self.keepStart = keepStart    
         
     def getKeepEnd(self):
-        return self.keepStart
+        return self.keepEnd
     
     def setKeepEnd(self, keepEnd):
         self.keepEnd = keepEnd            
