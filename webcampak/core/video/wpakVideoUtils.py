@@ -102,14 +102,14 @@ class videoUtils(object):
         Returns:
             Boolean: True (creation allowed) or False (creation not allowed)
         """          
-        self.log.debug("captureUtils.isCreationAllowed(): " + _("Start"))
+        self.log.debug("videoUtils.isCreationAllowed(): " + _("Start"))
         
         AllowCreation = False
         if self.configSource.getConfig('cfgsourceactive') == "yes" and self.videoType == "video":
             AllowCreation = True	
             if self.configSourceVideo.getConfig('cfgvideocodecH2641080pcreate') == "no" and self.configSourceVideo.getConfig('cfgvideocodecH264720pcreate') == "no" and self.configSourceVideo.getConfig('cfgvideocodecH264480pcreate') == "no" and self.configSourceVideo.getConfig('cfgvideocodecH264customcreate') == "no" and self.videoType != "videopost":	
                 AllowCreation = False
-                self.log.info("captureUtils.isCreationAllowed(): " + _("Video: Error: No video format selected ... Cancelling ..."))				
+                self.log.info("videoUtils.isCreationAllowed(): " + _("Video: Error: No video format selected ... Cancelling ..."))
         elif self.videoType == "videocustom":			
             currenthour = self.videoClass.getScriptStartTime().strftime("%H")
             currentday = self.videoClass.getScriptStartTime().strftime("%Y%m%d")
@@ -120,24 +120,24 @@ class videoUtils(object):
             if os.path.isfile(self.dirCurrentSourceVideos + currentday + "_" + self.configSourceVideo.getConfig('cfgcustomvidname') + ".1080p.avi"):
                 AllowCreation = True
                 self.configSourceVideo.setConfig('cfgcustomvidname', randomVideoName)
-                self.log.info("captureUtils.isCreationAllowed(): " + _("Video: Error: File exists: %(File)s - Creating a random filename ") % {'File': self.dirCurrentSourceVideos + currentday + "_" + self.configSourceVideo.getConfig('cfgcustomvidname') + ".1080p.avi"} )
+                self.log.info("videoUtils.isCreationAllowed(): " + _("Video: Error: File exists: %(File)s - Creating a random filename ") % {'File': self.dirCurrentSourceVideos + currentday + "_" + self.configSourceVideo.getConfig('cfgcustomvidname') + ".1080p.avi"} )
             elif os.path.isfile(self.dirCurrentSourceVideos + currentday + "_" + self.configSourceVideo.getConfig('cfgcustomvidname') + ".720p.avi"):
                 AllowCreation = True
                 self.configSourceVideo.setConfig('cfgcustomvidname', randomVideoName)
-                self.log.info("captureUtils.isCreationAllowed(): " + _("Video: Error: File exists: %(File)s - Creating a random filename ") % {'File': self.dirCurrentSourceVideos + currentday + "_" + self.configSourceVideo.getConfig('cfgcustomvidname') + ".720p.avi"} )
+                self.log.info("videoUtils.isCreationAllowed(): " + _("Video: Error: File exists: %(File)s - Creating a random filename ") % {'File': self.dirCurrentSourceVideos + currentday + "_" + self.configSourceVideo.getConfig('cfgcustomvidname') + ".720p.avi"} )
             elif os.path.isfile(self.dirCurrentSourceVideos + currentday + "_" + self.configSourceVideo.getConfig('cfgcustomvidname') + ".480p.avi"):
                 AllowCreation = True
                 self.configSourceVideo.setConfig('cfgcustomvidname', randomVideoName)
-                self.log.info("captureUtils.isCreationAllowed(): " + _("Video: Error: File exists: %(File)s - Creating a random filename ") % {'File': self.dirCurrentSourceVideos + currentday + "_" + self.configSourceVideo.getConfig('cfgcustomvidname') + ".480p.avi"} )
+                self.log.info("videoUtils.isCreationAllowed(): " + _("Video: Error: File exists: %(File)s - Creating a random filename ") % {'File': self.dirCurrentSourceVideos + currentday + "_" + self.configSourceVideo.getConfig('cfgcustomvidname') + ".480p.avi"} )
             elif os.path.isfile(self.dirCurrentSourceVideos + currentday + "_" + self.configSourceVideo.getConfig('cfgcustomvidname') + ".H264-custom.avi"):
                 AllowCreation = True
                 self.configSourceVideo.setConfig('cfgcustomvidname', randomVideoName)
-                self.log.info("captureUtils.isCreationAllowed(): " + _("Video: Error: File exists: %(File)s - Creating a random filename ") % {'File': self.dirCurrentSourceVideos + currentday + "_" + self.configSourceVideo.getConfig('cfgcustomvidname') + ".H264-custom.avi"} )
+                self.log.info("videoUtils.isCreationAllowed(): " + _("Video: Error: File exists: %(File)s - Creating a random filename ") % {'File': self.dirCurrentSourceVideos + currentday + "_" + self.configSourceVideo.getConfig('cfgcustomvidname') + ".H264-custom.avi"} )
             else:
                 AllowCreation = True
             if  self.configSourceVideo.getConfig('cfgcustomactive') == "no":
                 AllowCreation = False
-                self.log.info("captureUtils.isCreationAllowed(): " + _("Video: Creation manually disabled ... Cancelling ..."))
+                self.log.info("videoUtils.isCreationAllowed(): " + _("Video: Creation manually disabled ... Cancelling ..."))
         elif self.videoType == "videopost":
             currenthour = self.videoClass.getScriptStartTime().strftime("%H")
             currentday = self.videoClass.getScriptStartTime().strftime("%Y%m%d")
@@ -147,10 +147,10 @@ class videoUtils(object):
                 AllowCreation = True
             else:
                 AllowCreation = False
-                self.log.info("captureUtils.isCreationAllowed(): " + _("Video: Creation manually disabled ... Cancelling ..."))
+                self.log.info("videoUtils.isCreationAllowed(): " + _("Video: Creation manually disabled ... Cancelling ..."))
         else:
             AllowCreation = False 
-            self.log.info("captureUtils.isCreationAllowed(): " + _("Video: Source disabled ... Cancelling ..."))
+            self.log.info("videoUtils.isCreationAllowed(): " + _("Video: Source disabled ... Cancelling ..."))
         return AllowCreation
     
     def identifyCustomStartEnd(self):
@@ -161,7 +161,7 @@ class videoUtils(object):
         Returns:
             Boolean: True (creation allowed) or False (creation not allowed)
         """         
-        self.log.debug("captureUtils.identifyCustomStartEnd(): " + _("Start"))
+        self.log.debug("videoUtils.identifyCustomStartEnd(): " + _("Start"))
         
         customstart = self.configSourceVideo.getConfig('cfgcustomstartyear') + self.configSourceVideo.getConfig('cfgcustomstartmonth') + self.configSourceVideo.getConfig('cfgcustomstartday') + self.configSourceVideo.getConfig('cfgcustomstarthour') + self.configSourceVideo.getConfig('cfgcustomstartminute') + "00"
         self.videoClass.setCustomVideoStart(customstart)
@@ -191,9 +191,9 @@ class videoUtils(object):
         self.videoClass.setKeepEnd(keepend)        
 #				keepstart = int(self.configSourceVideo.getConfig('cfgcustomkeepstarthour') + self.configSourceVideo.getConfig('cfgcustomkeepstartminute'))
 #				keepend = int(self.configSourceVideo.getConfig('cfgcustomkeependhour') + self.configSourceVideo.getConfig('cfgcustomkeependminute'))
-        self.log.info("captureUtils.identifyCustomStartEnd(): " + _("Creation from: %(customstart)s to: %(customend)s") % {'customstart': customstart, 'customend': customend})
+        self.log.info("videoUtils.identifyCustomStartEnd(): " + _("Creation from: %(customstart)s to: %(customend)s") % {'customstart': customstart, 'customend': customend})
         if keepstart != 0 or keepend != 0:
-            self.log.info("captureUtils.identifyCustomStartEnd(): " + _("Keeping only pictures between: %(keepstart)s and %(keepend)s") % {'keepstart': str(keepstart), 'keepend': str(keepend)} )
+            self.log.info("videoUtils.identifyCustomStartEnd(): " + _("Keeping only pictures between: %(keepstart)s and %(keepend)s") % {'keepstart': str(keepstart), 'keepend': str(keepend)} )
 
     def prepareVideoDirectory(self, TargetVideoDir):
         """ Check if directory exists, if it does, delete it. Then re-create it.
@@ -203,7 +203,7 @@ class videoUtils(object):
         Returns:
             None
         """        
-        self.log.debug("captureUtils.prepareVideoDirectory(): " + _("Start"))
+        self.log.debug("videoUtils.prepareVideoDirectory(): " + _("Start"))
         if os.path.exists(TargetVideoDir):
             shutil.rmtree(TargetVideoDir)
         self.fileUtils.CheckDir(TargetVideoDir)
@@ -211,7 +211,7 @@ class videoUtils(object):
 
     def doesVideoFileExists(self, fileDayPrefix):
         """Returns True if the video file exists """
-        self.log.debug("captureUtils.doesVideoFileExists(): " + _("Start"))        
+        self.log.debug("videoUtils.doesVideoFileExists(): " + _("Start"))
         for scanVideoFile in sorted(os.listdir(self.dirCurrentSourceVideos)):
             if fileDayPrefix[:8] == scanVideoFile[:8] and scanVideoFile[8] != "_":
                 return True
@@ -241,13 +241,13 @@ class videoUtils(object):
                 self.pictureTransformations.setFiledestinationPath(self.videoClass.getProcessVideoDir() + "filterB.jpg")                 
                 self.pictureTransformations.Watermark(0, 0, 0, watermarkFile)	
             else:
-                self.log.error("captureUtils.compareImages(): " + _("Unable to find watermark file:  %(watermarkFile)s") % {'watermarkFile': self.configSource.getConfig("cfgpicwatermarkfile")})
+                self.log.error("videoUtils.compareImages(): " + _("Unable to find watermark file:  %(watermarkFile)s") % {'watermarkFile': self.configSource.getConfig("cfgpicwatermarkfile")})
         else:
             shutil.copy(currentFile, self.videoClass.getProcessVideoDir() + "filterB.jpg")
         if os.path.isfile(self.videoClass.getProcessVideoDir() + "filterA.jpg"):
                 #puzzle-diff 20120123073003-puz.jpg 20120123073202-puz.jpg
                 Command = "puzzle-diff " + self.videoClass.getProcessVideoDir() + "filterA.jpg " + self.videoClass.getProcessVideoDir() + "filterB.jpg"
-                self.log.info("captureUtils.compareImages(): " + _("Executing command:  %(Command)s") % {'Command': Command})                
+                self.log.info("videoUtils.compareImages(): " + _("Executing command:  %(Command)s") % {'Command': Command})
                 args = shlex.split(Command)
                 p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                 output, errors = p.communicate()
@@ -255,11 +255,11 @@ class videoUtils(object):
                 self.log.debug('captureGphoto.triggerCapture() - ERRORS: ' + errors)                
                 PuzzleDiff = output.strip()
                 if float(PuzzleDiff) < float(self.configSourceVideo.getConfig('cfgfiltervalue')):
-                    self.log.info("captureUtils.compareImages(): " + _("Difference with previous file: %(PuzzleDiff)s - Config: %(MaxDiff)s -- Skipping file") % {'PuzzleDiff': PuzzleDiff, 'MaxDiff': self.configSourceVideo.getConfig('cfgfiltervalue')} )                    
+                    self.log.info("videoUtils.compareImages(): " + _("Difference with previous file: %(PuzzleDiff)s - Config: %(MaxDiff)s -- Skipping file") % {'PuzzleDiff': PuzzleDiff, 'MaxDiff': self.configSourceVideo.getConfig('cfgfiltervalue')} )
                     os.remove(self.videoClass.getProcessVideoDir() + "filterB.jpg")
                     return False
                 else:
-                    self.log.info("captureUtils.compareImages(): " + _("Video: Filter: Difference with previous file: %(PuzzleDiff)s - Config: %(MaxDiff)s -- Copying file") % {'PuzzleDiff': PuzzleDiff, 'MaxDiff': self.configSourceVideo.getConfig('cfgfiltervalue')} )                    
+                    self.log.info("videoUtils.compareImages(): " + _("Video: Filter: Difference with previous file: %(PuzzleDiff)s - Config: %(MaxDiff)s -- Copying file") % {'PuzzleDiff': PuzzleDiff, 'MaxDiff': self.configSourceVideo.getConfig('cfgfiltervalue')} )
                     shutil.copy(self.videoClass.getProcessVideoDir() + "filterB.jpg", self.videoClass.getProcessVideoDir() + "filterA.jpg")
                     os.remove(self.videoClass.getProcessVideoDir() + "filterB.jpg")
                     return True							
@@ -270,7 +270,7 @@ class videoUtils(object):
   
     def countNumberOfFilesPerExtension(self, scanDirectory):
         """calculate the number of files per file extension """
-        self.log.debug("captureUtils.countNumberOfFilesPerExtension(): " + _("Start"))        
+        self.log.debug("videoUtils.countNumberOfFilesPerExtension(): " + _("Start"))
         extensionsCount = collections.defaultdict(int)
         for path, dirs, files in os.walk(scanDirectory):
             for filename in files:
@@ -357,10 +357,10 @@ class videoUtils(object):
         Returns:
             None
         """           
-        self.log.debug("captureUtils.modifyPictures(): " + _("Start"))      
-        self.log.info("captureUtils.modifyPictures(): " + _("Processing file: %(filePath)s ") % {'filePath': filePath} )
+        self.log.debug("videoUtils.modifyPictures(): " + _("Start"))
         pictureTime = datetime.strptime(os.path.splitext(os.path.basename(filePath))[0], "%Y%m%d%H%M%S")
-        self.log.info("videoUtils.modifyPictures(): " + _("Picture date: %(pictureTime)s ") % {'pictureTime': pictureTime.isoformat()} )
+
+        self.log.info("videoUtils.modifyPictures(): " + _("Processing file: %(filePath)s - Date: %(pictureTime)s") % {'filePath': filePath, 'pictureTime': pictureTime.isoformat()} )
 
         self.pictureTransformations.setFilesourcePath(filePath)
         self.pictureTransformations.setFiledestinationPath(filePath)         
@@ -411,8 +411,8 @@ class videoUtils(object):
         Returns:
             None
         """           
-        self.log.debug("captureUtils.modifyPictures(): " + _("Start"))      
-        self.log.info("captureUtils.modifyPictures(): " + _("Processing file: %(filePath)s ") % {'filePath': filePath} )
+        self.log.debug("videoUtils.modifyPictures(): " + _("Start"))
+        self.log.info("videoUtils.modifyPictures(): " + _("Processing file: %(filePath)s ") % {'filePath': filePath} )
         pictureTime = datetime.strptime(os.path.splitext(os.path.basename(filePath))[0], "%Y%m%d%H%M%S")
         self.log.info("videoUtils.modifyPictures(): " + _("Picture date: %(pictureTime)s ") % {'pictureTime': pictureTime.isoformat()} )
 
@@ -487,7 +487,7 @@ class videoUtils(object):
         Returns:
             None
         """               
-        self.log.debug("captureUtils.transitionPictures(): " + _("Start"))              
+        self.log.debug("videoUtils.transitionPictures(): " + _("Start"))
         TransitionNbFiles = len(os.listdir(self.videoClass.getProcessVideoDir()))
         TrStartWidth = float(self.configSourceVideo.getConfig('cfgcropsizewidth'))
         TrStartHeight = float(self.configSourceVideo.getConfig('cfgcropsizeheight'))

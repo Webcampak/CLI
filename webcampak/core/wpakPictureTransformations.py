@@ -52,14 +52,14 @@ class pictureTransformations:
         
     # Getters and Setters
     def setFilesourcePath(self, path):
-        self.log.info("pictureTransformations.setFilesourcePath(): " + _("FilePath: %(path)s") % {'path': path} )                                                            
+        self.log.debug("pictureTransformations.setFilesourcePath(): " + _("FilePath: %(path)s") % {'path': path} )
         self.sourcePath = path
         
     def getFilesourcePath(self):
         return self.sourcePath
     
     def setFiledestinationPath(self, path):
-        self.log.info("pictureTransformations.setFiledestinationPath(): " + _("FilePath: %(path)s") % {'path': path} )                                                    
+        self.log.debug("pictureTransformations.setFiledestinationPath(): " + _("FilePath: %(path)s") % {'path': path} )
         self.destinationPath = path
         
     def getFiledestinationPath(self):
