@@ -247,9 +247,6 @@ class xferDispatch:
                 if threadJson['last_job'] != None:                    
                     lastJobCompletion = dateutil.parser.parse(threadJson['last_job']['date_completed'])
                     currentDate = self.timeUtils.getCurrentDate()
-                    print lastJobCompletion
-                    print currentDate
-                    print (currentDate-lastJobCompletion).total_seconds()
                     if (currentDate-lastJobCompletion).total_seconds() < 1800:
                         self.log.info("xferDispatch.initializeThreads(): This thread has been active in the last 30 minutes and might still be active") 
                         if (threadJson.has_key('pid') and self.xferUtils.isPidAlive(threadJson['pid'])):

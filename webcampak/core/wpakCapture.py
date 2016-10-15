@@ -328,16 +328,16 @@ class Capture(object):
                 # If the system is configured to send an email in case of capture error
                 # It stores a counter of the number of failure since last email
                 # If over the reminder, will reset this counter and resend the email
-                if int(currentErrorCount) >= int(self.configSource.getConfig('cfgemailalertfailure')) and self.configSource.getConfig('cfgemailerroractivate') == "yes":
+                if int(currentErrorCount) >= int(self.configSource.getConfig('cfgemailalertfailure')) and self.configSource.getConfig('cfgemailerroractivate') == "yes" and self.lastCaptureDetails.getLastCaptureTime() != None:
                     self.log.info("capture.run(): " + _("Last Successful capture took place at: %(lastSuccessCapture)s") % {'lastSuccessCapture': str(self.lastCaptureDetails.getLastCaptureTime().isoformat())})                                
                     if os.path.isfile(self.dirCache + "source" + self.currentSourceId + "-errorcountemail"):
                         currentEmailCounter = self.captureUtils.getCustomCounter("errorcountemail") + 1
                         self.captureUtils.setCustomCounter("errorcountemail", currentEmailCounter)
                         if int(self.configSource.getConfig('cfgemailalertreminder')) == int(currentEmailCounter): 
-                            self.log.info("captureEmails.sendCaptureError(): " + _("Error counter is: %(currentEmailCounter)s (Total: %(currentErrorCount)s), sending a reminder (= %(cfgemailalertreminder)s)") % {'currentEmailCounter': str(currentEmailCounter), 'currentErrorCount': str(currentErrorCount), 'cfgemailalertreminder': self.configSource.getConfig('cfgemailalertreminder')})                               
+                            self.log.info("capture.run(): " + _("Error counter is: %(currentEmailCounter)s (Total: %(currentErrorCount)s), sending a reminder (= %(cfgemailalertreminder)s)") % {'currentEmailCounter': str(currentEmailCounter), 'currentErrorCount': str(currentErrorCount), 'cfgemailalertreminder': self.configSource.getConfig('cfgemailalertreminder')})
                             self.captureUtils.setCustomCounter("errorcountemail", 0)
                     if self.captureUtils.getCustomCounter("errorcountemail") >= 1:
-                        self.log.info("captureEmails.sendCaptureError(): " + _("Error email already sent, error counter since last email: %(currentEmailCounter)s, next email at: %(cfgemailalertreminder)s")% {'currentEmailCounter': str(currentEmailCounter), 'cfgemailalertreminder': self.configSource.getConfig('cfgemailalertreminder')})                                           
+                        self.log.info("capture.run(): " + _("Error email already sent, error counter since last email: %(currentEmailCounter)s, next email at: %(cfgemailalertreminder)s")% {'currentEmailCounter': str(currentEmailCounter), 'cfgemailalertreminder': self.configSource.getConfig('cfgemailalertreminder')})
                     else:                    
                         self.captureEmails.sendCaptureError(currentErrorCount, self.lastCaptureDetails.getLastCaptureTime())
                         self.captureUtils.setCustomCounter("errorcountemail", "1")

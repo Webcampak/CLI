@@ -629,8 +629,9 @@ class captureUtils(object):
        
             Returns:
                 int, value of the counter, 0 if file does not exists
-        """          
+        """
         self.log.debug("captureUtils.getCustomCounter(): " + _("Start"))
+        self.log.info("captureUtils.getCustomCounter(): " + _("Opening file: %(customCounter)s") % {'customCounter': self.dirCache + "source" + self.currentSourceId + "-" + CustomFile} )
         if os.path.isfile(self.dirCache + "source" + self.currentSourceId + "-" + CustomFile):
             f = open(self.dirCache + "source" + self.currentSourceId + "-" + CustomFile, 'r')		
             try:
@@ -649,7 +650,8 @@ class captureUtils(object):
             CustomFile: tag of the file to be used   
             ErrorCount: Count to be added to the file       
         """                  
-        self.log.debug("captureUtils.setCustomCounter(): " + _("Start"))        
+        self.log.debug("captureUtils.setCustomCounter(): " + _("Start"))
+        self.log.info("captureUtils.setCustomCounter(): " + _("Opening file: %(customCounter)s") % {'customCounter': self.dirCache + "source" + self.currentSourceId + "-" + CustomFile} )
         f = open(self.dirCache + "source" + self.currentSourceId + "-" + CustomFile, 'w')
         f.write(str(ErrorCount))
         f.close()        

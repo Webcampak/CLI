@@ -19,6 +19,7 @@ import socket
 
 from ..wpakConfigObj import Config
 from ..wpakEmailObj import emailObj
+from ..wpakDbUtils import dbUtils
 
 class captureEmails(object):
     """ This class is used to send success or error emails resulting of a capture
@@ -83,12 +84,9 @@ class captureEmails(object):
             emailSubject = emailSubject.replace("#NBFAILURES#", str(self.captureUtils.getCustomCounter('errorcount')))
             newEmail = emailObj(self.log, self.dirEmails, self.fileUtils)
             newEmail.setFrom({'email': self.configGeneral.getConfig('cfgemailsendfrom')})
-            if self.configSource.getConfig('cfgemailsendto') != "":
-                newEmail.addTo({'email': self.configSource.getConfig('cfgemailsendto')})
-            if self.configSource.getConfig('cfgemailsendcc') != "":                        
-                newEmail.addCc({'email': self.configSource.getConfig('cfgemailsendcc')})
-            if self.configGeneral.getConfig('cfgemailsendbcc') != "":                                                
-                newEmail.addBcc({'email': self.configGeneral.getConfig('cfgemailsendbcc')})
+            db = dbUtils(self.captureClass)
+            newEmail.setTo(db.getSourceEmailUsers(self.currentSourceId))
+            db.closeDb()
             newEmail.setBody(emailContent)
             newEmail.setSubject(emailSubject)
             if captureFilename != None and int(self.configSource.getConfig('cfgemailsuccesspicturewidth')) > 0:
@@ -113,6 +111,7 @@ class captureEmails(object):
             None
         """     
         self.log.info("captureEmails.sendCaptureError(): " + _("Preparation of an email alert about the error"))
+
         emailErrorContent = self.dirCurrentLocaleMessages + "emailErrorContent.txt"
         emailErrorSubject = self.dirCurrentLocaleMessages + "emailErrorSubject.txt"
         if os.path.isfile(emailErrorContent) == False:
@@ -130,17 +129,13 @@ class captureEmails(object):
             emailSubjectFile.close()
             emailSubject = emailSubject.replace("#CURRENTHOSTNAME#", socket.gethostname())
             emailSubject = emailSubject.replace("#CURRENTSOURCE#", self.currentSourceId)
-            #emailSubject = emailSubject.replace("#LASTCAPTUREDATE#", str(lastSuccessCapture.isoformat()))
             emailSubject = emailSubject.replace("#LASTCAPTUREDATE#", self.captureUtils.formatDateLegend(lastSuccessCapture, self.configSource.getConfig('cfgimgdateformat')))
             
             newEmail = emailObj(self.log, self.dirEmails, self.fileUtils)
             newEmail.setFrom({'email': self.configGeneral.getConfig('cfgemailsendfrom')})
-            if self.configSource.getConfig('cfgemailsendto') != "":
-                newEmail.addTo({'email': self.configSource.getConfig('cfgemailsendto')})
-            if self.configSource.getConfig('cfgemailsendcc') != "":                        
-                newEmail.addCc({'email': self.configSource.getConfig('cfgemailsendcc')})
-            if self.configGeneral.getConfig('cfgemailsendbcc') != "":                                                
-                newEmail.addBcc({'email': self.configGeneral.getConfig('cfgemailsendbcc')})
+            db = dbUtils(self.captureClass)
+            newEmail.setTo(db.getSourceEmailUsers(self.currentSourceId))
+            db.closeDb()
             newEmail.setBody(emailContent)
             newEmail.setSubject(emailSubject)
             newEmail.writeEmailObjectFile() 
@@ -193,12 +188,9 @@ class captureEmails(object):
 
                         newEmail = emailObj(self.log, self.dirEmails, self.fileUtils)
                         newEmail.setFrom({'email': self.configGeneral.getConfig('cfgemailsendfrom')})
-                        if self.configSource.getConfig('cfgemailsendto') != "":
-                            newEmail.addTo({'email': self.configSource.getConfig('cfgemailsendto')})
-                        if self.configSource.getConfig('cfgemailsendcc') != "":                        
-                            newEmail.addCc({'email': self.configSource.getConfig('cfgemailsendcc')})
-                        if self.configGeneral.getConfig('cfgemailsendbcc') != "":                                                
-                            newEmail.addBcc({'email': self.configGeneral.getConfig('cfgemailsendbcc')})
+                        db = dbUtils(self.captureClass)
+                        newEmail.setTo(db.getSourceEmailUsers(self.currentSourceId))
+                        db.closeDb()
                         newEmail.setBody(emailContent)
                         newEmail.setSubject(emailSubject)
                         newEmail.writeEmailObjectFile() 

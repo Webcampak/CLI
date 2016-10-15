@@ -19,6 +19,7 @@ import socket
 
 from ..wpakConfigObj import Config
 from ..wpakEmailObj import emailObj
+from ..wpakDbUtils import dbUtils
 
 class videoEmails(object):
     """ This class is used to send success or error emails resulting of a capture
@@ -82,12 +83,9 @@ class videoEmails(object):
             emailSubject = emailSubject.replace("#VIDEOFILENAME#", videoFilename)
             newEmail = emailObj(self.log, self.dirEmails, self.fileUtils)
             newEmail.setFrom({'email': self.configGeneral.getConfig('cfgemailsendfrom')})
-            if self.configSource.getConfig('cfgemailsendto') != "":
-                newEmail.addTo({'email': self.configSource.getConfig('cfgemailsendto')})
-            if self.configSource.getConfig('cfgemailsendcc') != "":                        
-                newEmail.addCc({'email': self.configSource.getConfig('cfgemailsendcc')})
-            if self.configGeneral.getConfig('cfgemailsendbcc') != "":                                                
-                newEmail.addBcc({'email': self.configGeneral.getConfig('cfgemailsendbcc')})
+            db = dbUtils(self.captureClass)
+            newEmail.setTo(db.getSourceEmailUsers(self.currentSourceId))
+            db.closeDb()
             newEmail.setBody(emailContent)
             newEmail.setSubject(emailSubject)
             # Note: Add log file along with the email            
