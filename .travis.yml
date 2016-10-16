@@ -21,4 +21,4 @@ install:
 # command to run tests
 script:
   - webcampak --help
-  - webcmapak capture --help
+  - webcampak capture --help
