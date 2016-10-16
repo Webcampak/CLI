@@ -85,7 +85,8 @@ class statsRrd(object):
         self.dirCache = self.configPaths.getConfig('parameters')['dir_cache']
         self.dirEmails = self.configPaths.getConfig('parameters')['dir_emails']                
         self.dirResources = self.configPaths.getConfig('parameters')['dir_resources']  
-        self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']  
+        self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']
+        self.dirXferQueue = self.configPaths.getConfig('parameters')['dir_xfer'] + 'queued/'
         self.dirCurrentSource = self.dirSources + 'source' + self.currentSourceId +'/'        
         self.dirCurrentSourceTmp = self.dirSources + 'source' + self.currentSourceId +'/' + self.configPaths.getConfig('parameters')['dir_source_tmp']
         self.dirCurrentSourceCapture = self.dirSources + 'source' + self.currentSourceId +'/' + self.dirSourceCapture       
@@ -107,6 +108,8 @@ class statsRrd(object):
         self.timeUtils = timeUtils(self)
         self.fileUtils = fileUtils(self)
         self.FTPUtils = FTPUtils(self)
+        self.transferUtils = transferUtils(self)
+
 
     def setupLog(self):      
         """ Setup logging to file"""  
@@ -225,6 +228,14 @@ class statsRrd(object):
                                             , "--vertical-label="+ str(SensorLegend)\
                                             , "DEF:GRAPHAREA=" + str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".rrd") + ":GRAPHAREA:AVERAGE" \
                                             , "AREA:GRAPHAREA" + str(SensorColor) + ":" + str(SensorLegend))
+
+                        if self.configSource.getConfig('cfgftpphidgetserverid') != "":
+                            currentTime = self.timeUtils.getCurrentSourceTime(self.configSource)
+                            self.transferUtils.transferFile(self.captureClass.getCaptureTime(), self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".rrd", str(sensorsDay) + "/sensor-" + currentSensor + ".rrd", self.configSource.getConfig('cfgftpphidgetserverid'), self.configSource.getConfig('cfgftpphidgetserverretry'))
+                            self.transferUtils.transferFile(self.captureClass.getCaptureTime(), self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".png", str(sensorsDay) + "/sensor-" + currentSensor + ".png", self.configSource.getConfig('cfgftpphidgetserverid'), self.configSource.getConfig('cfgftpphidgetserverretry'))
+
+
+
 
         else:
             self.log.info("statsrrd.run(): " + _("Creation of the RRD Graph disabled for source: %(currentSourceId)s") % {'currentSourceId': str(self.currentSourceId)} )
