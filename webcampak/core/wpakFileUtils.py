@@ -18,7 +18,6 @@
 import os
 import shlex, subprocess
 import re
-import shutil
 import datetime
 from dateutil import tz
 import time

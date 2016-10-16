@@ -15,19 +15,11 @@
 # If not, see http://www.gnu.org/licenses/
 
 
-import os, sys, smtplib, datetime, tempfile, subprocess, datetime, shutil, time, ftplib
-import getopt
-import time
-import smtplib
-import zipfile
-import socket
-import urllib
-import pwd
-import locale
-import gettext
+import os
+import sys
+import yaml
 
 from configobj import ConfigObj
-import yaml
 
 # This class is used to set or get values from configobj functions
 class Config:

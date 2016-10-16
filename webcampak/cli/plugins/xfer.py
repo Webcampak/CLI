@@ -1,7 +1,7 @@
 """Example Plugin for Webcampak."""
 
 from cement.core.controller import CementBaseController, expose
-from cement.core import handler, hook, foundation
+from cement.core import handler, hook
 
 from webcampak.core.wpakXferDispatch import xferDispatch
 from webcampak.core.wpakXferStart import xferStart

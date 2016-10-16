@@ -16,27 +16,14 @@
 
 import os, uuid
 import datetime
-from pytz import timezone
 import shutil
-import pytz
-import json
 import dateutil.parser
-import random
-import time
-import zlib
 from dateutil import tz
 from collections import OrderedDict
 import json
-import shlex, subprocess
-import re
-import psutil
-import glob
 
 from wpakConfigObj import Config
-from wpakFileUtils import fileUtils
 from wpakTimeUtils import timeUtils
-#from wpakXferUtils import xferUtils
-#from wpakFTPTransfer import FTPTransfer
 
 # This class is used to start & process stored in the transfer queue 
 

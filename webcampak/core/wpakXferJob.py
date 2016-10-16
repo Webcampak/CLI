@@ -15,16 +15,7 @@
 # If not, see http://www.gnu.org/licenses/
 
 import os, uuid, signal
-from datetime import tzinfo, timedelta, datetime
-from pytz import timezone
-import shutil
-import pytz
 import json
-import dateutil.parser
-import zlib
-import gzip
-import gettext
-import random
 
 class xferJob(object):
     def __init__(self, loadFile = None):

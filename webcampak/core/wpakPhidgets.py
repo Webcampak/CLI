@@ -15,12 +15,8 @@
 # If not, see http://www.gnu.org/licenses/
 
 from ctypes import *
-import sys
-from time import sleep
 
 from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
-from Phidgets.Events.Events import AttachEventArgs, DetachEventArgs, ErrorEventArgs
-from Phidgets.Devices.TextLCD import TextLCD
 from Phidgets.Devices.InterfaceKit import InterfaceKit
 
 class phidgets(object):

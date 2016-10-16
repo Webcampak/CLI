@@ -15,41 +15,17 @@
 # If not, see http://www.gnu.org/licenses/
 
 import os, uuid
-from datetime import tzinfo, timedelta, datetime
-from pytz import timezone
-import shutil
-import pytz
-import json
 import dateutil.parser
-import datetime
-import random
 import time
 import gettext
-from dateutil import tz
-from collections import OrderedDict
 import json
-from os.path import basename
 import rrdtool
 
 from wpakConfigObj import Config
 from wpakFileUtils import fileUtils
 from wpakTimeUtils import timeUtils
 from wpakTransferUtils import transferUtils
-from wpakPhidgetsUtils import phidgetsUtils
 
-from capture.wpakCaptureUtils import captureUtils
-from capture.wpakCaptureEmails import captureEmails
-from capture.wpakCaptureObj import captureObj
-
-from capture.drivers.wpakCaptureGphoto import captureGphoto
-from capture.drivers.wpakCaptureIPCam import captureIPCam
-from capture.drivers.wpakCaptureWebfile import captureWebfile
-from capture.drivers.wpakCaptureTestPicture import captureTestPicture
-from capture.drivers.wpakCaptureWpak import captureWpak
-from capture.drivers.wpakCaptureRtsp import captureRtsp
-from capture.drivers.wpakCapturePhidget import capturePhidget
-
-from wpakPictureTransformations import pictureTransformations
 from wpakFTPUtils import FTPUtils
 
 # This class is used to generate a RRD graph from a source

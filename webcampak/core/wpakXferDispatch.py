@@ -15,11 +15,7 @@
 # If not, see http://www.gnu.org/licenses/
 
 import os, uuid
-from datetime import tzinfo, timedelta, datetime
-from pytz import timezone
 import shutil
-import pytz
-import json
 import dateutil.parser
 import gettext
 

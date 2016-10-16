@@ -14,26 +14,15 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
-import os, uuid, signal
-from datetime import tzinfo, timedelta, datetime
-from pytz import timezone
+import os
 import shutil
 import time
-import pytz
-import json
-import dateutil.parser
-import zlib
-import gzip
-import gettext
 import socket
 import urllib
-import hashlib
 import platform
 import re
 
 from ..wpakConfigObj import Config
-from ..wpakXferJob import xferJob
-from ..wpakFTPTransfer import FTPTransfer
 
 class captureUtils(object):
     """ This class contains various utilities functions used during the capture process

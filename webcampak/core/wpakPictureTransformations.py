@@ -14,17 +14,7 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
-import os, uuid, signal
-from datetime import tzinfo, timedelta, datetime
-import time
-from pytz import timezone
-import shutil
-import pytz
-import json
-import dateutil.parser
-import zlib
-import gzip
-from dateutil import tz
+import os
 import subprocess
 import shlex
 from timeit import default_timer as timer

@@ -1,8 +1,7 @@
 """Example Plugin for Webcampak."""
 
 from cement.core.controller import CementBaseController, expose
-from cement.core import handler, hook, foundation
-from cement.ext.ext_logging import LoggingLogHandler
+from cement.core import handler, hook
 #import copy
 
 #FORMAT = "abcde %(asctime)s (%(levelname)s) %(namespace)s : %(message)s"

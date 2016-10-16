@@ -1,13 +1,11 @@
 """Example Plugin for Webcampak."""
 
 from cement.core.controller import CementBaseController, expose
-from cement.core import handler, hook, foundation
+from cement.core import handler, hook
 
 from webcampak.core.wpakStatsCollect import statsCollect
 from webcampak.core.wpakStatsConsolidate import statsConsolidate
 from webcampak.core.wpakStatsRrd import statsRrd
-#from webcampak.core.wpakXferStart import xferStart
-#from webcampak.core.wpakXferStop import xferStop
 
 def xfer_plugin_hook(app):
     # do something with the ``app`` object here.

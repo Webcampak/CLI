@@ -14,17 +14,7 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
-import os, uuid
-import datetime
-from pytz import timezone
-import shutil
-import pytz
-import json
-import dateutil.parser
-import random
-import time
-import zlib
-from dateutil import tz
+import os
 from collections import OrderedDict
 import json
 import shlex, subprocess
