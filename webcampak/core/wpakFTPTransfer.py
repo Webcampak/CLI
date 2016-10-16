@@ -52,18 +52,7 @@ class FTPTransfer:
         FTPUsername = f.getConfig('cfgftpserverslist' + str(serverId))[2]
         
         return hashlib.sha224(FTPServer + FTPUsername).hexdigest()
-                
-        """
-                # 
-        $identifiedFtpServer = null;
-        foreach ($sourceconfigurationFTPServers as $idx=>$ftpServer) {
-            if ($ftpServer['ID'] == $serverId) {
-                $identifiedFtpServer = $ftpServer;
-            }
-        }
-        return md5($identifiedFtpServer['HOST'] . $identifiedFtpServer['USERNAME']); 
-        """
-                
+
     # Get remote file size
     def getFilesize(self, filepath):
         self.log.info("FTPTransfer.getFilesize(): Start - Path: " + filepath)

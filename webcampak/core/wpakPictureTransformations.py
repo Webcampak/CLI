@@ -68,7 +68,7 @@ class pictureTransformations:
         if pictureSize != "":
             if os.path.isfile(self.dirImageMagick + "convert"):
                 startTimer = timer()                            
-                convert = subprocess.check_call([self.dirImageMagick + "convert", self.getFilesourcePath(), "-scale", pictureSize + '!', self.getFiledestinationPath()])
+                subprocess.check_call([self.dirImageMagick + "convert", self.getFilesourcePath(), "-scale", pictureSize + '!', self.getFiledestinationPath()])
                 endTimer = timer()                
                 self.log.info("pictureTransformations.resize(): " + _("Resized picture to %(pictureSize)s in %(timer)s ms") % {'pictureSize': pictureSize, 'timer': int((endTimer - startTimer) * 1000)} )
             else:
@@ -109,7 +109,7 @@ class pictureTransformations:
         self.log.debug("pictureTransformations.rotate(): " + _("Start")) 
         if os.path.isfile(self.dirImageMagick + "convert"):
             startTimer = timer()
-            convert = subprocess.check_call([self.dirImageMagick + "convert", self.getFilesourcePath(), "-rotate", rotateAngle, self.getFiledestinationPath()])
+            subprocess.check_call([self.dirImageMagick + "convert", self.getFilesourcePath(), "-rotate", rotateAngle, self.getFiledestinationPath()])
             endTimer = timer()
             self.log.info("pictureTransformations.rotate(): " + _("Rotated picture by %(rotateAngle)s degrees in %(timer)s ms") % {'rotateAngle': rotateAngle, 'timer': int((endTimer - startTimer) * 1000)} )            
         else:
@@ -129,7 +129,6 @@ class pictureTransformations:
             self.fileUtils.CheckDir(NewPath)
             self.log.info("pictureTransformations.Border(): " + _("Color: %(Color)s Width: %(BorderWidth)s") % {'Color': Color, 'BorderWidth': HBorder + ":" + VBorder} )
             convert = subprocess.check_call([self.dirImageMagick + "convert", self.getFilesourcePath(), "-bordercolor", Color, "-border", HBorder + 'x' + VBorder, NewPath])
-            convert_results = str(convert)
         else:
             self.log.debug(_("Error: Convert binary (ImageMagick) not found"))
             sys.exit()
@@ -193,12 +192,12 @@ class pictureTransformations:
             self.log.info("pictureTransformations.Sketch(): " + _("Running command to generate pencil tile: %(Command)s") % {'Command': Command})
             args = shlex.split(Command)
             p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-            output, errors = p.communicate()		  
+            p.communicate()
         Command = self.dirImageMagick + "convert " + self.getFilesourcePath() + " -colorspace gray \( +clone -tile " + TargetDir + "pencil_tile.gif -draw \"color 0,0 reset\" +clone +swap -compose color_dodge -composite \) -fx 'u*.2+v*.8' " + self.getFiledestinationPath()
         self.log.info("pictureTransformations.Sketch(): " + _("Running command to creaste sketch: %(Command)s") % {'Command': Command})
         args = shlex.split(Command)
         p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        output, errors = p.communicate()	
+        p.communicate()
 
     # Function: TiltShift 
     # Description; Add a tiltshift effect to a picture

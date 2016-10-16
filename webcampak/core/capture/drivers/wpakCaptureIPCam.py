@@ -70,7 +70,6 @@ class captureIPCam(object):
                         #2012:05:20 10:46:37
                         cfgnow = datetime(*time.strptime(value, "%Y:%m:%d %H:%M:%S")[0:6])
                         return cfgnow
-                        break;
         except:
             return 0
 

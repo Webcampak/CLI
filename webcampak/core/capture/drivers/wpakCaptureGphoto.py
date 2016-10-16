@@ -86,8 +86,7 @@ class captureGphoto(object):
     def cameraLookup(self):
         self.log.debug("captureGphoto.cameraLookup(): " + _("Start"))        
         if self.configGeneral.getConfig('cfggphotoports') == "yes":
-            import filecmp
-            self.log.info("captureGphoto.cameraLookup(): " + _("Capture previously failed, checking USB port of the camera"))	
+            self.log.info("captureGphoto.cameraLookup(): " + _("Capture previously failed, checking USB port of the camera"))
             gphotoPorts = self.scanPorts()
             if gphotoPorts != None: 	
                 import re

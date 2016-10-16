@@ -72,7 +72,9 @@ class fileUtils:
         DuCommand = "du -sb " + source
         args = shlex.split(DuCommand)
         p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        output, errors = p.communicate()	
+        output, errors = p.communicate()
+        print output
+        print errors
         return str(re.findall("\d+", output)[0])
 
     # Function: CheckJpegFile

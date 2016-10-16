@@ -52,13 +52,7 @@ class captureRtsp(object):
         self.captureFilename = self.captureClass.getCaptureTime().strftime("%Y%m%d%H%M%S")   
         self.fileUtils.CheckFilepath(self.dirCurrentSourceTmp + self.captureFilename + ".jpg")
 
-        totalCaptureSize = 0 
-        
         self.log.info("captureRtsp.capture(): " + _("Starting capture process, URL: %(URL)s ") % {'URL': self.configSource.getConfig('cfgsourcewebfileurl')} )
-#		Command = "cvlc -I dummy " + c.getConfig('cfgsourcewebfileurl') + " --run-time=2 --video-filter=scene --scene-path=" + self.dirCurrentSourceTmp + " --scene-format=jpg --scene-ratio=1 --scene-prefix=capture vlc://quit"
-#		Command = "ffmpeg -i " + self.configSource.getConfig('cfgsourcewebfileurl') + " -y -f image2 -sameq -t 0.001 " + self.dirCurrentSourceTmp + "capture00001.jpg"
-#            Command = "avconv -i " + self.configSource.getConfig('cfgsourcewebfileurl') + " -y -f image2 -qscale 2 -t 0.001 " + self.dirCurrentSourceTmp + self.captureFilename + ".jpg"
-        #Command = "avconv -i " + self.configSource.getConfig('cfgsourcewebfileurl') + " -y -vsync 1 -r 1 -an -y " + self.dirCurrentSourceTmp + self.captureFilename + ".jpg"
         Command = "avconv -i " + self.configSource.getConfig('cfgsourcewebfileurl') + " -ss 00:00:01.500 -f image2 -vframes 1 " + self.dirCurrentSourceTmp + self.captureFilename + ".jpg"
 
         self.log.info("captureRtsp.capture(): " + _("Capture Command: %(captureCommand)s ") % {'captureCommand': Command} )

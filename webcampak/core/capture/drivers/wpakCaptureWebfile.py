@@ -17,6 +17,7 @@
 import os
 import socket
 import urllib
+from urllib2 import URLError, HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler, build_opener
 
 class captureWebfile(object):
     def __init__(self, parentClass):
@@ -57,9 +58,6 @@ class captureWebfile(object):
         self.captureFilename = self.captureClass.getCaptureTime().strftime("%Y%m%d%H%M%S")   
         self.fileUtils.CheckFilepath(self.dirCurrentSourceTmp + self.captureFilename + ".jpg")
 
-        #totalFileSize = totalFileSize + os.path.getsize(self.dirCurrentSourcePictures + captureDirectory + "/" + captureFilename + ".jpg")
-        totalCaptureSize = 0
-        
         socket.setdefaulttimeout(10)
         url = self.configSource.getConfig('cfgsourcewebfileurl')        
         self.log.info("captureWebfile.capture(): " + _("Starting the capture process, URL: %(remoteURL)s") % {'remoteURL': url})
@@ -76,7 +74,6 @@ class captureWebfile(object):
             self.log.info("captureWebfile.capture(): " + _("Url does not contain username and password"))
 
         if urlusername != "":
-            from urllib2 import URLError, HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler, install_opener, build_opener
             try:
                 # From: http://twigstechtips.blogspot.com/2011/10/python-fetching-https-urls-which.html
                 password_mgr = HTTPPasswordMgrWithDefaultRealm()
@@ -86,7 +83,7 @@ class captureWebfile(object):
                 localFile = open(self.dirCurrentSourceTmp + self.captureFilename + ".jpg", 'w')
                 localFile.write(file.read())
                 localFile.close()
-            except URLError, e:
+            except URLError:
                 self.log.info("captureWebfile.capture(): " + _("Error opening the URL"))	
                 self.log.info("captureWebfile.capture(): " + _("Check your username and password"))	
                 return False

@@ -39,17 +39,7 @@ class FTPUtils:
         FTPUsername = ftpServerConfig.getConfig('cfgftpserverslist' + str(serverId))[2]
         
         return hashlib.sha224(FTPServer + FTPUsername).hexdigest()
-                
-        """
-                # 
-        $identifiedFtpServer = null;
-        foreach ($sourceconfigurationFTPServers as $idx=>$ftpServer) {
-            if ($ftpServer['ID'] == $serverId) {
-                $identifiedFtpServer = $ftpServer;
-            }
-        }
-        return md5($identifiedFtpServer['HOST'] . $identifiedFtpServer['USERNAME']); 
-        """
+
                 
 
         

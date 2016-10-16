@@ -223,7 +223,7 @@ class captureUtils(object):
             for ListSourceSensors in range(1,int(self.configSource.getConfig('cfgphidgetsensornb')) + 1):
                 if self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] != "" and self.configSource.getConfig('cfgphidgetsensorinsert' + str(ListSourceSensors))[0] != "no":
                     self.log.info("captureUtils.modifyPictures(): " + _("Processing Sensor %(SensorNb)s") % {'SensorNb': ListSourceSensors})
-                    SensorsHistory = Config(self.dirCurrentSourceTmp + cfgdispday + "/" + self.configGeneral.getConfig('cfgphidgetcapturefile'))
+                    SensorsHistory = Config(self.dirCurrentSourceTmp + cfgdispday + "/" + self.configGeneral.getConfig('cfgphidgetcapturefile'), None)
                     CurrentValue = SensorsHistory.getSensor(cfgdispdate, self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0])
                     if CurrentValue == False:
                         SensorTable = []
