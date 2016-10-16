@@ -338,9 +338,10 @@ class Capture(object):
                             self.captureUtils.setCustomCounter("errorcountemail", 0)
                     if self.captureUtils.getCustomCounter("errorcountemail") >= 1:
                         self.log.info("capture.run(): " + _("Error email already sent, error counter since last email: %(currentEmailCounter)s, next email at: %(cfgemailalertreminder)s")% {'currentEmailCounter': str(currentEmailCounter), 'cfgemailalertreminder': self.configSource.getConfig('cfgemailalertreminder')})
-                    else:                    
-                        self.captureEmails.sendCaptureError(currentErrorCount, self.lastCaptureDetails.getLastCaptureTime())
-                        self.captureUtils.setCustomCounter("errorcountemail", "1")
+                    else:
+                        if self.configSource.getConfig('cfgemaildirectalert') == "yes":
+                            self.captureEmails.sendCaptureError(currentErrorCount, self.lastCaptureDetails.getLastCaptureTime())
+                            self.captureUtils.setCustomCounter("errorcountemail", "1")
                                                         
             if self.configSource.getConfig('cfgcapturedeleteafterdays') != "0":
                 # Purge old pictures (by day)
@@ -352,8 +353,8 @@ class Capture(object):
             if self.configGeneral.getConfig('cfgstatsactivate') == "yes":
                 self.captureUtils.sendUsageStats()	
 
-            if self.configSource.getConfig('cfgemailcapturestats') == "yes":
-                self.captureEmails.sendCaptureStats()	
+            #if self.configSource.getConfig('cfgemailcapturestats') == "yes":
+            #    self.captureEmails.sendCaptureStats()
 
             if self.configGeneral.getConfig('cfgphidgetactivate') == "yes" and self.configSource.getConfig('cfgphidgetactivate') == "yes":
                 fileCaptureLog = self.dirCurrentSourcePictures + self.getCaptureTime().strftime("%Y%m%d") + "/sensors.jsonl"
