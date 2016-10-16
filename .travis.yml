@@ -26,4 +26,3 @@ script:
   - webcampak system --help
   - webcampak video --help
   - webcampak xfer --help
-  - webcampak capture -s 1
