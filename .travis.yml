@@ -22,3 +22,8 @@ install:
 script:
   - webcampak --help
   - webcampak capture --help
+  - webcampak stats --help
+  - webcampak system --help
+  - webcampak video --help
+  - webcampak xfer --help
+  - webcampak capture -s 1
