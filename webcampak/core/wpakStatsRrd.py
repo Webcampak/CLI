@@ -231,8 +231,8 @@ class statsRrd(object):
 
                         if self.configSource.getConfig('cfgftpphidgetserverid') != "":
                             currentTime = self.timeUtils.getCurrentSourceTime(self.configSource)
-                            self.transferUtils.transferFile(currentTime, self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".rrd", str(sensorsDay) + "/sensor-" + currentSensor + ".rrd", self.configSource.getConfig('cfgftpphidgetserverid'), self.configSource.getConfig('cfgftpphidgetserverretry'))
-                            self.transferUtils.transferFile(currentTime, self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".png", str(sensorsDay) + "/sensor-" + currentSensor + ".png", self.configSource.getConfig('cfgftpphidgetserverid'), self.configSource.getConfig('cfgftpphidgetserverretry'))
+                            self.transferUtils.transferFile(currentTime, self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".rrd", "sensor-" + currentSensor + ".rrd", self.configSource.getConfig('cfgftpphidgetserverid'), self.configSource.getConfig('cfgftpphidgetserverretry'))
+                            self.transferUtils.transferFile(currentTime, self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".png", "sensor-" + currentSensor + ".png", self.configSource.getConfig('cfgftpphidgetserverid'), self.configSource.getConfig('cfgftpphidgetserverretry'))
 
 
 

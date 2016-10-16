@@ -363,6 +363,9 @@ class Capture(object):
                 currentSensorsDetails.setSensorsValue('date', self.getCaptureTime().isoformat())
                 currentSensorsDetails.setSensorsValue('sensors', capturedSensors)
                 currentSensorsDetails.archiveSensorsFile()
+                if self.configSource.getConfig('cfgftpphidgetserverid') != "":
+                    self.transferUtils.transferFile(self.getCaptureTime(), fileCaptureLog, self.getCaptureTime().strftime("%Y%m%d") + "/sensors.jsonl", self.configSource.getConfig('cfgftpphidgetserverid'), self.configSource.getConfig('cfgftpphidgetserverretry'))
+
 
             scriptEndDate = self.timeUtils.getCurrentSourceTime(self.configSource)
             totalCaptureTime = int((scriptEndDate-self.getScriptStartTime()).total_seconds()*1000)
