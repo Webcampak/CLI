@@ -8,3 +8,4 @@ Pillow
 jsonschema #https://github.com/Julian/jsonschema
 Phidgets
 rrdtool
+tabulate

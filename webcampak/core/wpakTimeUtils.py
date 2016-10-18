@@ -110,7 +110,7 @@ class timeUtils:
             fileTimeStamp = int(os.path.getmtime(filePath))
             fileTime = datetime.fromtimestamp(fileTimeStamp)            
             if sourceConfig.getConfig('cfgcapturetimezone') != "": # Update the timezone from UTC to the source's timezone
-                self.log.info("timeUtils.getTimeFromFilename(): " + _("Source timezone is: %(sourceTimezone)s") % {'sourceTimezone': sourceConfig.getConfig('cfgcapturetimezone')})            
+                self.log.info("timeUtils.getTimeFromFiledate(): " + _("Source timezone is: %(sourceTimezone)s") % {'sourceTimezone': sourceConfig.getConfig('cfgcapturetimezone')})
                 sourceTimezone = tz.gettz(sourceConfig.getConfig('cfgcapturetimezone'))
                 fileTime = fileTime.replace(tzinfo=tz.gettz('UTC'))				
                 fileTime = fileTime.astimezone(sourceTimezone)
