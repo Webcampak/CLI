@@ -184,6 +184,8 @@ class xferUtils:
         """
         self.log.debug("xferUtils.setThreadLastJob(): " + _("Start"))
         threadJson = self.loadJsonFile(self.dirXferThreads + threadUUID + '.json')
+        if len(jobReport) == 0:
+            jobReport = None
         threadJson['last_job'] = jobReport
         threadJson['date_updated'] = self.getCurrentDateIso()
         self.writeJsonFile(self.dirXferThreads + threadUUID + '.json', threadJson)           
