@@ -121,7 +121,7 @@ class reportsDaily(object):
             sourceDiskUsage = fileUtils.CheckDirDu(self.dirSources + 'source' + str(currentSource) +'/')
             self.log.info("reportsDaily.run(): " + _("Source disk quota is: %(sourceQuota)s") % {'sourceQuota': str(sourceQuota)})
             self.log.info("reportsDaily.run(): " + _("Source disk usage is: %(sourceDiskUsage)s") % {'sourceDiskUsage': str(sourceDiskUsage)})
-            if sourceQuota == None:
+            if sourceQuota == None or int(sourceQuota) == 0:
                 sourceDiskPercentUsed = None
             else:
                 sourceDiskPercentUsed = int(int(sourceDiskUsage)/int(sourceQuota)*100)
