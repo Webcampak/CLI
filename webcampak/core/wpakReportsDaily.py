@@ -222,7 +222,7 @@ class reportsDaily(object):
         if currentSourceReport['source']['quota'] == None:
             currentSourceAvailable = None
         else:
-            currentSourceAvailable = currentSourceReport['source']['quota'] - currentSourceReport['source']['usage']
+            currentSourceAvailable = int(currentSourceReport['source']['quota']) - int(currentSourceReport['source']['usage'])
 
         headers = ["", "Used", "Available" , "Remaining" ,"% Used"]
         table = [\
