@@ -124,7 +124,7 @@ class reportsDaily(object):
             if sourceQuota == None:
                 sourceDiskPercentUsed = None
             else:
-                sourceDiskPercentUsed = int(sourceDiskUsage/sourceQuota)
+                sourceDiskPercentUsed = int(int(sourceDiskUsage)/int(sourceQuota)*100)
 
             sourceSchedule = self.getSourceSchedule(currentSource)
 
