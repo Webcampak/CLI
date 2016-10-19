@@ -103,6 +103,19 @@ class fileUtils:
             cfgnow = datetime.datetime(*time.strptime(f[0] + f[1] + f[2] + f[3] + "/" + f[4] + f[5] + "/" + f[6] + f[7] + "/" + f[8] + f[9] + "/" + f[10] + f[11] + "/" + f[12] + f[13], "%Y/%m/%d/%H/%M/%S")[0:6])
             return cfgnow
 
+    """Returns a human readable size"""
+    @staticmethod
+    def sizeof_fmt(num, suffix='B'):
+        if num != None:
+            num = int(num)
+            for unit in ['','K','M','G','T','P','E','Z']:
+                if abs(num) < 1024.0:
+                    return "%3.1f%s%s" % (num, unit, suffix)
+                num /= 1024.0
+            return "%.1f%s%s" % (num, 'Yi', suffix)
+        else:
+            return num
+
 
     # Function: SecondsSinceLastCapture
     # Description; This function is used to return the number of seconds since last picture captured from a source

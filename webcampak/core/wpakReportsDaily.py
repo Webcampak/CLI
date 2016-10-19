@@ -20,13 +20,14 @@ import gettext
 import json
 from datetime import tzinfo, timedelta, datetime
 from tabulate import tabulate
+import socket
 
 from wpakConfigObj import Config
 from wpakTimeUtils import timeUtils
 from wpakSourcesUtils import sourcesUtils
 from wpakFileUtils import fileUtils
 from wpakDbUtils import dbUtils
-
+from wpakEmailObj import emailObj
 from wpakFTPUtils import FTPUtils
 
 # This class is used to capture a picture or sensors from a source
@@ -112,6 +113,7 @@ class reportsDaily(object):
         """ Initiate daily reports creation for all sources """
         self.log.info("reportsDaily.run(): " + _("Initiate reports creation"))
 
+        emailReports = {}
         for currentSource in self.sourcesUtils.getActiveSourcesIds():
             self.log.info("reportsDaily.run(): " + _("Processing source %(currentSource)s") % {'currentSource': str(currentSource)})
 
@@ -126,9 +128,9 @@ class reportsDaily(object):
 
             sourceSchedule = self.getSourceSchedule(currentSource)
 
-            emailReports = []
             # Identify missing reports for source
             missingReports = self.getMissingReports(currentSource)
+            emailReports[currentSource] = {}
             for currentReportDay in missingReports:
                 if int(self.timeUtils.getCurrentDate().strftime("%Y%m%d")) == currentReportDay:
                     self.log.info("reportsDaily.run(): " + _("Skipping report for current day: %(currentReportDay)s") % {'currentReportDay': str(currentReportDay)})
@@ -140,76 +142,120 @@ class reportsDaily(object):
                     jsonReportFile = dirCurrentSourceReports + str(currentReportDay) + '.json'
                     self.log.info("reportsDaily.run(): " + _("Preparing to save report in %(jsonReportFile)s") % {'jsonReportFile': str(jsonReportFile)})
                     if self.writeJsonFile(jsonReportFile,currentSourceReport):
-                        print self.prepareEmailReportContent(currentSource, currentReportDay, currentSourceReport)
-                        emailReports.append({'sourceid': currentSource, 'reportDay': currentReportDay, 'report': currentSourceReport})
-                        #Send email
+                        reportEmail = self.prepareEmailReportContent(currentSource, currentReportDay, currentSourceReport)
+                        emailReports[currentSource][currentReportDay] = {'sourceid': currentSource, 'reportDay': currentReportDay, 'report': currentSourceReport, 'reportEmail': reportEmail}
                     else:
                         self.log.error("reportsDaily.run(): " + _("Error saving report file to disk %(jsonReportFile)s") % {'jsonReportFile': str(jsonReportFile)})
 
         self.log.info("reportsDaily.run(): " + _("Getting ready to send reports"))
-        print self.dbUtils.getUserWithSourceAlerts()
+        for currentUser in self.dbUtils.getUserWithSourceAlerts():
+            self.sendReportEmail(currentUser, emailReports)
+
+    def sendReportEmail(self, currentUser, emailReports):
+        self.log.debug("reportsDaily.sendReportEmail(): " + _("Start"))
+        self.log.info("reportsDaily.sendReportEmail(): " + _("Preparing to send email to user %(name)s - email: %(email)s") % {'name': currentUser['name'], 'email': currentUser['email']})
+
+        emailReportBody = ""
+        currentSourceId = None
+        for currentSource in currentUser['sources']:
+            self.log.info("reportsDaily.sendReportEmail(): " + _("Looking for report for source %(sourceid)s") % {'sourceid': currentSource['sourceid']})
+            if currentSource['sourceid'] in emailReports:
+                for currentDailyReport in sorted(emailReports[currentSource['sourceid']]):
+                    currentSourceId = currentSource['sourceid']
+                    emailReportBody = emailReportBody + emailReports[currentSource['sourceid']][currentDailyReport]['reportEmail'] + "\n -----------------------\n"
+            else:
+                self.log.info("reportsDaily.sendReportEmail(): " + _("No report found for source %(sourceid)s") % {'sourceid': currentSource['sourceid']})
+
+        headers = ["ID", "Name", "Emails Enabled"]
+        table = []
+        for currentSource in self.dbUtils.getSourcesForUser(currentUser['useId']):
+            table.append([currentSource['sourceid'], currentSource['name'], currentSource['alertsFlag']])
+        reportSources =  tabulate(table, headers, tablefmt="fancy_grid")
+
+        if currentSourceId != None:
+            configSource = Config(self.log, self.dirEtc + 'config-source' + str(currentSourceId) + '.cfg')
+            dirCurrentLocaleEmails = self.dirLocale + configSource.getConfig('cfgsourcelanguage') + "/" + self.dirLocaleEmails
+
+            emailReportSubjectFile = dirCurrentLocaleEmails + "dailyReportSubject.txt"
+            emailReportContentFile = dirCurrentLocaleEmails + "dailyReportContent.txt"
+            if os.path.isfile(emailReportContentFile) == False:
+                emailReportSubjectFile = self.dirLocale + "en_US.utf8/" + self.dirLocaleEmails + "dailyReportSubject.txt"
+                emailReportContentFile = self.dirLocale + "en_US.utf8/" + self.dirLocaleEmails + "dailyReportContent.txt"
+            self.log.info("captureportsDailyre.sendReportEmail(): " + _("Using message subject file: %(emailReportSubjectFile)s") % {'emailReportSubjectFile': emailReportSubjectFile} )
+            self.log.info("reportsDaily.sendReportEmail(): " + _("Using message content file: %(emailReportContentFile)s") % {'emailReportContentFile': emailReportContentFile} )
+
+            emailReportSubjectFile = open(emailReportSubjectFile, 'r')
+            emailReportSubject = emailReportSubjectFile.read()
+            emailReportSubjectFile.close()
+            emailReportSubject = emailReportSubject.replace("#CURRENTHOSTNAME#", socket.gethostname())
+            emailReportSubject = emailReportSubject.replace("#REPORTDATE#", self.timeUtils.getCurrentDate().strftime("%B %d, %Y"))
+            self.log.info("reportsDaily.sendReportEmail(): " + _("Email subject: %(emailReportSubject)s") % {'emailReportSubject': emailReportSubject})
+
+            emailReportContentFile = open(emailReportContentFile, 'r')
+            emailReportContent = emailReportContentFile.read()
+            emailReportContentFile.close()
+            emailReportContent = emailReportContent.replace("#REPORTBODY#", emailReportBody)
+            emailReportContent = emailReportContent.replace("#REPORTSOURCES#", reportSources)
+
+            print emailReportContent
+
+            self.configSource = configSource
+            self.fileUtils = fileUtils(self)
+            newEmail = emailObj(self.log, self.dirEmails, self.fileUtils)
+            newEmail.setFrom({'email': self.configGeneral.getConfig('cfgemailsendfrom')})
+            newEmail.setTo([{'name': currentUser['name'], 'email': currentUser['email']}])
+            newEmail.setBody(emailReportContent)
+            newEmail.setSubject(emailReportSubject)
+            newEmail.writeEmailObjectFile()
 
     def prepareEmailReportContent(self, currentSource, currentReportDay, currentSourceReport):
         self.log.debug("reportsDaily.prepareEmailReportContent(): " + _("Start"))
         self.log.info("reportsDaily.prepareEmailReportContent(): " + _("Preparing report content for Source: %(currentSource)s and Day: %(currentReportDay)s") % {'currentSource': str(currentSource), 'currentReportDay': str(currentReportDay)})
-        self.configSource = Config(self.log, self.dirEtc + 'config-source' + str(currentSource) + '.cfg')
-        dirCurrentLocaleEmails = self.dirLocale + self.configSource.getConfig('cfgsourcelanguage') + "/" + self.dirLocaleEmails
-        dailyReportContentSourceFile = dirCurrentLocaleEmails + "dailyReportContentSource.txt"
-        if os.path.isfile(dailyReportContentSourceFile) == False:
-            dailyReportContentSourceFile = self.dirLocale + "en_US.utf8/" + self.dirLocaleEmails + "dailyReportContentSource.txt"
-        self.log.info("capture.sendCaptureReport(): " + _("Using message content file: %(dailyReportContentSourceFile)s") % {'dailyReportContentSourceFile': dailyReportContentSourceFile} )
-        dailyReportContentSourceFile = open(dailyReportContentSourceFile, 'r')
-        dailyReportContentSource = dailyReportContentSourceFile.read()
-        dailyReportContentSourceFile.close()
-
-        dailyReportContentSource = dailyReportContentSource.replace("#SOURCEID#", str(currentSource))
-        dailyReportContentSource = dailyReportContentSource.replace("#SOURCENAME#", str(currentSource))
-
-        headers = ["Description", "Used", "Available" , "% Used"]
-        table = [\
-            ["Source",currentSourceReport['source']['usage'], currentSourceReport['source']['quota'], currentSourceReport['source']['percentUsed']]\
-            ,["Total Disk",currentSourceReport['disk']['used'], currentSourceReport['disk']['total'], currentSourceReport['disk']['percentUsed']]\
+        reportDatetime = datetime.strptime(str(currentReportDay) + "120000", "%Y%m%d%H%M%S")
+        table = [ \
+            ["Source Name", self.dbUtils.getSourceName(currentSource)] \
+            , ["Source ID", currentSource] \
+            , ["Report Day", reportDatetime.strftime("%B %d, %Y")] \
+            , ["Report Creation", self.timeUtils.getCurrentDate().strftime("%B %d, %Y")] \
             ]
-        print tabulate(table, headers, tablefmt="fancy_grid")
+        dailyReportContentSource = tabulate(table, tablefmt="fancy_grid") + "\n"
+        if currentSourceReport['source']['quota'] == None:
+            currentSourceAvailable = None
+        else:
+            currentSourceAvailable = currentSourceReport['source']['quota'] - currentSourceReport['source']['usage']
 
+        headers = ["", "Used", "Available" , "Remaining" ,"% Used"]
+        table = [\
+            ["Source", fileUtils.sizeof_fmt(currentSourceReport['source']['usage']), fileUtils.sizeof_fmt(currentSourceReport['source']['quota']), fileUtils.sizeof_fmt(currentSourceAvailable), currentSourceReport['source']['percentUsed']]\
+            ,["Total Disk",fileUtils.sizeof_fmt(currentSourceReport['disk']['used']), fileUtils.sizeof_fmt(currentSourceReport['disk']['total']), fileUtils.sizeof_fmt(currentSourceReport['disk']['free']), currentSourceReport['disk']['percentUsed']]\
+            ]
+        dailyReportContentSource = dailyReportContentSource + tabulate(table, headers, tablefmt="fancy_grid") + "\n"
 
-
-        """
-        headers = ["Description", "JPG", "RAW" , "TOTAL"]
-        table = [["Capture Count",currentSourceReport['']],["eggs",451],["bacon",0]]
-        print tabulate(table, headers, tablefmt="fancy_grid")
-        """
-
-        """
-        Source: #SOURCEID# - #SOURCENAME#
-        Total Capture Count: {{ reportItem.total.count }}
-        Total Capture Size: {{ emailTable.bytesToSize(reportItem.total.size) }}
-        Total Capture Score: {{ reportItem.schedule.overall.plannedSlots }} %
-        --------------------------------------------------------------------------------
-        Scheduled Slots: {{ reportItem.schedule.overall.plannedSlots }}
-        JPG Capture Count: {{ reportItem.jpg.count }}
-        JPG Capture Size: {{ emailTable.bytesToSize(reportItem.jpg.size) }}
-        JPG Success Rate: {{ reportItem.schedule.jpg.successRate }}
-        RAW Capture Count: {{ reportItem.raw.count }}
-        RAW Capture Size: {{ emailTable.bytesToSize(reportItem.raw.size) }}
-        RAW Success Rate: {{ reportItem.schedule.raw.successRate }}
-        """
-
-
-    def sendReportEmail(self, currentSource, currentReportDay, sourceSchedule):
-        self.log.debug("reportsDaily.sendReportEmail(): " + _("Start"))
-        self.log.info("reportsDaily.sendReportEmail(): " + _("Preparing to send report for Source: %(currentSource)s and Day: %(currentReportDay)s") % {'currentSource': str(currentSource), 'currentReportDay': str(currentReportDay)})
-
-        emailReportSubject = self.dirCurrentLocaleMessages + "dailyReportSubject.txt"
-        emailReportContent = self.dirCurrentLocaleMessages + "dailyReportContent.txt"
-        if os.path.isfile(emailReportContent) == False:
-            emailReportSubject = self.dirLocale + "en_US.utf8/" + self.dirLocaleMessage + "dailyReportSubject.txt"
-            emailReportContent = self.dirLocale + "en_US.utf8/" + self.dirLocaleMessage + "dailyReportContent.txt"
-        self.log.info("capture.sendCaptureReport(): " + _("Using message subject file: %(emailReportSubject)s") % {'emailReportSubject': emailReportSubject} )
-        self.log.info("capture.sendCaptureReport(): " + _("Using message content file: %(emailReportContent)s") % {'emailReportContent': emailReportContent} )
-
-
-
+        jpgScore = currentSourceReport['schedule']['onschedule']['JPG']['count'] / (currentSourceReport['schedule']['onschedule']['JPG']['count'] + currentSourceReport['schedule']['missing']['JPG']['count']) * 100
+        rawScore = currentSourceReport['schedule']['onschedule']['RAW']['count'] / (currentSourceReport['schedule']['onschedule']['RAW']['count'] + currentSourceReport['schedule']['missing']['RAW']['count']) * 100
+        headers = ["", "Captured", "Scheduled",  "On-Schedule", "Off-Schedule", "Missing", "Score"]
+        table = [ \
+            [\
+                "JPG"\
+                , currentSourceReport['capture']['JPG']['count'] \
+                , currentSourceReport['schedule']['onschedule']['JPG']['count'] + currentSourceReport['schedule']['missing']['JPG']['count'] \
+                , currentSourceReport['schedule']['onschedule']['JPG']['count'] \
+                , currentSourceReport['schedule']['extra']['JPG']['count'] \
+                , currentSourceReport['schedule']['missing']['JPG']['count'] \
+                , jpgScore \
+                ] \
+            ,[\
+                "RAW"\
+                , currentSourceReport['capture']['RAW']['count'] \
+                , currentSourceReport['schedule']['onschedule']['RAW']['count'] + currentSourceReport['schedule']['missing']['RAW']['count'] \
+                , currentSourceReport['schedule']['onschedule']['RAW']['count'] \
+                , currentSourceReport['schedule']['extra']['RAW']['count'] \
+                , currentSourceReport['schedule']['missing']['RAW']['count'] \
+                , rawScore \
+                ] \
+            ]
+        dailyReportContentSource = dailyReportContentSource + tabulate(table, headers, tablefmt="fancy_grid") + "\n"
+        return dailyReportContentSource
 
     def generateReport(self, currentSource, currentReportDay, sourceSchedule):
         self.log.debug("reportsDaily.generateReport(): " + _("Start"))
@@ -351,7 +397,7 @@ class reportsDaily(object):
         statvfs = os.statvfs(directory)
         totalSpace = statvfs.f_frsize * statvfs.f_blocks         # Size of filesystem in bytes
         totalFreeSpace = statvfs.f_frsize * statvfs.f_bavail     # Number of free bytes that ordinary user
-        return {'free': totalFreeSpace, 'total': totalSpace, 'used': int(totalSpace - totalFreeSpace), 'percentUsed': int(int(totalSpace - totalFreeSpace)/totalSpace)}
+        return {'free': totalFreeSpace, 'total': totalSpace, 'used': int(totalSpace - totalFreeSpace), 'percentUsed': int(totalFreeSpace/totalSpace*100)}
 
      
                

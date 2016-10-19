@@ -88,10 +88,28 @@ class dbUtils:
                 sourceId, sourceName = dbUserSources
                 userSources.append({'sourceid': sourceId, 'name': sourceName})
 
-            users.append({'name': firstname + ' ' + lastname, 'email': email, 'sources': userSources})
+            users.append({'useId': useId, 'name': firstname + ' ' + lastname, 'email': email, 'sources': userSources})
         self.closeDb()
         return users
 
+    def getSourcesForUser(self, useId):
+        self.log.debug("dbUtils.getSourcesForUser(): " + _("Start"))
+        if (self.dbConnection == None):
+            self.openDb()
+
+        dbQuery = "SELECT SOU.SOURCEID SOURCEID, SOU.NAME NAME,  USESOU.ALERTS_FLAG ALERTS_FLAG\
+        FROM SOURCES SOU \
+        LEFT JOIN USERS_SOURCES USESOU ON SOU.SOU_ID = USESOU.SOU_ID \
+        WHERE USESOU.USE_ID = :useId\
+        ORDER BY SOU.SOURCEID";
+
+        self.dbCursor.execute(dbQuery, {'useId':useId})
+        sources = []
+        for row in self.dbCursor.fetchall():
+            sourceid, name, alertsFlag = row
+            sources.append({'sourceid': sourceid, 'name': name, 'alertsFlag': alertsFlag})
+        self.closeDb()
+        return sources
 
     def getSourceQuota(self, sourceId):
         self.log.debug("dbUtils.getUsers(): " + _("Start"))
@@ -108,4 +126,18 @@ class dbUtils:
             self.closeDb()
             return quota
 
+    def getSourceName(self, sourceId):
+        self.log.debug("dbUtils.getSourceName(): " + _("Start"))
+        if (self.dbConnection == None):
+            self.openDb()
+
+        dbQuery = "SELECT SOU.NAME, SOU.SOURCEID\
+        FROM SOURCES SOU \
+        WHERE SOU.SOURCEID = :sourceId";
+
+        self.dbCursor.execute(dbQuery, {'sourceId':sourceId})
+        for row in self.dbCursor.fetchall():
+            name, sourceid = row
+            self.closeDb()
+            return name
         
