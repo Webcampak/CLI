@@ -231,30 +231,38 @@ class reportsDaily(object):
             ]
         dailyReportContentSource = dailyReportContentSource + tabulate(table, headers, tablefmt="fancy_grid") + "\n"
 
-        jpgScore = currentSourceReport['schedule']['onschedule']['JPG']['count'] / (currentSourceReport['schedule']['onschedule']['JPG']['count'] + currentSourceReport['schedule']['missing']['JPG']['count']) * 100
-        rawScore = currentSourceReport['schedule']['onschedule']['RAW']['count'] / (currentSourceReport['schedule']['onschedule']['RAW']['count'] + currentSourceReport['schedule']['missing']['RAW']['count']) * 100
-        headers = ["", "Captured", "Scheduled",  "On-Schedule", "Off-Schedule", "Missing", "Score"]
-        table = [ \
-            [\
-                "JPG"\
-                , currentSourceReport['capture']['JPG']['count'] \
-                , currentSourceReport['schedule']['onschedule']['JPG']['count'] + currentSourceReport['schedule']['missing']['JPG']['count'] \
-                , currentSourceReport['schedule']['onschedule']['JPG']['count'] \
-                , currentSourceReport['schedule']['extra']['JPG']['count'] \
-                , currentSourceReport['schedule']['missing']['JPG']['count'] \
-                , jpgScore \
-                ] \
-            ,[\
-                "RAW"\
-                , currentSourceReport['capture']['RAW']['count'] \
-                , currentSourceReport['schedule']['onschedule']['RAW']['count'] + currentSourceReport['schedule']['missing']['RAW']['count'] \
-                , currentSourceReport['schedule']['onschedule']['RAW']['count'] \
-                , currentSourceReport['schedule']['extra']['RAW']['count'] \
-                , currentSourceReport['schedule']['missing']['RAW']['count'] \
-                , rawScore \
-                ] \
-            ]
-        dailyReportContentSource = dailyReportContentSource + tabulate(table, headers, tablefmt="fancy_grid") + "\n"
+        if currentSourceReport['schedule'] != None:
+            jpgScore = currentSourceReport['schedule']['onschedule']['JPG']['count'] / (currentSourceReport['schedule']['onschedule']['JPG']['count'] + currentSourceReport['schedule']['missing']['JPG']['count']) * 100
+            rawScore = currentSourceReport['schedule']['onschedule']['RAW']['count'] / (currentSourceReport['schedule']['onschedule']['RAW']['count'] + currentSourceReport['schedule']['missing']['RAW']['count']) * 100
+            headers = ["", "Captured", "Scheduled",  "On-Schedule", "Off-Schedule", "Missing", "Score"]
+            table = [ \
+                [\
+                    "JPG"\
+                    , currentSourceReport['capture']['JPG']['count'] \
+                    , currentSourceReport['schedule']['onschedule']['JPG']['count'] + currentSourceReport['schedule']['missing']['JPG']['count'] \
+                    , currentSourceReport['schedule']['onschedule']['JPG']['count'] \
+                    , currentSourceReport['schedule']['extra']['JPG']['count'] \
+                    , currentSourceReport['schedule']['missing']['JPG']['count'] \
+                    , jpgScore \
+                    ] \
+                ,[\
+                    "RAW"\
+                    , currentSourceReport['capture']['RAW']['count'] \
+                    , currentSourceReport['schedule']['onschedule']['RAW']['count'] + currentSourceReport['schedule']['missing']['RAW']['count'] \
+                    , currentSourceReport['schedule']['onschedule']['RAW']['count'] \
+                    , currentSourceReport['schedule']['extra']['RAW']['count'] \
+                    , currentSourceReport['schedule']['missing']['RAW']['count'] \
+                    , rawScore \
+                    ] \
+                ]
+            dailyReportContentSource = dailyReportContentSource + tabulate(table, headers, tablefmt="fancy_grid") + "\n"
+        else:
+            headers = ["", "Captured"]
+            table = [ \
+                ["JPG" , currentSourceReport['capture']['JPG']['count']] \
+                ,["RAW", currentSourceReport['capture']['RAW']['count']] \
+                ]
+            dailyReportContentSource = dailyReportContentSource + tabulate(table, headers, tablefmt="fancy_grid") + "\n"
         return dailyReportContentSource
 
     def generateReport(self, currentSource, currentReportDay, sourceSchedule):
