@@ -49,9 +49,13 @@ class ExamplePluginController(CementBaseController):
             config_dir = self.app.pargs.config_dir
         else:
             config_dir = self.app.config.get('webcampak', 'config_dir')
-            
-        dispatch = xferDispatch(self.app.log, self.app.config, config_dir)
-        dispatch.run()
+
+        try:
+            dispatch = xferDispatch(self.app.log, self.app.config, config_dir)
+            dispatch.run()
+        except Exception:
+            self.app.log.fatal("Ooops! Something went terribly wrong, stack trace below:", exc_info=True)
+            raise
 
         
     @expose(help="Start XFer jobs queue processing")
@@ -61,9 +65,13 @@ class ExamplePluginController(CementBaseController):
             config_dir = self.app.pargs.config_dir
         else:
             config_dir = self.app.config.get('webcampak', 'config_dir')
-                
-        start = xferStart(self.app.log, self.app.config, config_dir, self.app.pargs.thread)
-        start.run()
+
+        try:
+            start = xferStart(self.app.log, self.app.config, config_dir, self.app.pargs.thread)
+            start.run()
+        except Exception:
+            self.app.log.fatal("Ooops! Something went terribly wrong, stack trace below:", exc_info=True)
+            raise
         
     @expose(help="Stop XFer jobs queue processing")
     def stop(self):
@@ -72,9 +80,13 @@ class ExamplePluginController(CementBaseController):
             config_dir = self.app.pargs.config_dir
         else:
             config_dir = self.app.config.get('webcampak', 'config_dir')
-                
-        stop = xferStop(self.app.log, self.app.config, config_dir, self.app.pargs.thread)
-        stop.run()
+
+        try:
+            stop = xferStop(self.app.log, self.app.config, config_dir, self.app.pargs.thread)
+            stop.run()
+        except Exception:
+            self.app.log.fatal("Ooops! Something went terribly wrong, stack trace below:", exc_info=True)
+            raise
         
     @expose(help="Stop XFer jobs and clear queue")
     def clear(self):
@@ -83,12 +95,17 @@ class ExamplePluginController(CementBaseController):
         else:
             config_dir = self.app.config.get('webcampak', 'config_dir')
 
-        self.app.log.info("Stopping XFer Jobs", __file__)                
-        stop = xferStop(self.app.log, self.app.config, config_dir, self.app.pargs.thread)
-        stop.run()   
-        self.app.log.info("Clearing XFer Jobs Queue", __file__)                
-        clearQueue = xferClear(self.app.log, self.app.config, config_dir, self.app.pargs.thread)
-        clearQueue.run()          
+        try:
+            self.app.log.info("Stopping XFer Jobs", __file__)
+            stop = xferStop(self.app.log, self.app.config, config_dir, self.app.pargs.thread)
+            stop.run()
+            self.app.log.info("Clearing XFer Jobs Queue", __file__)
+            clearQueue = xferClear(self.app.log, self.app.config, config_dir, self.app.pargs.thread)
+            clearQueue.run()
+        except Exception:
+            self.app.log.fatal("Ooops! Something went terribly wrong, stack trace below:", exc_info=True)
+            raise
+
               
         
 def load(app):

@@ -48,9 +48,12 @@ class ExamplePluginController(CementBaseController):
             config_dir = self.app.pargs.config_dir
         else:
             config_dir = self.app.config.get('webcampak', 'config_dir')
-            
-        collect = statsCollect(self.app.log, self.app.config, config_dir)
-        collect.run()
+        try:
+            collect = statsCollect(self.app.log, self.app.config, config_dir)
+            collect.run()
+        except Exception:
+            self.app.log.fatal("Ooops! Something went terribly wrong, stack trace below:", exc_info=True)
+            raise
         
     @expose(help="Consolidate Webcampak stats")
     def consolidate(self):
@@ -59,9 +62,13 @@ class ExamplePluginController(CementBaseController):
             config_dir = self.app.pargs.config_dir
         else:
             config_dir = self.app.config.get('webcampak', 'config_dir')
-            
-        consolidate = statsConsolidate(self.app.log, self.app.config, config_dir)
-        consolidate.run()
+
+        try:
+            consolidate = statsConsolidate(self.app.log, self.app.config, config_dir)
+            consolidate.run()
+        except Exception:
+            self.app.log.fatal("Ooops! Something went terribly wrong, stack trace below:", exc_info=True)
+            raise
 
     @expose(help="Generate a RRD Graph for a source")
     def rrd(self):
@@ -74,8 +81,12 @@ class ExamplePluginController(CementBaseController):
         if self.app.pargs.sourceid == None:
             self.app.log.error("Please specify a Source ID")
         else:
-            rrd = statsRrd(self.app.log, self.app.config, config_dir, self.app.pargs.sourceid)
-            rrd.run()
+            try:
+                rrd = statsRrd(self.app.log, self.app.config, config_dir, self.app.pargs.sourceid)
+                rrd.run()
+            except Exception:
+                self.app.log.fatal("Ooops! Something went terribly wrong, stack trace below:", exc_info=True)
+                raise
 
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled

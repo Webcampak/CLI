@@ -46,9 +46,13 @@ class ExamplePluginController(CementBaseController):
             config_dir = self.app.pargs.config_dir
         else:
             config_dir = self.app.config.get('webcampak', 'config_dir')
-            
-        video = Video(self.app.log, self.app.config, config_dir, self.app.pargs.sourceid, 'video')
-        video.run()         
+
+        try:
+            video = Video(self.app.log, self.app.config, config_dir, self.app.pargs.sourceid, 'video')
+            video.run()
+        except Exception:
+            self.app.log.fatal("Ooops! Something went terribly wrong, stack trace below:", exc_info=True)
+            raise
 
     @expose(help="Generate a custom video based on a specified time window")
     def custom(self):
@@ -57,9 +61,13 @@ class ExamplePluginController(CementBaseController):
             config_dir = self.app.pargs.config_dir
         else:
             config_dir = self.app.config.get('webcampak', 'config_dir')
-            
-        video = Video(self.app.log, self.app.config, config_dir, self.app.pargs.sourceid, 'videocustom')
-        video.run()    
+
+        try:
+            video = Video(self.app.log, self.app.config, config_dir, self.app.pargs.sourceid, 'videocustom')
+            video.run()
+        except Exception:
+            self.app.log.fatal("Ooops! Something went terribly wrong, stack trace below:", exc_info=True)
+            raise
         
     @expose(help="Batch manipulate pictures in prepartion of creating a video")
     def videopost(self):
@@ -68,9 +76,13 @@ class ExamplePluginController(CementBaseController):
             config_dir = self.app.pargs.config_dir
         else:
             config_dir = self.app.config.get('webcampak', 'config_dir')
-            
-        video = Video(self.app.log, self.app.config, config_dir, self.app.pargs.sourceid, 'videopost')
-        video.run()         
+
+        try:
+            video = Video(self.app.log, self.app.config, config_dir, self.app.pargs.sourceid, 'videopost')
+            video.run()
+        except Exception:
+            self.app.log.fatal("Ooops! Something went terribly wrong, stack trace below:", exc_info=True)
+            raise
         
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled

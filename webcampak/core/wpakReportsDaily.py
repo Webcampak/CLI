@@ -112,7 +112,6 @@ class reportsDaily(object):
     def run(self):
         """ Initiate daily reports creation for all sources """
         self.log.info("reportsDaily.run(): " + _("Initiate reports creation"))
-
         emailReports = {}
         for currentSource in self.sourcesUtils.getActiveSourcesIds():
             self.log.info("reportsDaily.run(): " + _("Processing source %(currentSource)s") % {'currentSource': str(currentSource)})

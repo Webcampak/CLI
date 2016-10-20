@@ -46,9 +46,13 @@ class ExamplePluginController(CementBaseController):
             config_dir = self.app.pargs.config_dir
         else:
             config_dir = self.app.config.get('webcampak', 'config_dir')
-            
-        reportsDailyClass = reportsDaily(self.app.log, self.app.config, config_dir)
-        reportsDailyClass.run()
+
+        try:
+            reportsDailyClass = reportsDaily(self.app.log, self.app.config, config_dir)
+            reportsDailyClass.run()
+        except Exception:
+            self.app.log.fatal("Ooops! Something went terribly wrong, stack trace below:", exc_info=True)
+            raise
 
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled
