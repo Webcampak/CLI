@@ -196,7 +196,7 @@ class reportsDaily(object):
             emailReportContent = emailReportContent.replace("#REPORTBODY#", emailReportBody)
             emailReportContent = emailReportContent.replace("#REPORTSOURCES#", reportSources)
 
-            print emailReportContent
+            self.log.info("reportsDaily.sendReportEmail(): " + _("Email Report content: %(emailReportContent)s") % {'emailReportContent': "\n" + emailReportContent} )
 
             self.configSource = configSource
             self.fileUtils = fileUtils(self)
