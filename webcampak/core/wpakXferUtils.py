@@ -140,7 +140,12 @@ class xferUtils:
         self.log.debug("xferUtils.getThreadsUUID(): " + _("Start"))
         threads = []
         for currentFilename in [f for f in os.listdir(self.dirXferThreads) if f.endswith(".json")]:
-            threads.append(os.path.splitext(currentFilename)[0])
+            currentThreadUUID = os.path.splitext(currentFilename)[0]
+            if os.path.isdir(self.dirXferThreads + currentThreadUUID):
+                threads.append(currentThreadUUID)
+            else:
+                self.log.info("xferUtils.getThreadsUUID(): " + _("Thread file: %(currentFilename)s does not have a thread directory, deleting JSON file ...") % {'currentFilename': currentFilename})
+                os.remove(self.dirXferThreads + currentFilename)
         return threads
 
     def getThreadPid(self, threadUUID):
