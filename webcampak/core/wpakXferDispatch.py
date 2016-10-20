@@ -51,8 +51,9 @@ class xferDispatch:
         self.appConfig = appConfig                
         self.config_dir = config_dir
         self.configPaths = Config(self.log, self.config_dir + 'param_paths.yml')
-        
+
         self.dirXferThreads = self.configPaths.getConfig('parameters')['dir_xfer'] + 'threads/'
+        self.dirXferFailed = self.configPaths.getConfig('parameters')['dir_xfer'] + 'failed/'
         self.dirXferQueue = self.configPaths.getConfig('parameters')['dir_xfer'] + 'queued/'
         self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
         self.dirConfig = self.configPaths.getConfig('parameters')['dir_config']
@@ -127,7 +128,14 @@ class xferDispatch:
                 break
             else:
                 ftpserverHash = None
-                queuedJson = self.xferUtils.loadJsonFile(currentQueuedFile)                    
+                try:
+                    queuedJson = self.xferUtils.loadJsonFile(currentQueuedFile)
+                except Exception:
+                    self.log.error("xferDispatch.run(): Unable to JSON decode: " + currentQueuedFile)
+                    fileUtils.CheckDir(self.dirXferFailed)
+                    shutil.move(currentQueuedFile, self.dirXferFailed + os.path.basename(currentQueuedFile))
+                    break
+
                 if (queuedJson['job']['source']['type'] == 'ftp'):
                     ftpserverHash = queuedJson['job']['source']['ftpserverhash']
                     ftpserverMaxThreads = self.getMaxThreadsForFTPServer(self.dirEtc + 'config-source' + str(queuedJson['job']['source']['sourceid']) + '-ftpservers.cfg', str(queuedJson['job']['source']['ftpserverid']))

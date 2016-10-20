@@ -348,8 +348,11 @@ class xferUtils:
         self.log.debug("xferUtils.getAllQueuedFiles(): " + _("Start"))
         allQueuedFiles = []
         for dirpath, dirnames, filenames in os.walk(self.dirXferQueue):
-            for filename in [f for f in filenames if f.endswith(".json")]:                
-                allQueuedFiles.append(os.path.join(dirpath, filename))      
+            for filename in [f for f in filenames if f.endswith(".json")]:
+                if os.path.getsize(os.path.join(dirpath, filename)) > 0:
+                    allQueuedFiles.append(os.path.join(dirpath, filename))
+                else:
+                    os.remove(os.path.join(dirpath, filename))
         allQueuedFiles.sort()
         return allQueuedFiles       
 
