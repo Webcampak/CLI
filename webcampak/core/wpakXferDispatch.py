@@ -244,36 +244,40 @@ class xferDispatch:
         
         # Verify existing threads directory, delete old/hanged ones if any
         threadsCpt = 0
-        for currentFilename in [f for f in os.listdir(fileUtils.CheckDir(self.dirXferThreads)) if f.endswith(".json")]:
-            self.log.info("xferDispatch.initializeThreads(): Current thread file: " + currentFilename)
-	    if os.path.exists(self.dirXferThreads + os.path.splitext(currentFilename)[0]):
-                threadJson = self.xferUtils.loadJsonFile(self.dirXferThreads + currentFilename)                    
-                if threadJson['last_job'] != None:                    
+        for currentThreadUUID in self.xferUtils.getThreadsUUID():
+            self.log.info("xferDispatch.initializeThreads(): Current thread file: " + currentThreadUUID + ".json")
+            if os.path.exists(self.dirXferThreads + currentThreadUUID):
+                try:
+                    threadJson = self.xferUtils.loadJsonFile(self.dirXferThreads + currentThreadUUID + ".json")
+                except Exception:
+                    threadJson = {}
+                    threadJson['last_job'] == None
+                if threadJson['last_job'] != None:
                     lastJobCompletion = dateutil.parser.parse(threadJson['last_job']['date_completed'])
                     currentDate = self.timeUtils.getCurrentDate()
                     if (currentDate-lastJobCompletion).total_seconds() < 1800:
-                        self.log.info("xferDispatch.initializeThreads(): This thread has been active in the last 30 minutes and might still be active") 
+                        self.log.info("xferDispatch.initializeThreads(): This thread has been active in the last 30 minutes and might still be active")
                         if (threadJson.has_key('pid') and self.xferUtils.isPidAlive(threadJson['pid'])):
-                            self.log.info("xferDispatch.initializeThreads(): Thread is alive, PID: " + str(threadJson['pid']))                             
-                            threadsCpt = threadsCpt + 1    
+                            self.log.info("xferDispatch.initializeThreads(): Thread is alive, PID: " + str(threadJson['pid']))
+                            threadsCpt = threadsCpt + 1
                         else:
                             self.log.info("xferDispatch.initializeThreads(): This thread is not running")
-                            self.clearThreadDirectory(self.dirXferThreads + os.path.splitext(currentFilename)[0])                              
+                            self.clearThreadDirectory(self.dirXferThreads + currentThreadUUID)
                     else:
                         self.log.info("xferDispatch.initializeThreads(): This thread has been inactive for more than 30 minutes")
                         self.log.info("xferDispatch.initializeThreads(): Killing the process")
                         self.xferUtils.killThreadByPid(threadJson['pid'])
                         self.log.info("xferDispatch.initializeThreads(): Removing json file and its corresponding directory")
-                        self.clearThreadDirectory(self.dirXferThreads + os.path.splitext(currentFilename)[0])                    
+                        self.clearThreadDirectory(self.dirXferThreads + currentThreadUUID)
                 else:
-                    self.log.info("xferDispatch.initializeThreads(): This thread has never been executed")
+                    self.log.info("xferDispatch.initializeThreads(): This thread has never been executed or is corrupted")
                     self.log.info("xferDispatch.initializeThreads(): Removing json file and its corresponding directory")
-                    self.clearThreadDirectory(self.dirXferThreads + os.path.splitext(currentFilename)[0])
-            else: 
-                self.log.info("xferDispatch.initializeThreads(): Associated directory does not exist: " + self.dirXferThreads + os.path.splitext(currentFilename)[0])
-                self.log.info("xferDispatch.initializeThreads(): Removing: " + self.dirXferThreads + currentFilename)
-                os.remove(self.dirXferThreads + currentFilename)
-        
+                    self.clearThreadDirectory(self.dirXferThreads + currentThreadUUID)
+            else:
+                self.log.info("xferDispatch.initializeThreads(): Associated directory does not exist: " + self.dirXferThreads + currentThreadUUID)
+                self.log.info("xferDispatch.initializeThreads(): Removing: " + self.dirXferThreads + currentThreadUUID)
+                os.remove(self.dirXferThreads + currentThreadUUID)
+
         # Create threads directories (number of threads based on above analysis
         nbThreadsToCreate = threadsNumber - threadsCpt
         self.log.info("xferDispatch.initializeThreads(): Number of threads to create: " + str(nbThreadsToCreate))

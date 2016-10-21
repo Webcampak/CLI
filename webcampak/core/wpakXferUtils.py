@@ -77,9 +77,12 @@ class xferUtils:
         """
         self.log.debug("xferUtils.loadJsonFile(): " + _("Start"))
         if os.path.isfile(jsonFile):
-            with open(jsonFile) as threadJsonFile:    
-                threadJson = json.load(threadJsonFile)
-                return threadJson
+            try:
+                with open(jsonFile) as threadJsonFile:
+                    threadJson = json.load(threadJsonFile)
+                    return threadJson
+            except Exception:
+                self.log.error("xferUtils.loadJsonFile(): " + _("File appears corrupted: %(jsonFile)s ") % {'jsonFile': jsonFile})
         return {}
         
     def writeJsonFile(self, jsonFile, jsonContent):
