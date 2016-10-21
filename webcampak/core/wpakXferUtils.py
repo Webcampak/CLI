@@ -80,7 +80,7 @@ class xferUtils:
             with open(jsonFile) as threadJsonFile:    
                 threadJson = json.load(threadJsonFile)
                 return threadJson
-        return None
+        return {}
         
     def writeJsonFile(self, jsonFile, jsonContent):
         """ Write the content of a dictionary to a JSON file
