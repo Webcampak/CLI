@@ -121,7 +121,7 @@ class statsRrd(object):
             
     def run(self):
         """ Initiate rrd graph creation for the source """
-        if self.configSource.getConfig('cfgphidgetsensorsgraph') == "yes":
+        if self.configSource.getConfig('cfgphidgetsensorsgraph') == "yes" and self.configSource.getConfig('cfgsourceactive') == "yes":
             self.log.info("statsrrd.run(): " + _("Initiate RRD Graph creation for source: %(currentSourceId)s") % {'currentSourceId': str(self.currentSourceId)} )
 
             # List Capture files contained in the directory
