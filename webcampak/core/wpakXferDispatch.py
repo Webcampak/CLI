@@ -319,19 +319,20 @@ class xferDispatch:
         threads = {}
         for currentFilename in [f for f in os.listdir(self.dirXferThreads) if f.endswith(".json")]:
             currentThreadHash = os.path.splitext(currentFilename)[0]
-            self.log.info("xferDispatch.getThreadStats(): Calculating Thread: " + currentThreadHash)
-            threadsFilesCount = 0
-            ftpserverHashCount = 0
-            # Look into the threads directory for json files, load all of them and increase counts
-            for currentFilename in [f for f in os.listdir(self.dirXferThreads + currentThreadHash + '/') if f.endswith(".json")]:
-                threadJson = self.xferUtils.loadJsonFile(self.dirXferThreads + currentThreadHash + '/' + currentFilename)                    
-                threadsFilesCount = threadsFilesCount + 1
-                if (threadJson['job']['destination']['ftpserverhash'] == ftpserverHash or threadJson['job']['source']['ftpserverhash'] == ftpserverHash ): 
-                    ftpserverHashCount = ftpserverHashCount + 1
-            threads[currentThreadHash] = {}
-            threads[currentThreadHash]['filesCount'] = threadsFilesCount
-            threads[currentThreadHash]['hashCount'] = ftpserverHashCount
-            self.log.info("xferDispatch.getThreadStats(): Thread: " + currentThreadHash + ' Files Count: ' + str(threadsFilesCount) + ' Hash Count: ' + str(ftpserverHashCount))            
+            if os.path.isdir(self.dirXferThreads + currentThreadHash + '/'):
+                self.log.info("xferDispatch.getThreadStats(): Calculating Thread: " + currentThreadHash)
+                threadsFilesCount = 0
+                ftpserverHashCount = 0
+                # Look into the threads directory for json files, load all of them and increase counts
+                for currentFilename in [f for f in os.listdir(self.dirXferThreads + currentThreadHash + '/') if f.endswith(".json")]:
+                    threadJson = self.xferUtils.loadJsonFile(self.dirXferThreads + currentThreadHash + '/' + currentFilename)
+                    threadsFilesCount = threadsFilesCount + 1
+                    if (threadJson['job']['destination']['ftpserverhash'] == ftpserverHash or threadJson['job']['source']['ftpserverhash'] == ftpserverHash ):
+                        ftpserverHashCount = ftpserverHashCount + 1
+                threads[currentThreadHash] = {}
+                threads[currentThreadHash]['filesCount'] = threadsFilesCount
+                threads[currentThreadHash]['hashCount'] = ftpserverHashCount
+                self.log.info("xferDispatch.getThreadStats(): Thread: " + currentThreadHash + ' Files Count: ' + str(threadsFilesCount) + ' Hash Count: ' + str(ftpserverHashCount))
         return threads
     
 
