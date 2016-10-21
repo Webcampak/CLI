@@ -161,7 +161,11 @@ class statsRrd(object):
                         SensorLegend = "UNAVAILABLE"
                         SensorColor = "#FF0000"
                         for line in open(currentCaptureFile).readlines():
-                            currentCaptureLine = json.loads(line)
+                            try:
+                                currentCaptureLine = json.loads(line)
+                            except Exception:
+                                self.log.error("statsrrd.run(): Unable to decode JSON line: " + line)
+                                break
                             sensorDate = dateutil.parser.parse(currentCaptureLine['date'])
                             currentTimestamp = int(time.mktime(sensorDate.timetuple()))
                             ValueTable[currentTimestamp] = "NaN"
@@ -224,11 +228,15 @@ class statsRrd(object):
             Returns:
                 Dict: number of occurence for each of the sensors contained in the file
         """
-        self.log.debug("statsrrd.checkThreadUUID(): " + _("Start"))
+        self.log.debug("statsrrd.getSensorsFromFile(): " + _("Start"))
         sensors = {}
         for line in open(currentCaptureFile).readlines():
             #currentCaptureLine = json.loads(line, object_pairs_hook=OrderedDict)
-            currentCaptureLine = json.loads(line)
+            try:
+                currentCaptureLine = json.loads(line)
+            except Exception:
+                self.log.error("statsrrd.getSensorsFromFile(): Unable to decode JSON line: " + line)
+                break
             if 'sensors' in currentCaptureLine:
                 if currentCaptureLine['sensors'] != None:
                     #print currentCaptureLine['sensors']
@@ -250,7 +258,11 @@ class statsRrd(object):
         self.log.debug("statsrrd.getDayFromFile(): " + _("Start"))
         date = None
         for line in open(currentCaptureFile).readlines():
-            currentSensorLine = json.loads(line)
+            try:
+                currentSensorLine = json.loads(line)
+            except Exception:
+                self.log.error("statsrrd.getSensorDayFromFile(): Unable to decode JSON line: " + line)
+                break
             if 'date' in currentSensorLine:
                 currentSensorDate = dateutil.parser.parse(currentSensorLine['date'])
                 return currentSensorDate.strftime("%Y%m%d")
