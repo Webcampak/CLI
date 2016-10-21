@@ -302,7 +302,8 @@ class xferDispatch:
             os.rename(currentThreadDirectory + "/" + currentFilename, self.dirXferQueue + currentFilename[0:8] + '/' + currentFilename)
             self.log.info("xferDispatch.clearThreadDirectory(): Moved: " + currentFilename + " to: " + self.dirXferQueue + currentFilename[0:8] + '/')
         os.rmdir(currentThreadDirectory)
-        os.remove(currentThreadDirectory + '.json')
+        if os.path.isfile(currentThreadDirectory + '.json'):
+            os.remove(currentThreadDirectory + '.json')
             
     def getThreadStats(self, ftpserverHash):
         """ Build a dictionary containing the number of files currently in a thread
