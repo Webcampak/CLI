@@ -373,7 +373,7 @@ class Capture(object):
                 self.currentCaptureDetails.writeCaptureFile()
             self.currentCaptureDetails.archiveCaptureFile()
             self.log.info("capture.run(): " + _("-----------------------------------------------------------------------"))
-            self.log.info("===END===")
+        self.log.info("===END===")
 
 
 
