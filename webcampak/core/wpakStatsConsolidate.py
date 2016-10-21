@@ -168,7 +168,11 @@ class statsConsolidate:
         dayStats = OrderedDict()
         # Start with days
         for line in reversed(open(self.dirStats + scanFile).readlines()):
-            currentStatsLine = json.loads(line, object_pairs_hook=OrderedDict)
+            try:
+                currentStatsLine = json.loads(line, object_pairs_hook=OrderedDict)
+            except Exception:
+                self.log.error("statsConsolidate.parseSourceHoursFile(): Unable to decode JSON line: " + line)
+                break
             currentStatsLine['date'] = dateutil.parser.parse(currentStatsLine['date'])
             newDate = currentStatsLine['date'].replace(minute=0, second=0, microsecond=0)
             if newDate not in dayStats:
@@ -188,7 +192,11 @@ class statsConsolidate:
         dayStats = OrderedDict()
         # Start with days
         for line in reversed(open(self.dirStats + "consolidated/" + scanFile).readlines()):
-            currentStatsLine = json.loads(line, object_pairs_hook=OrderedDict)
+            try:
+                currentStatsLine = json.loads(line, object_pairs_hook=OrderedDict)
+            except Exception:
+                self.log.error("statsConsolidate.parseSourceDaysFile(): Unable to decode JSON line: " + line)
+                break
             currentStatsLine['date'] = dateutil.parser.parse(currentStatsLine['date'])
             newDate = currentStatsLine['date'].replace(hour=0, minute=0, second=0, microsecond=0)
             if newDate not in dayStats:
@@ -212,7 +220,11 @@ class statsConsolidate:
         dayStats = OrderedDict()
         # Start with days
         for line in reversed(open(self.dirStats + "consolidated/" + scanFile).readlines()):
-            currentStatsLine = json.loads(line, object_pairs_hook=OrderedDict)
+            try:
+                currentStatsLine = json.loads(line, object_pairs_hook=OrderedDict)
+            except Exception:
+                self.log.error("statsConsolidate.parseSourceDaysFile(): Unable to decode JSON line: " + line)
+                break
             currentStatsLine['date'] = dateutil.parser.parse(currentStatsLine['date'])
             newDate = currentStatsLine['date'].replace(day=1, hour=0, minute=0, second=0, microsecond=0)
             if newDate not in dayStats:
@@ -297,7 +309,11 @@ class statsConsolidate:
         #self.log.info("statsConsolidate.checkProcessFile() - Source File: " + sourceFile)
         #self.log.info("statsConsolidate.checkProcessFile() - Target File: " + targetFile)
         for line in reversed(open(self.dirStats + sourceFile).readlines()):
-            currentStatsLine = json.loads(line, object_pairs_hook=OrderedDict)
+            try:
+                currentStatsLine = json.loads(line, object_pairs_hook=OrderedDict)
+            except Exception:
+                self.log.error("statsConsolidate.checkProcessFile(): Unable to decode JSON line: " + line)
+                break
             #if currentStatsLine['date'][11:16] == searchTime and os.path.isfile(targetFile):
             if currentStatsLine['date'][searchStart:searchEnd] == searchTime and os.path.isfile(targetFile):
                 return skipCount+1
