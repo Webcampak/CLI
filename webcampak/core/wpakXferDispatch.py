@@ -250,8 +250,7 @@ class xferDispatch:
                 try:
                     threadJson = self.xferUtils.loadJsonFile(self.dirXferThreads + currentThreadUUID + ".json")
                 except Exception:
-                    threadJson = {}
-                    threadJson['last_job'] == None
+                    threadJson = {'last_job': None}
                 if threadJson['last_job'] != None:
                     lastJobCompletion = dateutil.parser.parse(threadJson['last_job']['date_completed'])
                     currentDate = self.timeUtils.getCurrentDate()
