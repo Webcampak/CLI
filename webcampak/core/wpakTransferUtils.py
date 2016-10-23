@@ -20,6 +20,7 @@ from wpakConfigObj import Config
 from wpakXferJob import xferJob
 from wpakFTPTransfer import FTPTransfer
 
+
 class transferUtils:
     def __init__(self, parentClass):
         self.log = parentClass.log
@@ -27,16 +28,16 @@ class transferUtils:
         self.configPaths = parentClass.configPaths
 
         self.currentSourceId = parentClass.currentSourceId
-        
+
         self.configSourceFTP = parentClass.configSourceFTP
-        
+
         self.FTPUtils = parentClass.FTPUtils
         self.fileUtils = parentClass.fileUtils
 
         self.dirEtc = parentClass.dirEtc
         self.dirCurrentSource = parentClass.dirCurrentSource
         self.dirXferQueue = parentClass.dirXferQueue
-        
+
     def transferFile(self, transferDate, sourceFilePath, destinationFilePath, serverId, maxRetries):
         """This function transfer the file, to a remote server, it can either transfer using xfer or direct FTP
         
@@ -47,26 +48,31 @@ class transferUtils:
             serverId: an int, ID of the remote server in the file config-sourceX-ftpservers.cfg (X being the source ID)
             maxRetries: an int, number of times the tranfer should be retried before being considered failed.
         
-        """        
+        """
         self.log.debug("transferUtils.transferFile(): " + _("Start"))
-        #print self.currentSourceId
-        #print self.dirEtc
-        #frpServerConfigFile = self.dirEtc + "config-source" + str(self.currentSourceId) + "-ftpservers.cfg"
-        #print frpServerConfigFile
-        #ftpServerConfig = Config(self.log, self.dirEtc + "config-source" + str(self.currentSourceId) + "-ftpservers.cfg")
+        # print self.currentSourceId
+        # print self.dirEtc
+        # frpServerConfigFile = self.dirEtc + "config-source" + str(self.currentSourceId) + "-ftpservers.cfg"
+        # print frpServerConfigFile
+        # ftpServerConfig = Config(self.log, self.dirEtc + "config-source" + str(self.currentSourceId) + "-ftpservers.cfg")
         xferEnable = self.configSourceFTP.getConfig('cfgftpserverslist' + str(serverId))[6]
         if xferEnable == "yes":
-            self.log.info("transferUtils.transferFile(): " + _("Transferring file through XFer mechanism"))       
+            self.log.info("transferUtils.transferFile(): " + _("Transferring file through XFer mechanism"))
             xferJobDirectory = transferDate.strftime("%Y%m%d")
             xferJobFilenameDate = transferDate.strftime("%Y%m%d%H%M%S")
-            xferJobFileMd5 = hashlib.sha224('S'+ str(self.currentSourceId) + 'local' + str(self.currentSourceId) + 'ftp' + str(serverId) + sourceFilePath).hexdigest()
+            xferJobFileMd5 = hashlib.sha224(
+                'S' + str(self.currentSourceId) + 'local' + str(self.currentSourceId) + 'ftp' + str(
+                    serverId) + sourceFilePath).hexdigest()
             xferJobFileName = xferJobFilenameDate + "-" + str(self.currentSourceId) + "-" + xferJobFileMd5 + ".json"
 
-            self.log.info("transferUtils.transferFile(): " + _("Job Directory: %(xferJobDirectory)s") % {'xferJobDirectory': xferJobDirectory} )       
-            self.log.info("transferUtils.transferFile(): " + _("Job Filename: %(xferJobFileName)s") % {'xferJobFileName': xferJobFileName} )       
+            self.log.info("transferUtils.transferFile(): " + _("Job Directory: %(xferJobDirectory)s") % {
+                'xferJobDirectory': xferJobDirectory})
+            self.log.info("transferUtils.transferFile(): " + _("Job Filename: %(xferJobFileName)s") % {
+                'xferJobFileName': xferJobFileName})
 
             xferFtpServerHash = self.FTPUtils.calculateFTPServerHash(self.configSourceFTP, serverId)
-            self.log.info("transferUtils.transferFile(): " + _("FTP Server Hash: %(xferFtpServerHash)s") % {'xferFtpServerHash': xferFtpServerHash} )       
+            self.log.info("transferUtils.transferFile(): " + _("FTP Server Hash: %(xferFtpServerHash)s") % {
+                'xferFtpServerHash': xferFtpServerHash})
 
             newXferJob = xferJob()
             newXferJob.setStatus("queued")
@@ -77,29 +83,34 @@ class transferUtils:
             # We remove the current source directory from the source file path, 
             # The xfer system will be looking at source ID to determine filepath
             sourceFilePath = sourceFilePath.replace(self.dirCurrentSource, '')
-            newXferJob.setSourceFilePath(sourceFilePath)            
+            newXferJob.setSourceFilePath(sourceFilePath)
             newXferJob.setDestinationSourceId(str(self.currentSourceId))
-            newXferJob.setDestinationType("ftp")      
+            newXferJob.setDestinationType("ftp")
             newXferJob.setDestinationFtpServerId(str(serverId))
             newXferJob.setDestinationFtpServerHash(xferFtpServerHash)
             newXferJob.setDestinationFilePath(destinationFilePath)
             newXferJob.setRetries(maxRetries)
             newXferJobFile = self.dirXferQueue + xferJobDirectory + "/" + xferJobFileName
-            self.log.info("transferUtils.transferFile(): " + _("Saving Job file to: %(newXferJobFile)s") % {'newXferJobFile': newXferJobFile} )                   
-            self.fileUtils.CheckFilepath(newXferJobFile)            
-            newXferJob.writeXferJobFile(newXferJobFile)                        
+            self.log.info("transferUtils.transferFile(): " + _("Saving Job file to: %(newXferJobFile)s") % {
+                'newXferJobFile': newXferJobFile})
+            self.fileUtils.CheckFilepath(newXferJobFile)
+            newXferJob.writeXferJobFile(newXferJobFile)
         else:
             self.log.info("transferUtils.transferFile(): " + _("Transferring file through direct FTP"))
             currentFTP = FTPTransfer(self.log, self.config_dir)
             currentFTPConnectionStatus = currentFTP.initByServerId(str(self.currentSourceId), str(serverId))
             if currentFTPConnectionStatus == True:
                 # We add the path on the remote FTP server
-                destinationFilePath = self.configSourceFTP.getConfig('cfgftpserverslist' + str(serverId))[4] + destinationFilePath       
-                self.log.info("transferUtils.transferFile(): " + _("Transferring file through direct FTP, local file: %(sourceFilePath)s") % {'sourceFilePath': sourceFilePath} )    
-                self.log.info("transferUtils.transferFile(): " + _("Transferring file through direct FTP, remote file: %(destinationFilePath)s") % {'destinationFilePath': destinationFilePath} )    
+                destinationFilePath = self.configSourceFTP.getConfig('cfgftpserverslist' + str(serverId))[
+                                          4] + destinationFilePath
+                self.log.info("transferUtils.transferFile(): " + _(
+                    "Transferring file through direct FTP, local file: %(sourceFilePath)s") % {
+                                  'sourceFilePath': sourceFilePath})
+                self.log.info("transferUtils.transferFile(): " + _(
+                    "Transferring file through direct FTP, remote file: %(destinationFilePath)s") % {
+                                  'destinationFilePath': destinationFilePath})
                 ftpTransferSuccess = currentFTP.putFile(sourceFilePath, destinationFilePath)
-                currentFTP.closeFtp()           
+                currentFTP.closeFtp()
             else:
-                self.log.error("transferUtils.transferFile(): " + _("Unable to establish connection with the remote FTP server"))  
-
-        
+                self.log.error(
+                    "transferUtils.transferFile(): " + _("Unable to establish connection with the remote FTP server"))

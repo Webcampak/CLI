@@ -24,6 +24,7 @@ import gzip
 from wpakConfigObj import Config
 from wpakFileUtils import fileUtils
 
+
 # This class is used to initialize transfer queues and dispatch files to the queue
 # It reads files from the global queue directory, starting from the oldest ones, and stops one all threads are full
 # Each transfer queue (or thread) can hold up to "self.maxFilesPerThread" files 
@@ -38,11 +39,12 @@ class xferUtils:
     Attributes:
         tbc
     """
+
     def __init__(self, log, config_dir):
         self.log = log
         self.config_dir = config_dir
         self.configPaths = Config(self.log, self.config_dir + 'param_paths.yml')
-        
+
         self.dirXferThreads = self.configPaths.getConfig('parameters')['dir_xfer'] + 'threads/'
         self.dirXferQueue = self.configPaths.getConfig('parameters')['dir_xfer'] + 'queued/'
         self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
@@ -57,16 +59,16 @@ class xferUtils:
 
     def getCfgxferthreads(self):
         return self.configGeneral.getConfig('cfgxferthreads')
-        
+
     def getTimezone(self):
         return self.configGeneral.getConfig('cfgservertimezone')
-    
-    def getCurrentDate(self):    
+
+    def getCurrentDate(self):
         return datetime.now(pytz.timezone(self.getTimezone()))
-    
+
     def getCurrentDateIso(self):
         return self.getCurrentDate().isoformat()
-        
+
     def loadJsonFile(self, jsonFile):
         """ Load content of a JSON file
         Args:
@@ -82,9 +84,10 @@ class xferUtils:
                     threadJson = json.load(threadJsonFile)
                     return threadJson
             except Exception:
-                self.log.error("xferUtils.loadJsonFile(): " + _("File appears corrupted: %(jsonFile)s ") % {'jsonFile': jsonFile})
+                self.log.error(
+                    "xferUtils.loadJsonFile(): " + _("File appears corrupted: %(jsonFile)s ") % {'jsonFile': jsonFile})
         return {}
-        
+
     def writeJsonFile(self, jsonFile, jsonContent):
         """ Write the content of a dictionary to a JSON file
         Args:
@@ -94,12 +97,11 @@ class xferUtils:
             Boolean: Success of the operation
         """
         self.log.debug("xferUtils.writeJsonFile(): " + _("Start"))
-        if fileUtils.CheckFilepath(jsonFile) != "":                
+        if fileUtils.CheckFilepath(jsonFile) != "":
             with open(jsonFile, "w") as threadJsonFile:
                 threadJsonFile.write(json.dumps(jsonContent))
             return True
-        return False        
-
+        return False
 
     def writeJsonFileGzip(self, jsonFile, jsonContent):
         """ Write the content of a dictionary to a Gzipped JSON file
@@ -110,11 +112,11 @@ class xferUtils:
             Boolean: Success of the operation
         """
         self.log.debug("xferUtils.writeJsonFileGzip(): " + _("Start"))
-        if fileUtils.CheckFilepath(jsonFile) != "":                
+        if fileUtils.CheckFilepath(jsonFile) != "":
             with gzip.open(jsonFile, "wb") as threadJsonFile:
                 threadJsonFile.write(json.dumps(jsonContent))
             return True
-        return False  
+        return False
 
     def logToJson(self, jsonFile, jsonContent, msg):
         """ Add a log line to a json file. Perform a write operation after each log (to keep status in case of failure)
@@ -130,7 +132,6 @@ class xferUtils:
         jsonContent['logs'][jsonIdx] = {'date': self.getCurrentDateIso(), 'message': msg}
         self.writeJsonFile(jsonFile, jsonContent)
         return jsonContent
-        
 
     def getThreadsUUID(self):
         """ Returns a list of threads UUID composing the different queue
@@ -147,7 +148,9 @@ class xferUtils:
             if os.path.isdir(self.dirXferThreads + currentThreadUUID):
                 threads.append(currentThreadUUID)
             else:
-                self.log.info("xferUtils.getThreadsUUID(): " + _("Thread file: %(currentFilename)s does not have a thread directory, deleting JSON file ...") % {'currentFilename': currentFilename})
+                self.log.info("xferUtils.getThreadsUUID(): " + _(
+                    "Thread file: %(currentFilename)s does not have a thread directory, deleting JSON file ...") % {
+                                  'currentFilename': currentFilename})
                 os.remove(self.dirXferThreads + currentFilename)
         return threads
 
@@ -165,7 +168,7 @@ class xferUtils:
             return threadJson['pid']
         else:
             return None
-        
+
     def setThreadPid(self, threadUUID, pid):
         """ Associate a PID to a threadUUID and save this value in a json file
         Args:
@@ -179,7 +182,7 @@ class xferUtils:
         threadJson = self.loadJsonFile(self.dirXferThreads + threadUUID + '.json')
         threadJson['pid'] = pid
         threadJson['date_updated'] = self.getCurrentDateIso()
-        self.writeJsonFile(self.dirXferThreads + threadUUID + '.json', threadJson)        
+        self.writeJsonFile(self.dirXferThreads + threadUUID + '.json', threadJson)
 
     def setThreadLastJob(self, threadUUID, jobReport):
         """ Record the last job processed by the thread
@@ -196,8 +199,7 @@ class xferUtils:
             jobReport = None
         threadJson['last_job'] = jobReport
         threadJson['date_updated'] = self.getCurrentDateIso()
-        self.writeJsonFile(self.dirXferThreads + threadUUID + '.json', threadJson)           
-        
+        self.writeJsonFile(self.dirXferThreads + threadUUID + '.json', threadJson)
 
     def isPidAlive(self, pid):
         """ Check if a process is running, using its PID
@@ -229,13 +231,13 @@ class xferUtils:
         """
         self.log.debug("xferUtils.killThreadByPid(): " + _("Start"))
         try:
-            os.kill(pid, signal.SIGKILL) #or signal.SIGKILL  SIGTERM
+            os.kill(pid, signal.SIGKILL)  # or signal.SIGKILL  SIGTERM
             self.log.info("xferUtils.isPidAlive(): " + _("Process has been killed: %(pid)s ") % {'pid': str(pid)})
             return True
         except OSError:
             self.log.info("xferUtils.isPidAlive(): " + _("Process did not exist: %(pid)s ") % {'pid': str(pid)})
-            return False        
-        
+            return False
+
     def isThreadRunning(self, threadUUID):
         """ Evaluate if a thread is currently running
             Args:
@@ -249,9 +251,9 @@ class xferUtils:
         if (threadJson.has_key('pid')):
             if self.isPidAlive(threadJson['pid']):
                 return True
-            else:                
+            else:
                 return False
-        else:    
+        else:
             return False
 
     def countThreadsQueue(self, threadUUID):
@@ -281,7 +283,7 @@ class xferUtils:
         for currentFilename in [f for f in os.listdir(self.dirXferThreads + threadUUID + '/') if f.endswith(".json")]:
             allThreadFiles.append(os.path.join(self.dirXferThreads + threadUUID + '/', currentFilename))
         allThreadFiles.sort()
-        return allThreadFiles  
+        return allThreadFiles
 
     def getFirstThreadFile(self, threadUUID):
         """ Get the first (or next) thread file to be processed
@@ -311,7 +313,7 @@ class xferUtils:
             return False
         else:
             return True
-        
+
     def areThreadsFull(self):
         """ Check if all threads are full, return True if all full, False if some still have room
             Args:
@@ -326,8 +328,7 @@ class xferUtils:
             if (self.isThreadFull(currentThreadUUID) == False):
                 threadsFull = False
         return threadsFull
-            
-                 
+
     def checkThreadUUID(self, threadUUID):
         """ Check if Thread UUID is valid, simply by checking if a corresponding .json file exists
             Args:
@@ -338,7 +339,7 @@ class xferUtils:
         """
         self.log.debug("xferUtils.checkThreadUUID(): " + _("Start"))
         return os.path.isfile(self.dirXferThreads + threadUUID + '.json')
-    
+
     def getAllQueuedFiles(self):
         """ List all files currently in the global queue directory
             It recursively searched through all json files
@@ -357,6 +358,4 @@ class xferUtils:
                 else:
                     os.remove(os.path.join(dirpath, filename))
         allQueuedFiles.sort()
-        return allQueuedFiles       
-
-        
+        return allQueuedFiles

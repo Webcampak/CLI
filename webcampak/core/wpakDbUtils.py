@@ -16,13 +16,14 @@
 
 import sqlite3
 
+
 #
 class dbUtils:
     def __init__(self, parentClass):
         self.log = parentClass.log
         self.config_dir = parentClass.config_dir
         self.configPaths = parentClass.configPaths
-        
+
         self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
         self.configGeneral = parentClass.configGeneral
 
@@ -52,7 +53,7 @@ class dbUtils:
         WHERE USESOU.ALERTS_FLAG = 'Y' AND SOU.SOURCEID = :sourceId \
         ORDER BY USE.USERNAME";
 
-        self.dbCursor.execute(dbQuery, {'sourceId':sourceId})
+        self.dbCursor.execute(dbQuery, {'sourceId': sourceId})
         users = []
         for row in self.dbCursor.fetchall():
             email, firstname, lastname = row
@@ -82,7 +83,7 @@ class dbUtils:
             LEFT JOIN SOURCES SOU ON USESOU.SOU_ID = SOU.SOU_ID \
             WHERE USESOU.ALERTS_FLAG = 'Y' AND USESOU.USE_ID = :useid\
             ORDER BY SOU.SOURCEID";
-            self.dbCursor.execute(dbQuery, {'useid':useId})
+            self.dbCursor.execute(dbQuery, {'useid': useId})
             userSources = []
             for dbUserSources in self.dbCursor.fetchall():
                 sourceId, sourceName = dbUserSources
@@ -103,7 +104,7 @@ class dbUtils:
         WHERE USESOU.USE_ID = :useId\
         ORDER BY SOU.SOURCEID";
 
-        self.dbCursor.execute(dbQuery, {'useId':useId})
+        self.dbCursor.execute(dbQuery, {'useId': useId})
         sources = []
         for row in self.dbCursor.fetchall():
             sourceid, name, alertsFlag = row
@@ -120,7 +121,7 @@ class dbUtils:
         FROM SOURCES SOU \
         WHERE SOU.SOURCEID = :sourceId";
 
-        self.dbCursor.execute(dbQuery, {'sourceId':sourceId})
+        self.dbCursor.execute(dbQuery, {'sourceId': sourceId})
         for row in self.dbCursor.fetchall():
             quota, sourceid = row
             self.closeDb()
@@ -135,9 +136,8 @@ class dbUtils:
         FROM SOURCES SOU \
         WHERE SOU.SOURCEID = :sourceId";
 
-        self.dbCursor.execute(dbQuery, {'sourceId':sourceId})
+        self.dbCursor.execute(dbQuery, {'sourceId': sourceId})
         for row in self.dbCursor.fetchall():
             name, sourceid = row
             self.closeDb()
             return name
-        

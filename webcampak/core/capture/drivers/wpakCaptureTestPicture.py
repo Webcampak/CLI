@@ -18,6 +18,7 @@ import os
 import shutil
 import random
 
+
 class captureTestPicture(object):
     """ Use a test picture as a real picture for testing purposes
     
@@ -29,42 +30,47 @@ class captureTestPicture(object):
         log: A class, the logging interface
         fileCaptureLog: A string, path to a jsonl file containing an archive of all capture objects for a specific day
         lastCapture: A dictionary, containing all values of the capture object        
-    """     
+    """
+
     def __init__(self, captureClass):
-        self.log = captureClass.log        
+        self.log = captureClass.log
         self.captureClass = captureClass
-        
+
         self.dirResources = self.captureClass.dirResources
 
         self.configSource = self.captureClass.configSource
         self.currentCaptureDetails = self.captureClass.currentCaptureDetails
-                
+
         self.dirCurrentSourceTmp = self.captureClass.dirCurrentSourceTmp
-        
+
         self.fileUtils = self.captureClass.fileUtils
         self.timeUtils = self.captureClass.timeUtils
-        self.captureUtils = self.captureClass.captureUtils        
-        
+        self.captureUtils = self.captureClass.captureUtils
+
         self.pictureTransformations = self.captureClass.pictureTransformations
-        
+
     # Function: Capture
     # Description; This function is used to capture a sample picture
     # Return: True of False
     def capture(self):
         self.log.info("captureTestPicture.capture(): " + _("Start picture acquisition"))
-        self.currentCaptureDetails.setCaptureValue('captureDate', self.timeUtils.getCurrentSourceTime(self.configSource).isoformat())
+        self.currentCaptureDetails.setCaptureValue('captureDate',
+                                                   self.timeUtils.getCurrentSourceTime(self.configSource).isoformat())
 
-        captureFilename = self.captureClass.getCaptureTime().strftime("%Y%m%d%H%M%S")   
+        captureFilename = self.captureClass.getCaptureTime().strftime("%Y%m%d%H%M%S")
         self.fileUtils.CheckFilepath(self.dirCurrentSourceTmp + captureFilename + ".jpg")
 
         self.log.info("captureTestPicture.capture(): " + _("Copy test file to temporary directory"))
-        shutil.copy(self.dirResources + "watermark/sample-picture.jpg", self.dirCurrentSourceTmp + captureFilename + ".jpg")
-        self.log.info("captureTestPicture.capture(): " + _("Temporary capture file: %(tempCaptureFile)s") % {'tempCaptureFile': self.dirCurrentSourceTmp + captureFilename + ".jpg"} )
+        shutil.copy(self.dirResources + "watermark/sample-picture.jpg",
+                    self.dirCurrentSourceTmp + captureFilename + ".jpg")
+        self.log.info("captureTestPicture.capture(): " + _("Temporary capture file: %(tempCaptureFile)s") % {
+            'tempCaptureFile': self.dirCurrentSourceTmp + captureFilename + ".jpg"})
 
-        self.log.info("captureTestPicture.capture(): " + _("Applying random blur effect (just to be able to see the difference from one picture to another)"))
+        self.log.info("captureTestPicture.capture(): " + _(
+            "Applying random blur effect (just to be able to see the difference from one picture to another)"))
         self.pictureTransformations.setFilesourcePath(self.dirCurrentSourceTmp + captureFilename + ".jpg")
         self.pictureTransformations.setFiledestinationPath(self.dirCurrentSourceTmp + captureFilename + ".jpg")
-        self.pictureTransformations.VirtualPixel(random.randrange(0,200))
+        self.pictureTransformations.VirtualPixel(random.randrange(0, 200))
 
         if self.captureUtils.verifyCapturedFile(self.dirCurrentSourceTmp + captureFilename + ".jpg"):
             return [self.dirCurrentSourceTmp + captureFilename + ".jpg"]
@@ -74,4 +80,4 @@ class captureTestPicture(object):
                 os.remove(self.dirCurrentSourceTmp + captureFilename + ".jpg")
             if os.path.isfile(self.dirCurrentSourceTmp + captureFilename + ".jpg"):
                 os.remove(self.dirCurrentSourceTmp + captureFilename + ".jpg")
-            return False            
+            return False

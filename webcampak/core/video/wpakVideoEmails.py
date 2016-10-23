@@ -21,6 +21,7 @@ from ..wpakConfigObj import Config
 from ..wpakEmailObj import emailObj
 from ..wpakDbUtils import dbUtils
 
+
 class videoEmails(object):
     """ This class is used to send success or error emails resulting of a capture
     
@@ -29,10 +30,10 @@ class videoEmails(object):
     	
     Attributes:
         log: A class, the logging interface
-    """    
-    
+    """
+
     def __init__(self, videoClass):
-        self.videoClass = videoClass        
+        self.videoClass = videoClass
         self.log = self.videoClass.log
 
         self.currentSourceId = self.videoClass.currentSourceId
@@ -41,15 +42,15 @@ class videoEmails(object):
         self.configGeneral = self.videoClass.configGeneral
 
         self.dirLocale = self.videoClass.dirLocale
-        self.dirLocaleMessage = self.videoClass.dirLocaleMessage            
+        self.dirLocaleMessage = self.videoClass.dirLocaleMessage
         self.dirCurrentLocaleMessages = self.videoClass.dirCurrentLocaleMessages
         self.dirCurrentSourcePictures = self.videoClass.dirCurrentSourcePictures
         self.dirEmails = self.videoClass.dirEmails
         self.dirCache = self.videoClass.dirCache
         self.dirStats = self.videoClass.dirStats
-        
+
         self.fileUtils = self.videoClass.fileUtils
-                
+
     def sendVideoSuccess(self, videoFilename):
         """ This function queue an email to inform the user that video creation is successful
         The email's content and subject is store within the locale's directory corresponding to the language configured for the source.
@@ -60,17 +61,19 @@ class videoEmails(object):
         
         Returns:
             None
-        """             
+        """
         self.log.debug("videoEmails.sendVideoSuccess(): " + _("Start"))
-        
+
         emailSuccessContent = self.dirCurrentLocaleMessages + "emailVideoContent.txt"
         emailSuccessSubject = self.dirCurrentLocaleMessages + "emailVideoSubject.txt"
         if os.path.isfile(emailSuccessContent) == False:
             emailSuccessContent = self.dirLocale + "en_US.utf8/" + self.dirLocaleMessage + "emailVideoContent.txt"
             emailSuccessSubject = self.dirLocale + "en_US.utf8/" + self.dirLocaleMessage + "emailVideoSubject.txt"
-        self.log.info("capture.sendVideoSuccess(): " + _("Using message subject file: %(emailSuccessSubject)s") % {'emailSuccessSubject': emailSuccessSubject} )                                
-        self.log.info("capture.sendVideoSuccess(): " + _("Using message content file: %(emailSuccessContent)s") % {'emailSuccessContent': emailSuccessContent} )                                                
-        
+        self.log.info("capture.sendVideoSuccess(): " + _("Using message subject file: %(emailSuccessSubject)s") % {
+            'emailSuccessSubject': emailSuccessSubject})
+        self.log.info("capture.sendVideoSuccess(): " + _("Using message content file: %(emailSuccessContent)s") % {
+            'emailSuccessContent': emailSuccessContent})
+
         if os.path.isfile(emailSuccessContent) and os.path.isfile(emailSuccessSubject):
             emailContentFile = open(emailSuccessContent, 'r')
             emailContent = emailContentFile.read()
@@ -89,7 +92,7 @@ class videoEmails(object):
             newEmail.setBody(emailContent)
             newEmail.setSubject(emailSubject)
             # Note: Add log file along with the email            
-            newEmail.writeEmailObjectFile()                				
+            newEmail.writeEmailObjectFile()
         else:
-            self.log.debug("videoEmails.sendVideoSuccess(): " + _("Unable to find default translation files to be used"))
-            
+            self.log.debug(
+                "videoEmails.sendVideoSuccess(): " + _("Unable to find default translation files to be used"))

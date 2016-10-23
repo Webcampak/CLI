@@ -18,6 +18,7 @@ import hashlib
 
 from ...wpakPhidgets import phidgets
 
+
 class capturePhidget(object):
     def __init__(self, parentClass):
         self.log = parentClass.log
@@ -30,22 +31,24 @@ class capturePhidget(object):
         self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']
         self.dirResources = self.configPaths.getConfig('parameters')['dir_resources']
         self.dirBin = self.configPaths.getConfig('parameters')['dir_bin']
-                                                            
+
         self.configGeneral = parentClass.configGeneral
         self.configSource = parentClass.configSource
         self.currentSourceId = parentClass.getSourceId()
-        
-        self.dirCurrentSourceTmp = self.dirSources + 'source' + self.currentSourceId +'/' + self.configPaths.getConfig('parameters')['dir_source_tmp']
-        self.dirCurrentSourcePictures = self.dirSources + 'source' + self.currentSourceId +'/' + self.configPaths.getConfig('parameters')['dir_source_pictures']
+
+        self.dirCurrentSourceTmp = self.dirSources + 'source' + self.currentSourceId + '/' + \
+                                   self.configPaths.getConfig('parameters')['dir_source_tmp']
+        self.dirCurrentSourcePictures = self.dirSources + 'source' + self.currentSourceId + '/' + \
+                                        self.configPaths.getConfig('parameters')['dir_source_pictures']
         self.captureDate = parentClass.getCaptureTime().strftime("%Y%m%d%H%M%S")
         self.captureDay = parentClass.getCaptureTime().strftime("%Y%m%d")
         self.captureTimestamp = parentClass.getCaptureTime().strftime("%s")
         self.captureFilename = self.captureDate + ".txt"
-        
+
         self.fileUtils = parentClass.fileUtils
         self.pictureTransformations = parentClass.pictureTransformations
         self.phidgetsUtils = parentClass.phidgetsUtils
-        
+
     # Function: Capture
     # Description; This function is used to capture a sensor values
     # Return: Nothing
@@ -60,20 +63,25 @@ class capturePhidget(object):
             phidgetsClass.openPhidget()
             if phidgetsClass.attachPhidgetKit() == True:
                 for currentSensor in allSensors:
-                    #cfgphidgetsensor1="1","2","Inside Temperature","FF0000"
+                    # cfgphidgetsensor1="1","2","Inside Temperature","FF0000"
                     sensorType = currentSensor[0]
                     sensorPort = int(currentSensor[1])
                     sensorLegend = currentSensor[2]
                     sensorColor = currentSensor[3]
                     if sensorType != '' and sensorPort != '':
-                        #cfgphidgetsensortype1="Temperature", "-30", "80", "(SensorValue / 4.095) * 0.22222 - 61.111"
+                        # cfgphidgetsensortype1="Temperature", "-30", "80", "(SensorValue / 4.095) * 0.22222 - 61.111"
                         sensorTypeConfig = self.configGeneral.getConfig('cfgphidgetsensortype' + str(sensorType))
                         sensorTypeName = sensorTypeConfig[0]
                         sensorTypeFormula = sensorTypeConfig[3]
-                        self.log.info("capturePhidget.capture(): " + _("Capturing sensor: %(sensorTypeName)s from port: %(sensorPort)s") % {'sensorTypeName': str(sensorTypeName), 'sensorPort': str(sensorPort)} )
+                        self.log.info("capturePhidget.capture(): " + _(
+                            "Capturing sensor: %(sensorTypeName)s from port: %(sensorPort)s") % {
+                                          'sensorTypeName': str(sensorTypeName), 'sensorPort': str(sensorPort)})
                         SensorValue = int(phidgetsClass.getSensorRawValue(sensorPort))
-                        sensorCalculatedValue = round(eval(sensorTypeFormula),1)
-                        self.log.info("capturePhidget.capture(): " + _("Captured value, RAW: %(SensorValue)s Interpreted: %(sensorCalculatedValue)s") % {'SensorValue': str(SensorValue), 'sensorCalculatedValue': str(sensorCalculatedValue)} )
+                        sensorCalculatedValue = round(eval(sensorTypeFormula), 1)
+                        self.log.info("capturePhidget.capture(): " + _(
+                            "Captured value, RAW: %(SensorValue)s Interpreted: %(sensorCalculatedValue)s") % {
+                                          'SensorValue': str(SensorValue),
+                                          'sensorCalculatedValue': str(sensorCalculatedValue)})
 
                         currentSensor = {}
                         sensorHash = hashlib.sha224(sensorLegend + sensorTypeName).hexdigest()

@@ -19,15 +19,16 @@ from ctypes import *
 from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
 from Phidgets.Devices.InterfaceKit import InterfaceKit
 
+
 class phidgets(object):
     def __init__(self, parentClass):
         self.log = parentClass.log
         self.config_dir = parentClass.config_dir
-        
+
         self.configGeneral = parentClass.configGeneral
         self.configSource = parentClass.configSource
 
-        self.dirBin = parentClass.dirBin        
+        self.dirBin = parentClass.dirBin
         self.binPhidgets = self.dirBin + self.configGeneral.getConfig('cfgphidgetbin')
 
         self.interfaceKit = None
@@ -38,7 +39,8 @@ class phidgets(object):
         try:
             self.interfaceKit = InterfaceKit()
         except RuntimeError as e:
-            self.log.error("phidgets.createInterfaceKit(): " + _("Unable to create (code %(Code)i, %(Details)s)") % {'Code': e.code, 'Details': e.details})
+            self.log.error("phidgets.createInterfaceKit(): " + _("Unable to create (code %(Code)i, %(Details)s)") % {
+                'Code': e.code, 'Details': e.details})
 
     def openPhidget(self):
         """Documentation To be completed"""
@@ -46,7 +48,9 @@ class phidgets(object):
         try:
             self.interfaceKit.openPhidget()
         except PhidgetException as e:
-            self.log.error("phidgets.createInterfaceKit(): " + _("Unable to open InterfaceKit (code %(Code)i, %(Details)s)") % {'Code': e.code, 'Details': e.details})
+            self.log.error(
+                "phidgets.createInterfaceKit(): " + _("Unable to open InterfaceKit (code %(Code)i, %(Details)s)") % {
+                    'Code': e.code, 'Details': e.details})
 
     def closePhidget(self):
         """Documentation To be completed"""
@@ -54,7 +58,9 @@ class phidgets(object):
         try:
             self.interfaceKit.closePhidget()
         except PhidgetException as e:
-            self.log.error("phidgets.closePhidget(): " + _("Unable to close InterfaceKit (code %(Code)i, %(Details)s)") % {'Code': e.code, 'Details': e.details})
+            self.log.error(
+                "phidgets.closePhidget(): " + _("Unable to close InterfaceKit (code %(Code)i, %(Details)s)") % {
+                    'Code': e.code, 'Details': e.details})
 
     def attachPhidgetKit(self):
         """Documentation To be completed"""
@@ -63,7 +69,9 @@ class phidgets(object):
             self.interfaceKit.waitForAttach(1000)
             return True
         except PhidgetException as e:
-            self.log.error("phidgets.attachPhidgetKit(): " + _("Unable to connect to InterfaceKit (code %(Code)i, %(Details)s)") % {'Code': e.code, 'Details': e.details})
+            self.log.error("phidgets.attachPhidgetKit(): " + _(
+                "Unable to connect to InterfaceKit (code %(Code)i, %(Details)s)") % {'Code': e.code,
+                                                                                     'Details': e.details})
             self.closePhidget()
             return False
 
@@ -72,7 +80,9 @@ class phidgets(object):
         try:
             inputlevel = self.interfaceKit.getSensorRawValue(input)
         except PhidgetException as e:
-            self.log.error("phidgets.getSensorValue(): " + _("Unable to connect to obtain sensor value (code %(Code)i, %(Details)s)") % {'Code': e.code, 'Details': e.details})
+            self.log.error("phidgets.getSensorValue(): " + _(
+                "Unable to connect to obtain sensor value (code %(Code)i, %(Details)s)") % {'Code': e.code,
+                                                                                            'Details': e.details})
         return inputlevel
 
     def getSensorValue(self, sensor):
@@ -83,7 +93,9 @@ class phidgets(object):
         try:
             inputlevel = self.interfaceKit.getSensorRawValue(input)
         except PhidgetException as e:
-            self.log.error("phidgets.getSensorValue(): " + _("Unable to connect to obtain sensor value (code %(Code)i, %(Details)s)") % {'Code': e.code, 'Details': e.details})
+            self.log.error("phidgets.getSensorValue(): " + _(
+                "Unable to connect to obtain sensor value (code %(Code)i, %(Details)s)") % {'Code': e.code,
+                                                                                            'Details': e.details})
 
         self.closePhidget()
         self.log.error("phidgets.getSensorValue(): " + _("Sensor Value: %(inputlevel)d)") % {'inputlevel': inputlevel})
@@ -92,21 +104,23 @@ class phidgets(object):
 
     def setOutputValue(self, outputPort, outputValue):
         """Documentation To be completed"""
-        self.log.info("phidgets.setOutputValue(): " + _("Set Output Port: %(outputPort)i To: %(outputValue)i ") % {'outputPort': outputPort, 'outputValue': outputValue})        
+        self.log.info("phidgets.setOutputValue(): " + _("Set Output Port: %(outputPort)i To: %(outputValue)i ") % {
+            'outputPort': outputPort, 'outputValue': outputValue})
         self.createInterfaceKit()
         self.openPhidget()
-        self.attachPhidgetKit()        
+        self.attachPhidgetKit()
         try:
             self.interfaceKit.setOutputState(outputPort, outputValue)
         except PhidgetException as e:
             self.log.error("phidgets.setOutputValue(): " + _("Unable to connect to set output value"))
- 
+
         currentOutputPort = None
         try:
             currentOutputPort = self.interfaceKit.getOutputState(outputPort)
         except PhidgetException as e:
-            self.log.error("phidgets.setOutputValue(): " + _("Unable to get value from output port"))        
+            self.log.error("phidgets.setOutputValue(): " + _("Unable to get value from output port"))
 
         self.closePhidget()
-        self.log.error("phidgets.getSensorValue(): " + _("Sensor Value: %(currentOutputPort)s)") % {'currentOutputPort': str(currentOutputPort)})
+        self.log.error("phidgets.getSensorValue(): " + _("Sensor Value: %(currentOutputPort)s)") % {
+            'currentOutputPort': str(currentOutputPort)})
         return currentOutputPort

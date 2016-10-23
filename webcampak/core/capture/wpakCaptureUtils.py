@@ -24,6 +24,7 @@ import re
 
 from ..wpakConfigObj import Config
 
+
 class captureUtils(object):
     """ This class contains various utilities functions used during the capture process
     
@@ -32,7 +33,8 @@ class captureUtils(object):
     	
     Attributes:
         log: A class, the logging interface
-    """      
+    """
+
     def __init__(self, captureClass):
         self.log = captureClass.log
         self.config_dir = captureClass.config_dir
@@ -45,32 +47,36 @@ class captureUtils(object):
         self.dirSources = self.configPaths.getConfig('parameters')['dir_sources']
         self.dirCache = self.configPaths.getConfig('parameters')['dir_cache']
         self.dirWatermark = self.configPaths.getConfig('parameters')['dir_watermark']
-        self.dirXferQueue = self.configPaths.getConfig('parameters')['dir_xfer'] + 'queued/'        
-                        
+        self.dirXferQueue = self.configPaths.getConfig('parameters')['dir_xfer'] + 'queued/'
+
         self.configGeneral = captureClass.configGeneral
         self.configSource = captureClass.configSource
         self.currentSourceId = captureClass.getSourceId()
         self.lastCaptureDetails = captureClass.lastCaptureDetails
-        
-        self.pictureTransformations = None        
+
+        self.pictureTransformations = None
         self.fileUtils = captureClass.fileUtils
         self.timeUtils = captureClass.timeUtils
-        self.transferUtils = captureClass.transferUtils        
+        self.transferUtils = captureClass.transferUtils
         self.FTPUtils = captureClass.FTPUtils
-                
-        self.dirCurrentSourceWatermarkDir = self.dirSources + 'source' + self.currentSourceId +'/' + self.configPaths.getConfig('parameters')['dir_source_watermark']
-        self.dirCurrentSourceTmp = self.dirSources + 'source' + self.currentSourceId +'/' + self.configPaths.getConfig('parameters')['dir_source_tmp']
-        self.dirCurrentSourceLive = self.dirSources + 'source' + self.currentSourceId +'/' + self.configPaths.getConfig('parameters')['dir_source_live']
+
+        self.dirCurrentSourceWatermarkDir = self.dirSources + 'source' + self.currentSourceId + '/' + \
+                                            self.configPaths.getConfig('parameters')['dir_source_watermark']
+        self.dirCurrentSourceTmp = self.dirSources + 'source' + self.currentSourceId + '/' + \
+                                   self.configPaths.getConfig('parameters')['dir_source_tmp']
+        self.dirCurrentSourceLive = self.dirSources + 'source' + self.currentSourceId + '/' + \
+                                    self.configPaths.getConfig('parameters')['dir_source_live']
         self.dirLive = self.configPaths.getConfig('parameters')['dir_source_live']
-        self.dirCurrentSourcePictures = self.dirSources + 'source' + self.currentSourceId +'/' + self.configPaths.getConfig('parameters')['dir_source_pictures']
-        self.dirCurrentSource = self.dirSources + 'source' + self.currentSourceId +'/'
-    
+        self.dirCurrentSourcePictures = self.dirSources + 'source' + self.currentSourceId + '/' + \
+                                        self.configPaths.getConfig('parameters')['dir_source_pictures']
+        self.dirCurrentSource = self.dirSources + 'source' + self.currentSourceId + '/'
+
     # Getters and Setters
     def setPictureTransformations(self, pictureTransformations):
-        """ Used to set pictures transformation class after captureutils init """                   
+        """ Used to set pictures transformation class after captureutils init """
         self.pictureTransformations = pictureTransformations
-                
-    def isWithinTimeframe(self): 
+
+    def isWithinTimeframe(self):
         """ Check if capture is within a pre-configured timeframe (within configuration file) 
             Note that there is a different between a day number by strftime (0 = Sunday to 6 = Saturday) 
                 and numbering used by Webcampak (1 = Monday to 7 = Sunday). We are sticking to this number
@@ -80,69 +86,79 @@ class captureUtils(object):
         
         Returns:
             Boolean: depending if capture request is (or not) within timeframe
-        """               
+        """
         self.log.debug("captureUtils.isWithinTimeframe(): " + _("Start"))
         CurrentTime = int(self.captureClass.getCaptureTime().strftime("%H%M"))
         CurrentDay = int(self.captureClass.getCaptureTime().strftime("%w"))
-        if CurrentDay == 0: # We replace 0 by 7 to match Webcampak time
-            CurrentDay = 7            
-        self.log.info("captureUtils.isWithinTimeframe(): " + _("Current Day: %(CurrentDay)s - Current Time: %(CurrentTime)s") % {'CurrentDay': str(CurrentDay), 'CurrentTime': str(CurrentTime)})                            
-        if self.configSource.getConfig('cfgcroncalendar') == "no": # Captures are allowed 24 / 7
+        if CurrentDay == 0:  # We replace 0 by 7 to match Webcampak time
+            CurrentDay = 7
+        self.log.info(
+            "captureUtils.isWithinTimeframe(): " + _("Current Day: %(CurrentDay)s - Current Time: %(CurrentTime)s") % {
+                'CurrentDay': str(CurrentDay), 'CurrentTime': str(CurrentTime)})
+        if self.configSource.getConfig('cfgcroncalendar') == "no":  # Captures are allowed 24 / 7
             AllowCapture = True
         elif self.configSource.getConfig('cfgcronday' + str(CurrentDay))[0] == "yes":
-            startTime = int(self.configSource.getConfig('cfgcronday' + str(CurrentDay))[1] + self.configSource.getConfig('cfgcronday' + str(CurrentDay))[2])
-            endTime = int(self.configSource.getConfig('cfgcronday' + str(CurrentDay))[3] + self.configSource.getConfig('cfgcronday' + str(CurrentDay))[4])
-            self.log.info("captureUtils.isWithinTimeframe(): " + _("Capture allowed between: %(StartAllowed)s and: %(EndAllowed)s") % {'StartAllowed': str(startTime), 'EndAllowed': str(endTime)})                 
+            startTime = int(self.configSource.getConfig('cfgcronday' + str(CurrentDay))[1] +
+                            self.configSource.getConfig('cfgcronday' + str(CurrentDay))[2])
+            endTime = int(self.configSource.getConfig('cfgcronday' + str(CurrentDay))[3] +
+                          self.configSource.getConfig('cfgcronday' + str(CurrentDay))[4])
+            self.log.info("captureUtils.isWithinTimeframe(): " + _(
+                "Capture allowed between: %(StartAllowed)s and: %(EndAllowed)s") % {'StartAllowed': str(startTime),
+                                                                                    'EndAllowed': str(endTime)})
             if startTime == 0 and endTime == 0:
-                AllowCapture = True			
+                AllowCapture = True
             elif startTime >= endTime:
-                if (CurrentTime >= startTime and CurrentTime < 2400) or (CurrentTime >=0 and CurrentTime < endTime):
+                if (CurrentTime >= startTime and CurrentTime < 2400) or (CurrentTime >= 0 and CurrentTime < endTime):
                     AllowCapture = True
                 else:
-                    AllowCapture = False			
-            else :
+                    AllowCapture = False
+            else:
                 if CurrentTime == endTime:
                     AllowCapture = False
                 elif CurrentTime >= startTime and CurrentTime < endTime:
                     AllowCapture = True
-                else: 
-                    AllowCapture = False																			
-        else: # Capture not allowed this day
-            self.log.info("captureUtils.isWithinTimeframe(): " + _("Capture not allowed this day"))                        
-            AllowCapture = False	
+                else:
+                    AllowCapture = False
+        else:  # Capture not allowed this day
+            self.log.info("captureUtils.isWithinTimeframe(): " + _("Capture not allowed this day"))
+            AllowCapture = False
 
         if AllowCapture == False:
-            self.log.info("captureUtils.isWithinTimeframe(): " + _("Outside pre-configured capture slot"))                        
-            
+            self.log.info("captureUtils.isWithinTimeframe(): " + _("Outside pre-configured capture slot"))
+
         return AllowCapture
 
-    def checkInterval(self): 
+    def checkInterval(self):
         """ Check if time since last capture is within a pre-configured range
         Args:
             None
         
         Returns:
             Boolean: True (capture allowed) or False (capture not allowed)
-        """           
+        """
         self.log.debug("captureUtils.checkInterval(): " + _("Start"))
         LastCapture = self.lastCaptureDetails.getLastCaptureTime()
-        if LastCapture != None: 
-            TimeSinceLastCapture = int((self.captureClass.getScriptStartTime() - LastCapture).total_seconds()*1000)
-            self.log.info("captureUtils.checkInterval(): " + _("Last capture %(TimeSinceLastCapture)s ms ago")  % {'TimeSinceLastCapture': str(TimeSinceLastCapture)})
-            minimumCaptureValue = int(self.configSource.getConfig('cfgminimumcapturevalue'))			
+        if LastCapture != None:
+            TimeSinceLastCapture = int((self.captureClass.getScriptStartTime() - LastCapture).total_seconds() * 1000)
+            self.log.info("captureUtils.checkInterval(): " + _("Last capture %(TimeSinceLastCapture)s ms ago") % {
+                'TimeSinceLastCapture': str(TimeSinceLastCapture)})
+            minimumCaptureValue = int(self.configSource.getConfig('cfgminimumcapturevalue'))
             if self.configSource.getConfig('cfgminimumcaptureinterval') == "minutes":
                 minimumCaptureValue = minimumCaptureValue * 60
-            self.log.info("captureUtils.checkInterval(): " + _("Minimum capture interval: %(minimumCaptureValue)s ms")  % {'minimumCaptureValue': str(minimumCaptureValue*1000)})                        
+            self.log.info(
+                "captureUtils.checkInterval(): " + _("Minimum capture interval: %(minimumCaptureValue)s ms") % {
+                    'minimumCaptureValue': str(minimumCaptureValue * 1000)})
             if TimeSinceLastCapture >= (minimumCaptureValue * 1000):
-                self.log.info("captureUtils.checkInterval(): " + _("Capture slot available"))                                            
+                self.log.info("captureUtils.checkInterval(): " + _("Capture slot available"))
                 return True
             else:
-                self.log.info("captureUtils.checkInterval(): " + _("Capture slot refused, not enough time since last capture"))                                                                
-                return False			  
+                self.log.info(
+                    "captureUtils.checkInterval(): " + _("Capture slot refused, not enough time since last capture"))
+                return False
         else:
-            self.log.info("captureUtils.checkInterval(): " + _("Capture slot available, no previous capture"))                                                                        
-            return True    
-              
+            self.log.info("captureUtils.checkInterval(): " + _("Capture slot available, no previous capture"))
+            return True
+
     def formatDateLegend(self, inputDate, outputPattern):
         """ Function used format a date to be displayed (i.e. inserted as a legend)
         Args:
@@ -151,7 +167,7 @@ class captureUtils(object):
         
         Returns:
             String: date representation according to the selected pattern
-        """   
+        """
         if outputPattern == "1":
             return " " + inputDate.strftime("%d/%m/%Y - %Hh%M")
         elif outputPattern == "2":
@@ -162,10 +178,10 @@ class captureUtils(object):
             return " " + inputDate.strftime("%A %d %B %Y - %Hh%M")
         elif outputPattern == "5":
             return " " + inputDate.strftime("%d %B %Y - %Hh%M")
-        elif outputPattern == "6": # US, 12h format
+        elif outputPattern == "6":  # US, 12h format
             return " " + inputDate.strftime("%m/%d/%Y - %Ih%M %p")
-        elif outputPattern == "7": # US, 24h format
-            return " " + inputDate.strftime("%m/%d/%Y - %Hh%M")			
+        elif outputPattern == "7":  # US, 24h format
+            return " " + inputDate.strftime("%m/%d/%Y - %Hh%M")
         else:
             return ""
 
@@ -185,9 +201,9 @@ class captureUtils(object):
         
         Returns:
             None
-        """           
+        """
         self.log.debug("captureUtils.modifyPictures(): " + _("Start"))
-        if createHotlink == False:            
+        if createHotlink == False:
             self.log.info("captureUtils.modifyPictures(): " + _("Hotlink creation disabled for this picture"))
 
         if self.configSource.getConfig('cfgrotateactivate') == "yes":
@@ -196,7 +212,10 @@ class captureUtils(object):
             self.log.info("captureUtils.modifyPictures(): " + _("Rotating disabled"))
 
         if self.configSource.getConfig('cfgcropactivate') == "yes":
-            self.pictureTransformations.crop(self.configSource.getConfig('cfgcropsizewidth'), self.configSource.getConfig('cfgcropsizeheight'), self.configSource.getConfig('cfgcropxpos'), self.configSource.getConfig('cfgcropypos'))
+            self.pictureTransformations.crop(self.configSource.getConfig('cfgcropsizewidth'),
+                                             self.configSource.getConfig('cfgcropsizeheight'),
+                                             self.configSource.getConfig('cfgcropxpos'),
+                                             self.configSource.getConfig('cfgcropypos'))
         else:
             self.log.info("captureUtils.modifyPictures(): " + _("Cropping disabled"))
 
@@ -206,52 +225,86 @@ class captureUtils(object):
                 watermarkFile = self.dirCurrentSourceWatermarkDir + self.configSource.getConfig("cfgpicwatermarkfile")
             elif os.path.isfile(self.dirWatermark + self.configSource.getConfig("cfgpicwatermarkfile")):
                 watermarkFile = self.dirWatermark + self.configSource.getConfig("cfgpicwatermarkfile")
-            if watermarkFile!= None:               
-                self.pictureTransformations.Watermark(self.configSource.getConfig('cfgpicwatermarkpositionx'), self.configSource.getConfig('cfgpicwatermarkpositiony'), self.configSource.getConfig('cfgpicwatermarkdissolve'), watermarkFile)	
+            if watermarkFile != None:
+                self.pictureTransformations.Watermark(self.configSource.getConfig('cfgpicwatermarkpositionx'),
+                                                      self.configSource.getConfig('cfgpicwatermarkpositiony'),
+                                                      self.configSource.getConfig('cfgpicwatermarkdissolve'),
+                                                      watermarkFile)
             else:
-                self.log.info("captureUtils.modifyPictures(): " + _("Error: Unable to find watermark file:  %(watermarkFile)s") % {'watermarkFile': self.configSource.getConfig("cfgpicwatermarkfile")})
+                self.log.info("captureUtils.modifyPictures(): " + _(
+                    "Error: Unable to find watermark file:  %(watermarkFile)s") % {
+                                  'watermarkFile': self.configSource.getConfig("cfgpicwatermarkfile")})
         else:
             self.log.info("captureUtils.modifyPictures(): " + _("Watermark disabled"))
 
-        if self.configSource.getConfig('cfgimagemagicktxt') == "yes":	
-            self.pictureTransformations.Text(self.configSource.getConfig('cfgimgtextfont'), self.configSource.getConfig('cfgimgtextsize'), self.configSource.getConfig('cfgimgtextgravity'), self.configSource.getConfig('cfgimgtextbasecolor'), self.configSource.getConfig('cfgimgtextbaseposition'), self.configSource.getConfig('cfgimgtext'), self.formatDateLegend(self.captureClass.getCaptureTime(), self.configSource.getConfig('cfgimgdateformat')), self.configSource.getConfig('cfgimgtextovercolor'), self.configSource.getConfig('cfgimgtextoverposition'))
+        if self.configSource.getConfig('cfgimagemagicktxt') == "yes":
+            self.pictureTransformations.Text(self.configSource.getConfig('cfgimgtextfont'),
+                                             self.configSource.getConfig('cfgimgtextsize'),
+                                             self.configSource.getConfig('cfgimgtextgravity'),
+                                             self.configSource.getConfig('cfgimgtextbasecolor'),
+                                             self.configSource.getConfig('cfgimgtextbaseposition'),
+                                             self.configSource.getConfig('cfgimgtext'),
+                                             self.formatDateLegend(self.captureClass.getCaptureTime(),
+                                                                   self.configSource.getConfig('cfgimgdateformat')),
+                                             self.configSource.getConfig('cfgimgtextovercolor'),
+                                             self.configSource.getConfig('cfgimgtextoverposition'))
         else:
             self.log.info("captureUtils.modifyPictures(): " + _("Legend disabled"))
 
         # NEW SECTION TO MANAGE GRAPHS
         if self.configGeneral.getConfig('cfgphidgetactivate') == "yes":
-            for ListSourceSensors in range(1,int(self.configSource.getConfig('cfgphidgetsensornb')) + 1):
-                if self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] != "" and self.configSource.getConfig('cfgphidgetsensorinsert' + str(ListSourceSensors))[0] != "no":
-                    self.log.info("captureUtils.modifyPictures(): " + _("Processing Sensor %(SensorNb)s") % {'SensorNb': ListSourceSensors})
-                    SensorsHistory = Config(self.dirCurrentSourceTmp + cfgdispday + "/" + self.configGeneral.getConfig('cfgphidgetcapturefile'), None)
-                    CurrentValue = SensorsHistory.getSensor(cfgdispdate, self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0])
+            for ListSourceSensors in range(1, int(self.configSource.getConfig('cfgphidgetsensornb')) + 1):
+                if self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0] != "" and \
+                                self.configSource.getConfig('cfgphidgetsensorinsert' + str(ListSourceSensors))[
+                                    0] != "no":
+                    self.log.info("captureUtils.modifyPictures(): " + _("Processing Sensor %(SensorNb)s") % {
+                        'SensorNb': ListSourceSensors})
+                    SensorsHistory = Config(self.dirCurrentSourceTmp + cfgdispday + "/" + self.configGeneral.getConfig(
+                        'cfgphidgetcapturefile'), None)
+                    CurrentValue = SensorsHistory.getSensor(cfgdispdate, self.configSource.getConfig(
+                        'cfgphidgetsensor' + str(ListSourceSensors))[0])
                     if CurrentValue == False:
                         SensorTable = []
                         for capturetime in SensorsHistory.getFullConfig():
                             SensorTable.append(int(capturetime))
-                        SensorTable = np.array(SensorTable) # Convert Python array to Numpy array
+                        SensorTable = np.array(SensorTable)  # Convert Python array to Numpy array
                         if len(SensorTable) > 0:
-                            SensorNearestValue = self.SensorFindNearest(SensorTable,int(cfgdispdate))
-                            self.log.info("captureUtils.modifyPictures(): " + _("Sensor: Date %(cfgdispdate)s not found in sensor file, closest date is %(SensorNearestValue)s") % {'cfgdispdate': cfgdispdate, 'SensorNearestValue': str(SensorNearestValue)})					
-                            CurrentValue = SensorsHistory.getSensor(str(SensorNearestValue), self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0])				
+                            SensorNearestValue = self.SensorFindNearest(SensorTable, int(cfgdispdate))
+                            self.log.info("captureUtils.modifyPictures(): " + _(
+                                "Sensor: Date %(cfgdispdate)s not found in sensor file, closest date is %(SensorNearestValue)s") % {
+                                              'cfgdispdate': cfgdispdate,
+                                              'SensorNearestValue': str(SensorNearestValue)})
+                            CurrentValue = SensorsHistory.getSensor(str(SensorNearestValue),
+                                                                    self.configSource.getConfig(
+                                                                        'cfgphidgetsensor' + str(ListSourceSensors))[0])
                     if CurrentValue != False:
-                        self.log.info("captureUtils.modifyPictures(): " + _("Sensor: Insert %(SensorType)s") % {'SensorType': self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0]})
+                        self.log.info("captureUtils.modifyPictures(): " + _("Sensor: Insert %(SensorType)s") % {
+                            'SensorType': self.configSource.getConfig('cfgphidgetsensor' + str(ListSourceSensors))[0]})
                         self.Graph.CreateSensorBar(CurrentValue, ListSourceSensors, "", "")
                         if self.configSource.getConfig('cfgphidgetsensorinsert' + str(ListSourceSensors))[1] != "no":
                             import shlex, subprocess
-                            Command = "convert " + self.dirCurrentSourceTmp + "Sensor" + str(ListSourceSensors) + ".png -resize " + self.configSource.getConfig('cfgphidgetsensorinsert' + str(ListSourceSensors))[1] + " " + self.dirCurrentSourceTmp + "Sensor" + str(ListSourceSensors) + ".png"
+                            Command = "convert " + self.dirCurrentSourceTmp + "Sensor" + str(
+                                ListSourceSensors) + ".png -resize " + \
+                                      self.configSource.getConfig('cfgphidgetsensorinsert' + str(ListSourceSensors))[
+                                          1] + " " + self.dirCurrentSourceTmp + "Sensor" + str(
+                                ListSourceSensors) + ".png"
                             args = shlex.split(Command)
-                            p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                            p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                             output, errors = p.communicate()
-                        self.pictureTransformations.Watermark(self.configSource.getConfig('cfgphidgetsensorinsert' + str(ListSourceSensors))[3], self.configSource.getConfig('cfgphidgetsensorinsert' + str(ListSourceSensors))[4], self.configSource.getConfig('cfgphidgetsensorinsert' + str(ListSourceSensors))[2], self.dirCurrentSourceTmp + "Sensor" + str(ListSourceSensors) + ".png", self.dirCurrentSourceTmp + cfgfilename)			  
+                        self.pictureTransformations.Watermark(
+                            self.configSource.getConfig('cfgphidgetsensorinsert' + str(ListSourceSensors))[3],
+                            self.configSource.getConfig('cfgphidgetsensorinsert' + str(ListSourceSensors))[4],
+                            self.configSource.getConfig('cfgphidgetsensorinsert' + str(ListSourceSensors))[2],
+                            self.dirCurrentSourceTmp + "Sensor" + str(ListSourceSensors) + ".png",
+                            self.dirCurrentSourceTmp + cfgfilename)
                 else:
-                    self.log.info("captureUtils.modifyPictures(): " + _("Sensor %(SensorNb)s disabled") % {'SensorNb': ListSourceSensors})
+                    self.log.info("captureUtils.modifyPictures(): " + _("Sensor %(SensorNb)s disabled") % {
+                        'SensorNb': ListSourceSensors})
 
         if self.configSource.getConfig('cfgarchivesize') != "":
             self.pictureTransformations.resize(self.configSource.getConfig('cfgarchivesize'))
         else:
-            self.log.info("captureUtils.modifyPictures(): " + _("Resizing disabled"))    
-   
+            self.log.info("captureUtils.modifyPictures(): " + _("Resizing disabled"))
 
     def archivePicture(self, captureFilename):
         """ archivePicture capture within pictures directory
@@ -261,44 +314,48 @@ class captureUtils(object):
         
         Returns:
             None
-        """        
+        """
         self.log.debug("captureUtils.archivePicture(): " + _("Start"))
         captureDirectory = captureFilename[:8]
         captureJpgFile = self.dirCurrentSourcePictures + captureDirectory + "/" + captureFilename + ".jpg"
         captureRawFile = self.dirCurrentSourcePictures + "raw/" + captureDirectory + "/" + captureFilename + ".raw"
         # Archiving the picture in its final destination
-        self.log.info("captureUtils.archivePicture(): " + _("Saving JPG picture to: %(captureJpgFile)s") % {'captureJpgFile': captureJpgFile})
+        self.log.info("captureUtils.archivePicture(): " + _("Saving JPG picture to: %(captureJpgFile)s") % {
+            'captureJpgFile': captureJpgFile})
         self.fileUtils.CheckFilepath(captureJpgFile)
         shutil.copy(self.dirCurrentSourceTmp + captureFilename + ".jpg", captureJpgFile)
         os.chmod(captureJpgFile, 0775)
         if os.path.isfile(self.dirCurrentSourceTmp + captureFilename + ".raw"):
-            self.log.info("captureUtils.archivePicture(): " + _("Saving RAW picture to: %(captureRawFile)s") % {'captureRawFile': captureRawFile})
+            self.log.info("captureUtils.archivePicture(): " + _("Saving RAW picture to: %(captureRawFile)s") % {
+                'captureRawFile': captureRawFile})
             self.fileUtils.CheckFilepath(captureRawFile)
             shutil.copyfile(self.dirCurrentSourceTmp + captureFilename + ".raw", captureRawFile)
-            os.chmod(captureRawFile, 0775)						
-        
-    def getArchivedSize(self, captureFilename, fileType): 
+            os.chmod(captureRawFile, 0775)
+
+    def getArchivedSize(self, captureFilename, fileType):
         """ Return the size of the captured file
         Args:
             captureFilename: filename of the picture in webcampak format (YYYYMMDDHHMMSS)
             fileType: raw or jpg depending of file type
         Returns:
             Int: filesize
-        """            
+        """
         self.log.debug("captureUtils.getArchivedSize(): " + _("Start"))
-        captureDirectory = captureFilename[:8]                
+        captureDirectory = captureFilename[:8]
         if (fileType == "jpg"):
             if os.path.isfile(self.dirCurrentSourcePictures + captureDirectory + "/" + captureFilename + ".jpg"):
-                return os.path.getsize(self.dirCurrentSourcePictures + captureDirectory + "/" + captureFilename + ".jpg")
+                return os.path.getsize(
+                    self.dirCurrentSourcePictures + captureDirectory + "/" + captureFilename + ".jpg")
             else:
                 return 0
         elif (fileType == "raw"):
-            if os.path.isfile(self.dirCurrentSourcePictures + "raw/" + captureDirectory + "/" + captureFilename + ".raw"):
-                return os.path.getsize(self.dirCurrentSourcePictures + "raw/" + captureDirectory + "/" + captureFilename + ".raw")
+            if os.path.isfile(
+                                                            self.dirCurrentSourcePictures + "raw/" + captureDirectory + "/" + captureFilename + ".raw"):
+                return os.path.getsize(
+                    self.dirCurrentSourcePictures + "raw/" + captureDirectory + "/" + captureFilename + ".raw")
             else:
-                return 0            
-            
-        
+                return 0
+
     def createLivePicture(self, captureFilename):
         """Copy a picture from TMP directory into live directory as last-capture.jpg and/or last-capture.raw
         
@@ -306,96 +363,108 @@ class captureUtils(object):
             captureFilename: a string, name of the picture, without extension in webcampak format (YYYYMMDDHHMMSS)
         
         """
-        self.log.debug("captureUtils.createLivePicture(): " + _("Start"))        
+        self.log.debug("captureUtils.createLivePicture(): " + _("Start"))
         # Copying the picture into the live directory as last-capture.jpg and/or last-capture.raw
-        self.log.info("captureUtils.createLivePicture(): " + _("Copying full size JPG picture: %(jpgPicture)s to: %(jpgPictureLive)s") % {'jpgPicture': self.dirCurrentSourceTmp + captureFilename + ".jpg", 'jpgPictureLive': self.dirCurrentSourceLive + "last-capture.jpg"})
-        self.fileUtils.CheckFilepath(self.dirCurrentSourceLive + "last-capture.jpg")                        
+        self.log.info("captureUtils.createLivePicture(): " + _(
+            "Copying full size JPG picture: %(jpgPicture)s to: %(jpgPictureLive)s") % {
+                          'jpgPicture': self.dirCurrentSourceTmp + captureFilename + ".jpg",
+                          'jpgPictureLive': self.dirCurrentSourceLive + "last-capture.jpg"})
+        self.fileUtils.CheckFilepath(self.dirCurrentSourceLive + "last-capture.jpg")
         shutil.copy(self.dirCurrentSourceTmp + captureFilename + ".jpg", self.dirCurrentSourceLive + "last-capture.jpg")
         os.chmod(self.dirCurrentSourceLive + "last-capture.jpg", 0775)
         if os.path.isfile(self.dirCurrentSourceTmp + captureFilename + ".raw"):
-            self.log.info("captureUtils.createLivePicture(): " + _("Copying full size RAW picture: %(rawPicture)s to: %(rawPictureLive)s") % {'rawPicture': self.dirCurrentSourceTmp + captureFilename + ".raw", 'rawPictureLive': self.dirCurrentSourceLive + "last-capture.raw"})
-            shutil.copy(self.dirCurrentSourceTmp + captureFilename + ".raw", self.dirCurrentSourceLive + "last-capture.raw")
+            self.log.info("captureUtils.createLivePicture(): " + _(
+                "Copying full size RAW picture: %(rawPicture)s to: %(rawPictureLive)s") % {
+                              'rawPicture': self.dirCurrentSourceTmp + captureFilename + ".raw",
+                              'rawPictureLive': self.dirCurrentSourceLive + "last-capture.raw"})
+            shutil.copy(self.dirCurrentSourceTmp + captureFilename + ".raw",
+                        self.dirCurrentSourceLive + "last-capture.raw")
             os.chmod(self.dirCurrentSourceLive + "last-capture.raw", 0775)
 
-                
-#    def transferFile(self, sourceFilePath, destinationFilePath, serverId, maxRetries):
-#        """This function transfer the file, to a remote server, it can either transfer using xfer or direct FTP
-#        Args:
-#            sourceFilePath: a string, filepath on the local filesystem
-#            destinationFilePath: a string, filepath on the remote server
-#            serverId: an int, ID of the remote server in the file config-sourceX-ftpservers.cfg (X being the source ID)
-#            maxRetries: an int, number of times the tranfer should be retried before being considered faile   
-        #"""        
-#        self.log.debug("captureUtils.transferFile(): " + _("Start"))
-#        ftpServerConfig = Config(self.log, self.dirEtc + "config-source" + self.currentSourceId + "-ftpservers.cfg")
-#        xferEnable = ftpServerConfig.getConfig('cfgftpserverslist' + str(serverId))[6]
-#        if xferEnable == "yes":
-#            self.log.info("captureUtils.transferFile(): " + _("Transferring file through XFer mechanism"))       
-#            xferJobDirectory = self.captureClass.getCaptureTime().strftime("%Y%m%d")
-#            xferJobFilenameDate = self.captureClass.getCaptureTime().strftime("%Y%m%d%H%M%S")
-#            xferJobFileMd5 = hashlib.sha224('S'+ str(self.currentSourceId) + 'local' + str(self.currentSourceId) + 'ftp' + str(serverId) + sourceFilePath).hexdigest()
-#            xferJobFileName = xferJobFilenameDate + "-" + str(self.currentSourceId) + "-" + xferJobFileMd5 + ".json"
-#
-#            self.log.info("captureUtils.transferFile(): " + _("Job Directory: %(xferJobDirectory)s") % {'xferJobDirectory': xferJobDirectory} )       
-#            self.log.info("captureUtils.transferFile(): " + _("Job Filename: %(xferJobFileName)s") % {'xferJobFileName': xferJobFileName} )       
-#
-#            xferFtpServerHash = self.FTPUtils.calculateFTPServerHash(ftpServerConfig, serverId)
-#            self.log.info("captureUtils.transferFile(): " + _("FTP Server Hash: %(xferFtpServerHash)s") % {'xferFtpServerHash': xferFtpServerHash} )       
-#
-#            newXferJob = xferJob()
-#            newXferJob.setStatus("queued")
-#            newXferJob.setHash(xferJobFileMd5)
-#            newXferJob.setDateQueued(self.captureClass.getCaptureTime().isoformat())
-#            newXferJob.setSourceSourceId(str(self.currentSourceId))
-#            newXferJob.setSourceType("filesystem")
-#            # We remove the current source directory from the source file path, 
-#            # The xfer system will be looking at source ID to determine filepath
-#            sourceFilePath = sourceFilePath.replace(self.dirCurrentSource, '')
-#            newXferJob.setSourceFilePath(sourceFilePath)            
-#            newXferJob.setDestinationSourceId(str(self.currentSourceId))
-#            newXferJob.setDestinationType("ftp")      
-#            newXferJob.setDestinationFtpServerId(str(serverId))
-#            newXferJob.setDestinationFtpServerHash(xferFtpServerHash)
-#            newXferJob.setDestinationFilePath(destinationFilePath)
-#            newXferJob.setRetries(maxRetries)
-#            newXferJobFile = self.dirXferQueue + xferJobDirectory + "/" + xferJobFileName
-#            self.log.info("captureUtils.transferFile(): " + _("Saving Job file to: %(newXferJobFile)s") % {'newXferJobFile': newXferJobFile} )                   
-#            self.fileUtils.CheckFilepath(newXferJobFile)            
-#            newXferJob.writeXferJobFile(newXferJobFile)                        
-#        else:
-#            self.log.info("captureUtils.transferFile(): " + _("Transferring file through direct FTP"))
-#            currentFTP = FTPTransfer(self.log, self.config_dir)
-#            currentFTPConnectionStatus = currentFTP.initByServerId(str(self.currentSourceId), str(serverId))
-#            if currentFTPConnectionStatus == True:
-#                # We add the path on the remote FTP server
-#                destinationFilePath = ftpServerConfig.getConfig('cfgftpserverslist' + str(serverId))[4] + destinationFilePath       
-#                self.log.info("captureUtils.transferFile(): " + _("Transferring file through direct FTP, local file: %(sourceFilePath)s") % {'sourceFilePath': sourceFilePath} )    
-#                self.log.info("captureUtils.transferFile(): " + _("Transferring file through direct FTP, remote file: %(destinationFilePath)s") % {'destinationFilePath': destinationFilePath} )    
-#                ftpTransferSuccess = currentFTP.putFile(sourceFilePath, destinationFilePath)
-#                currentFTP.closeFtp()           
-#            else:
-#                self.log.error("captureUtils.transferFile(): " + _("Unable to establish connection with the remote FTP server"))
-#                
-                
+
+        #    def transferFile(self, sourceFilePath, destinationFilePath, serverId, maxRetries):
+        #        """This function transfer the file, to a remote server, it can either transfer using xfer or direct FTP
+        #        Args:
+        #            sourceFilePath: a string, filepath on the local filesystem
+        #            destinationFilePath: a string, filepath on the remote server
+        #            serverId: an int, ID of the remote server in the file config-sourceX-ftpservers.cfg (X being the source ID)
+        #            maxRetries: an int, number of times the tranfer should be retried before being considered faile
+        # """
+        #        self.log.debug("captureUtils.transferFile(): " + _("Start"))
+        #        ftpServerConfig = Config(self.log, self.dirEtc + "config-source" + self.currentSourceId + "-ftpservers.cfg")
+        #        xferEnable = ftpServerConfig.getConfig('cfgftpserverslist' + str(serverId))[6]
+        #        if xferEnable == "yes":
+        #            self.log.info("captureUtils.transferFile(): " + _("Transferring file through XFer mechanism"))
+        #            xferJobDirectory = self.captureClass.getCaptureTime().strftime("%Y%m%d")
+        #            xferJobFilenameDate = self.captureClass.getCaptureTime().strftime("%Y%m%d%H%M%S")
+        #            xferJobFileMd5 = hashlib.sha224('S'+ str(self.currentSourceId) + 'local' + str(self.currentSourceId) + 'ftp' + str(serverId) + sourceFilePath).hexdigest()
+        #            xferJobFileName = xferJobFilenameDate + "-" + str(self.currentSourceId) + "-" + xferJobFileMd5 + ".json"
+        #
+        #            self.log.info("captureUtils.transferFile(): " + _("Job Directory: %(xferJobDirectory)s") % {'xferJobDirectory': xferJobDirectory} )
+        #            self.log.info("captureUtils.transferFile(): " + _("Job Filename: %(xferJobFileName)s") % {'xferJobFileName': xferJobFileName} )
+        #
+        #            xferFtpServerHash = self.FTPUtils.calculateFTPServerHash(ftpServerConfig, serverId)
+        #            self.log.info("captureUtils.transferFile(): " + _("FTP Server Hash: %(xferFtpServerHash)s") % {'xferFtpServerHash': xferFtpServerHash} )
+        #
+        #            newXferJob = xferJob()
+        #            newXferJob.setStatus("queued")
+        #            newXferJob.setHash(xferJobFileMd5)
+        #            newXferJob.setDateQueued(self.captureClass.getCaptureTime().isoformat())
+        #            newXferJob.setSourceSourceId(str(self.currentSourceId))
+        #            newXferJob.setSourceType("filesystem")
+        #            # We remove the current source directory from the source file path,
+        #            # The xfer system will be looking at source ID to determine filepath
+        #            sourceFilePath = sourceFilePath.replace(self.dirCurrentSource, '')
+        #            newXferJob.setSourceFilePath(sourceFilePath)
+        #            newXferJob.setDestinationSourceId(str(self.currentSourceId))
+        #            newXferJob.setDestinationType("ftp")
+        #            newXferJob.setDestinationFtpServerId(str(serverId))
+        #            newXferJob.setDestinationFtpServerHash(xferFtpServerHash)
+        #            newXferJob.setDestinationFilePath(destinationFilePath)
+        #            newXferJob.setRetries(maxRetries)
+        #            newXferJobFile = self.dirXferQueue + xferJobDirectory + "/" + xferJobFileName
+        #            self.log.info("captureUtils.transferFile(): " + _("Saving Job file to: %(newXferJobFile)s") % {'newXferJobFile': newXferJobFile} )
+        #            self.fileUtils.CheckFilepath(newXferJobFile)
+        #            newXferJob.writeXferJobFile(newXferJobFile)
+        #        else:
+        #            self.log.info("captureUtils.transferFile(): " + _("Transferring file through direct FTP"))
+        #            currentFTP = FTPTransfer(self.log, self.config_dir)
+        #            currentFTPConnectionStatus = currentFTP.initByServerId(str(self.currentSourceId), str(serverId))
+        #            if currentFTPConnectionStatus == True:
+        #                # We add the path on the remote FTP server
+        #                destinationFilePath = ftpServerConfig.getConfig('cfgftpserverslist' + str(serverId))[4] + destinationFilePath
+        #                self.log.info("captureUtils.transferFile(): " + _("Transferring file through direct FTP, local file: %(sourceFilePath)s") % {'sourceFilePath': sourceFilePath} )
+        #                self.log.info("captureUtils.transferFile(): " + _("Transferring file through direct FTP, remote file: %(destinationFilePath)s") % {'destinationFilePath': destinationFilePath} )
+        #                ftpTransferSuccess = currentFTP.putFile(sourceFilePath, destinationFilePath)
+        #                currentFTP.closeFtp()
+        #            else:
+        #                self.log.error("captureUtils.transferFile(): " + _("Unable to establish connection with the remote FTP server"))
+        #
+
     def generateHotlinks(self):
         """ Create hotlink files and send it via FTP """
-        self.log.debug("captureUtils.generateHotlinks(): " + _("Start"))                
+        self.log.debug("captureUtils.generateHotlinks(): " + _("Start"))
         for j in range(1, 5):
             hotlinkSize = self.configSource.getConfig('cfghotlinksize' + str(j))
             if hotlinkSize != "":
                 hotlinkDestinationFile = self.dirCurrentSourceLive + "webcam-" + hotlinkSize + ".jpg"
-                self.log.info("captureUtils.generateHotlinks(): " + _("Hotlink File: %(hotlinkDestinationFile)s") % {'hotlinkDestinationFile': hotlinkDestinationFile} )                
-                #previousDestinationFile = self.pictureTransformations.getFiledestinationPath()
-                self.pictureTransformations.setFiledestinationPath(hotlinkDestinationFile)  
+                self.log.info("captureUtils.generateHotlinks(): " + _("Hotlink File: %(hotlinkDestinationFile)s") % {
+                    'hotlinkDestinationFile': hotlinkDestinationFile})
+                # previousDestinationFile = self.pictureTransformations.getFiledestinationPath()
+                self.pictureTransformations.setFiledestinationPath(hotlinkDestinationFile)
                 self.pictureTransformations.resize(hotlinkSize)
-                #self.pictureTransformations.setFiledestinationPath(previousDestinationFile)                
-                os.chmod(self.dirCurrentSourceLive + "webcam-" + hotlinkSize + ".jpg", 0775) 			
+                # self.pictureTransformations.setFiledestinationPath(previousDestinationFile)
+                os.chmod(self.dirCurrentSourceLive + "webcam-" + hotlinkSize + ".jpg", 0775)
                 if self.configSource.getConfig('cfgftphotlinkserverid') != "":
-                    self.transferUtils.transferFile(self.captureClass.getCaptureTime(), self.dirCurrentSourceLive + "webcam-" + hotlinkSize + ".jpg", "live/webcam-" + hotlinkSize + ".jpg", self.configSource.getConfig('cfgftphotlinkserverid'), self.configSource.getConfig('cfgftphotlinkserverretry'))
-                    #self.transferFile(self.dirCurrentSourceLive + "webcam-" + hotlinkSize + ".jpg", "live/webcam-" + hotlinkSize + ".jpg", self.configSource.getConfig('cfgftphotlinkserverid'), self.configSource.getConfig('cfgftphotlinkserverretry'))
+                    self.transferUtils.transferFile(self.captureClass.getCaptureTime(),
+                                                    self.dirCurrentSourceLive + "webcam-" + hotlinkSize + ".jpg",
+                                                    "live/webcam-" + hotlinkSize + ".jpg",
+                                                    self.configSource.getConfig('cfgftphotlinkserverid'),
+                                                    self.configSource.getConfig('cfgftphotlinkserverretry'))
+                    # self.transferFile(self.dirCurrentSourceLive + "webcam-" + hotlinkSize + ".jpg", "live/webcam-" + hotlinkSize + ".jpg", self.configSource.getConfig('cfgftphotlinkserverid'), self.configSource.getConfig('cfgftphotlinkserverretry'))
             else:
-                self.log.info("captureUtils.generateHotlinks(): " + _("Hotlink: %(Hotlinkfile)s disabled") % {'Hotlinkfile': str(j)} )
-
+                self.log.info("captureUtils.generateHotlinks(): " + _("Hotlink: %(Hotlinkfile)s disabled") % {
+                    'Hotlinkfile': str(j)})
 
     def sendPicture(self, FTPServerId, FTPServerRetries, FTPSendRaw, captureFilename):
         """ Send file to a remote destination
@@ -406,22 +475,30 @@ class captureUtils(object):
             FTPSendRaw: Should RAW file be sent by FTP
             captureFilename: Filename of the picture to copy
         
-        """        
-        self.log.debug("captureUtils.sendPicture(): " + _("Start"))                        						
+        """
+        self.log.debug("captureUtils.sendPicture(): " + _("Start"))
         if FTPServerId != "":
             captureDirectory = captureFilename[:8]
             jpgFileName = self.dirCurrentSourcePictures + captureDirectory + "/" + captureFilename + ".jpg"
             rawFileName = self.dirCurrentSourcePictures + "raw/" + captureDirectory + "/" + captureFilename + ".raw"
             if os.path.isfile(jpgFileName):
-                self.log.info("captureUtils.sendPicture(): " + _("Preparing to send JPG file located in  %(jpgFileName)s") % {'jpgFileName': jpgFileName} )                     
-                self.transferUtils.transferFile(self.captureClass.getCaptureTime(), jpgFileName, captureDirectory + "/" + captureFilename + ".jpg", FTPServerId, FTPServerRetries)
-                #self.transferFile(jpgFileName, "pictures/" + captureDirectory + "/" + captureFilename + ".jpg", FTPServerId, FTPServerRetries)
-                            
+                self.log.info(
+                    "captureUtils.sendPicture(): " + _("Preparing to send JPG file located in  %(jpgFileName)s") % {
+                        'jpgFileName': jpgFileName})
+                self.transferUtils.transferFile(self.captureClass.getCaptureTime(), jpgFileName,
+                                                captureDirectory + "/" + captureFilename + ".jpg", FTPServerId,
+                                                FTPServerRetries)
+                # self.transferFile(jpgFileName, "pictures/" + captureDirectory + "/" + captureFilename + ".jpg", FTPServerId, FTPServerRetries)
+
             if os.path.isfile(rawFileName) and FTPSendRaw == "yes":
-                self.log.info("captureUtils.sendPicture(): " + _("Preparing to send RAW file located in  %(rawFileName)s") % {'rawFileName': rawFileName} ) 
-                self.transferFile(self.captureClass.getCaptureTime(), rawFileName,  "raw/" + captureDirectory + "/" + captureFilename + ".raw", FTPServerId, FTPServerRetries)
-                #self.transferFile(rawFileName,  "pictures/" + captureDirectory + "/" + captureFilename + ".raw", FTPServerId, FTPServerRetries)
-    
+                self.log.info(
+                    "captureUtils.sendPicture(): " + _("Preparing to send RAW file located in  %(rawFileName)s") % {
+                        'rawFileName': rawFileName})
+                self.transferFile(self.captureClass.getCaptureTime(), rawFileName,
+                                  "raw/" + captureDirectory + "/" + captureFilename + ".raw", FTPServerId,
+                                  FTPServerRetries)
+                # self.transferFile(rawFileName,  "pictures/" + captureDirectory + "/" + captureFilename + ".raw", FTPServerId, FTPServerRetries)
+
     def copyPicture(self, destinationSourceId, copyRaw, captureFilename):
         """ Copy picture to another source on this webcampaks
         
@@ -430,10 +507,11 @@ class captureUtils(object):
             copyRaw: Should RAW file be copied to the destination souce as well ?
             captureFilename: Filename of the picture to copy
         
-        """  
-        self.log.debug("captureUtils.copyPicture(): " + _("Start"))        
+        """
+        self.log.debug("captureUtils.copyPicture(): " + _("Start"))
         captureDirectory = captureFilename[:8]
-        sourceTmpDirectory = self.configGeneral.getConfig('cfgbasedir') + self.configGeneral.getConfig('cfgsourcesdir') + "source" + str(destinationSourceId) + "/tmp/"
+        sourceTmpDirectory = self.configGeneral.getConfig('cfgbasedir') + self.configGeneral.getConfig(
+            'cfgsourcesdir') + "source" + str(destinationSourceId) + "/tmp/"
         if os.path.isdir(sourceTmpDirectory):
             sourceJpgFilePath = self.dirCurrentSourcePictures + captureDirectory + "/" + captureFilename + ".jpg"
             destinationJpgFilePath = sourceTmpDirectory + captureDirectory + "/" + captureFilename + ".jpg"
@@ -441,16 +519,22 @@ class captureUtils(object):
             destinationRawFilePath = sourceTmpDirectory + "raw/" + captureDirectory + "/" + captureFilename + ".raw"
             self.fileUtils.CheckFilepath(destinationJpgFilePath)
             shutil.copy(sourceJpgFilePath, destinationJpgFilePath)
-            os.chmod(destinationJpgFilePath, 0775)	
-            self.log.info("captureUtils.copyPicture(): " + _("SourceCopy: JPG Picture copied to %(sourceTmpDirectory)s") % {'sourceTmpDirectory': str(destinationJpgFilePath)})											
+            os.chmod(destinationJpgFilePath, 0775)
+            self.log.info(
+                "captureUtils.copyPicture(): " + _("SourceCopy: JPG Picture copied to %(sourceTmpDirectory)s") % {
+                    'sourceTmpDirectory': str(destinationJpgFilePath)})
             if os.path.isfile(sourceRawFilePath) and copyRaw == "yes":
                 self.fileUtils.CheckFilepath(destinationRawFilePath)
                 shutil.copy(sourceRawFilePath, destinationRawFilePath)
-                os.chmod(destinationRawFilePath, 0775)	
-                self.log.info("captureUtils.copyPicture(): " + _("SourceCopy: RAW Picture copied to %(destinationRawFilePath)s") % {'destinationRawFilePath': destinationRawFilePath})																										
+                os.chmod(destinationRawFilePath, 0775)
+                self.log.info("captureUtils.copyPicture(): " + _(
+                    "SourceCopy: RAW Picture copied to %(destinationRawFilePath)s") % {
+                                  'destinationRawFilePath': destinationRawFilePath})
         else:
-            self.log.info("captureUtils.copyPicture(): " + _("SourceCopy: Directory %(sourceTmpDirectory)s does not exist, ensure source exists") % {'sourceTmpDirectory': str(sourceTmpDirectory)})							
-            
+            self.log.info("captureUtils.copyPicture(): " + _(
+                "SourceCopy: Directory %(sourceTmpDirectory)s does not exist, ensure source exists") % {
+                              'sourceTmpDirectory': str(sourceTmpDirectory)})
+
     def purgePictures(self, captureFilename):
         """ Function used to purge captured files
             - Clean tmp directory
@@ -460,77 +544,105 @@ class captureUtils(object):
         Args:
             captureFilename: Filename of the picture to copy
         
-        """          
-        self.log.debug("captureUtils.purgePictures(): " + _("Start"))   
+        """
+        self.log.debug("captureUtils.purgePictures(): " + _("Start"))
         captureDirectory = captureFilename[:8]
-                
+
         tmpJpgFile = self.dirCurrentSourceTmp + captureFilename + '.jpg'
-        if os.path.isfile(tmpJpgFile): # Delete regular JPG file
-            self.log.info("captureUtils.purgePictures(): " + _("Removing file: %(tmpJpgFile)s") % {'tmpJpgFile': tmpJpgFile})
+        if os.path.isfile(tmpJpgFile):  # Delete regular JPG file
+            self.log.info(
+                "captureUtils.purgePictures(): " + _("Removing file: %(tmpJpgFile)s") % {'tmpJpgFile': tmpJpgFile})
             os.remove(tmpJpgFile)
-            
-        tmpRawFile = self.dirCurrentSourceTmp + captureFilename + '.raw'            
-        if os.path.isfile(tmpRawFile): # Delete RAW file
-            self.log.info("captureUtils.purgePictures(): " + _("Removing file: %(tmpRawFile)s") % {'tmpRawFile': tmpRawFile})        
+
+        tmpRawFile = self.dirCurrentSourceTmp + captureFilename + '.raw'
+        if os.path.isfile(tmpRawFile):  # Delete RAW file
+            self.log.info(
+                "captureUtils.purgePictures(): " + _("Removing file: %(tmpRawFile)s") % {'tmpRawFile': tmpRawFile})
             os.remove(tmpRawFile)
-            
+
         for currentFile in sorted(os.listdir(self.dirCurrentSourceTmp)):
             if os.path.splitext(self.dirCurrentSourceTmp + currentFile)[1] == ".jpeg":
-                self.log.info("captureUtils.purgePictures(): " + _("Removing file: %(currentDeleteFile)s") % {'currentDeleteFile': self.dirCurrentSourceTmp + currentFile})                        
+                self.log.info("captureUtils.purgePictures(): " + _("Removing file: %(currentDeleteFile)s") % {
+                    'currentDeleteFile': self.dirCurrentSourceTmp + currentFile})
                 os.remove(self.dirCurrentSourceTmp + currentFile)
-            if os.path.splitext(currentFile)[1] == ".jpg" and str(currentFile[0] + currentFile[1] + currentFile[2] + currentFile[3]) == "capt":
-                self.log.info("captureUtils.purgePictures(): " + _("Removing file: %(currentDeleteFile)s") % {'currentDeleteFile': self.dirCurrentSourceTmp + currentFile})
+            if os.path.splitext(currentFile)[1] == ".jpg" and str(
+                                            currentFile[0] + currentFile[1] + currentFile[2] + currentFile[
+                        3]) == "capt":
+                self.log.info("captureUtils.purgePictures(): " + _("Removing file: %(currentDeleteFile)s") % {
+                    'currentDeleteFile': self.dirCurrentSourceTmp + currentFile})
                 os.remove(self.dirCurrentSourceTmp + currentFile)
 
         if self.configSource.getConfig('cfgsavepictures') != "yes":
-            self.log.info("captureUtils.purgePictures(): " + _("Deleting pictures from archive"))	
+            self.log.info("captureUtils.purgePictures(): " + _("Deleting pictures from archive"))
             archiveJpgFile = self.dirCurrentSourcePictures + captureDirectory + "/" + captureFilename + ".jpg"
-            if os.path.isfile(archiveJpgFile): 
-                self.log.info("captureUtils.purgePictures(): " + _("Removing file: %(archiveJpgFile)s") % {'archiveJpgFile': archiveJpgFile})
+            if os.path.isfile(archiveJpgFile):
+                self.log.info("captureUtils.purgePictures(): " + _("Removing file: %(archiveJpgFile)s") % {
+                    'archiveJpgFile': archiveJpgFile})
                 os.remove(archiveJpgFile)
             archiveRawFile = self.dirCurrentSourcePictures + "raw/" + captureDirectory + "/" + captureFilename + ".raw"
-            if os.path.isfile(archiveRawFile): 
-                self.log.info("captureUtils.purgePictures(): " + _("DiskManagement: Delete picture from archive: RAW deleted"))	
-                self.log.info("captureUtils.purgePictures(): " + _("Removing file: %(archiveRawFile)s") % {'archiveRawFile': archiveRawFile})                
-                os.remove(archiveRawFile)	
+            if os.path.isfile(archiveRawFile):
+                self.log.info(
+                    "captureUtils.purgePictures(): " + _("DiskManagement: Delete picture from archive: RAW deleted"))
+                self.log.info("captureUtils.purgePictures(): " + _("Removing file: %(archiveRawFile)s") % {
+                    'archiveRawFile': archiveRawFile})
+                os.remove(archiveRawFile)
 
     def deleteOldPictures(self):
         """This function is used to delete old pictures
             If it detect an old picture, all pictures taken this day will be deleted.    
-        """                  
-        self.log.debug("captureUtils.deleteOldPictures(): " + _("Start"))   
-        self.log.info("captureUtils.deleteOldPictures(): " + _("System configured to delete picture from:  %(picturesDirectory)s after %(days)s days") % {'picturesDirectory': self.dirCurrentSourcePictures, 'days': self.configSource.getConfig('cfgcapturedeleteafterdays')})     					
+        """
+        self.log.debug("captureUtils.deleteOldPictures(): " + _("Start"))
+        self.log.info("captureUtils.deleteOldPictures(): " + _(
+            "System configured to delete picture from:  %(picturesDirectory)s after %(days)s days") % {
+                          'picturesDirectory': self.dirCurrentSourcePictures,
+                          'days': self.configSource.getConfig('cfgcapturedeleteafterdays')})
         for currentScanFile in os.listdir(self.dirCurrentSourcePictures):
-            if os.path.isdir(os.path.join(self.dirCurrentSourcePictures, currentScanFile)) and currentScanFile[:2] == "20":
-                dirdate = (int(currentScanFile[:4]), int(currentScanFile[4:6]), int(currentScanFile[6:8]), 0, 0, 0, 0, 0, 0)
-                timestamp = int(time.mktime(dirdate))                 
+            if os.path.isdir(os.path.join(self.dirCurrentSourcePictures, currentScanFile)) and currentScanFile[
+                                                                                               :2] == "20":
+                dirdate = (
+                int(currentScanFile[:4]), int(currentScanFile[4:6]), int(currentScanFile[6:8]), 0, 0, 0, 0, 0, 0)
+                timestamp = int(time.mktime(dirdate))
                 timeDifferenceInDays = int((int(self.captureClass.getCaptureTime().strftime("%s")) - timestamp) / 86400)
-                self.log.info("captureUtils.deleteOldPictures(): " + _("Directory %(currentScanFile)s is %(timeDifferenceInDays)s days old") % {'currentScanFile': currentScanFile, 'timeDifferenceInDays': timeDifferenceInDays})
+                self.log.info("captureUtils.deleteOldPictures(): " + _(
+                    "Directory %(currentScanFile)s is %(timeDifferenceInDays)s days old") % {
+                                  'currentScanFile': currentScanFile, 'timeDifferenceInDays': timeDifferenceInDays})
                 if timeDifferenceInDays > int(self.configSource.getConfig('cfgcapturedeleteafterdays')):
-                    self.log.info("captureUtils.deleteOldPictures(): " + _("Deleting Directory %(currentScanFile)s") % {'currentScanFile': self.dirCurrentSourcePictures + currentScanFile})
+                    self.log.info("captureUtils.deleteOldPictures(): " + _("Deleting Directory %(currentScanFile)s") % {
+                        'currentScanFile': self.dirCurrentSourcePictures + currentScanFile})
                     shutil.rmtree(self.dirCurrentSourcePictures + currentScanFile)
                     # Section to delete raw files
                     if os.path.isdir(os.path.join(self.dirCurrentSourcePictures + "raw/", currentScanFile)):
-                        self.log.info("captureUtils.deleteOldPictures(): " + _("Deleting Directory %(currentScanFile)s") % {'currentScanFile': self.dirCurrentSourcePictures + "raw/" + currentScanFile})                            
-                        shutil.rmtree(self.dirCurrentSourcePictures + "raw/" + currentScanFile)   
-                            
+                        self.log.info(
+                            "captureUtils.deleteOldPictures(): " + _("Deleting Directory %(currentScanFile)s") % {
+                                'currentScanFile': self.dirCurrentSourcePictures + "raw/" + currentScanFile})
+                        shutil.rmtree(self.dirCurrentSourcePictures + "raw/" + currentScanFile)
+
     def deleteOverSize(self):
         """This function is used to free disk space by deleting old pictures
             This function will delete a whole day of pictures at once
-        """                          
-        self.log.debug("captureUtils.deleteOverSize(): " + _("Start"))   
+        """
+        self.log.debug("captureUtils.deleteOverSize(): " + _("Start"))
         picturesDirSize = self.fileUtils.CheckDirSize(self.dirCurrentSourcePictures)
-        self.log.info("captureUtils.deleteOverSize(): " + _("Current pictures directory disk size %(picturesDirSize)s MB, max allowed size is %(maxSize)s MB") % {'picturesDirSize': picturesDirSize, 'maxSize': str(self.configSource.getConfig('cfgcapturemaxdirsize'))})     					
+        self.log.info("captureUtils.deleteOverSize(): " + _(
+            "Current pictures directory disk size %(picturesDirSize)s MB, max allowed size is %(maxSize)s MB") % {
+                          'picturesDirSize': picturesDirSize,
+                          'maxSize': str(self.configSource.getConfig('cfgcapturemaxdirsize'))})
         if picturesDirSize > int(self.configSource.getConfig('cfgcapturemaxdirsize')):
             for currentScanFile in sorted(os.listdir(self.dirCurrentSourcePictures)):
-                if os.path.isdir(os.path.join(self.dirCurrentSourcePictures, currentScanFile)) and len(currentScanFile) == 8:
-                    if self.fileUtils.CheckDirSize(self.dirCurrentSourcePictures) > int(self.configSource.getConfig('cfgcapturemaxdirsize')):
-                        self.log.info("captureUtils.deleteOldPictures(): " + _("Deleting Directory %(deleteDirectory)s") % {'deleteDirectory': self.dirCurrentSourcePictures + currentScanFile})                                                        
+                if os.path.isdir(os.path.join(self.dirCurrentSourcePictures, currentScanFile)) and len(
+                        currentScanFile) == 8:
+                    if self.fileUtils.CheckDirSize(self.dirCurrentSourcePictures) > int(
+                            self.configSource.getConfig('cfgcapturemaxdirsize')):
+                        self.log.info(
+                            "captureUtils.deleteOldPictures(): " + _("Deleting Directory %(deleteDirectory)s") % {
+                                'deleteDirectory': self.dirCurrentSourcePictures + currentScanFile})
                         shutil.rmtree(self.dirCurrentSourcePictures + currentScanFile)
                         # Section to delete raw files
                         if os.path.isdir(os.path.join(self.dirCurrentSourcePictures + "raw/", currentScanFile)):
-                            self.log.info("captureUtils.deleteOldPictures(): " + _("Deleting Directory %(deleteDirectory)s") % {'deleteDirectory': self.dirCurrentSourcePictures + "raw/" + currentScanFile})                                                                                        
-                            shutil.rmtree(self.dirCurrentSourcePictures + "raw/" + currentScanFile)                
+                            self.log.info(
+                                "captureUtils.deleteOldPictures(): " + _("Deleting Directory %(deleteDirectory)s") % {
+                                    'deleteDirectory': self.dirCurrentSourcePictures + "raw/" + currentScanFile})
+                            shutil.rmtree(self.dirCurrentSourcePictures + "raw/" + currentScanFile)
 
     def verifyCapturedFile(self, filePath):
         """ Check if a captured file exists and has a proper size (greater than cfgcaptureminisize). 
@@ -540,79 +652,97 @@ class captureUtils(object):
             
         Returns: boolean, depending if capture is successful or not
         
-        """           
-        self.log.debug("captureUtils.verifyCapturedFile(): " + _("Start"))               
+        """
+        self.log.debug("captureUtils.verifyCapturedFile(): " + _("Start"))
         if os.path.isfile(filePath):
             fileSize = os.path.getsize(filePath)
-            self.log.info("captureUtils.verifyCapturedFile(): " + _("File: %(filePath)s size is %(fileSize)s bytes") % {'filePath': str(filePath), 'fileSize': str(fileSize)})                           
+            self.log.info("captureUtils.verifyCapturedFile(): " + _("File: %(filePath)s size is %(fileSize)s bytes") % {
+                'filePath': str(filePath), 'fileSize': str(fileSize)})
         else:
-            self.log.info("captureUtils.verifyCapturedFile(): " + _("File does not exist: %(filePath)s") % {'filePath': str(filePath)})                           
+            self.log.info("captureUtils.verifyCapturedFile(): " + _("File does not exist: %(filePath)s") % {
+                'filePath': str(filePath)})
             fileSize = 0
         if fileSize > int(self.configSource.getConfig('cfgcaptureminisize')):
-            self.log.info(_("captureUtils.verifyCapturedFile(): Check File: Successful"))					
-            return True									
+            self.log.info(_("captureUtils.verifyCapturedFile(): Check File: Successful"))
+            return True
         else:
-            self.log.debug(_("captureUtils.verifyCapturedFile(): Check File: capture failed, incorrecte size: %(IncorrectSize)s/%(TargetSize)s") % {'IncorrectSize': str(fileSize), 'TargetSize': self.configSource.getConfig('cfgcaptureminisize') } )
+            self.log.debug(_(
+                "captureUtils.verifyCapturedFile(): Check File: capture failed, incorrecte size: %(IncorrectSize)s/%(TargetSize)s") % {
+                               'IncorrectSize': str(fileSize),
+                               'TargetSize': self.configSource.getConfig('cfgcaptureminisize')})
             return False
-        
 
     def sendUsageStats(self):
-        """Participate in the stats program by sending a few elements"""           
+        """Participate in the stats program by sending a few elements"""
         self.log.debug("captureUtils.sendUsageStats(): " + _("Start"))
-        #Get software version
-        if os.path.isfile(self.configGeneral.getConfig('cfgbasedir') + "version"): 			
-            f = open(self.configGeneral.getConfig('cfgbasedir') + "version", 'r')		
+        # Get software version
+        if os.path.isfile(self.configGeneral.getConfig('cfgbasedir') + "version"):
+            f = open(self.configGeneral.getConfig('cfgbasedir') + "version", 'r')
             try:
-                    SwVersion = f.read()
+                SwVersion = f.read()
             except:
-                    SwVersion = "unknown"
+                SwVersion = "unknown"
             f.close()
         else:
             SwVersion = "unknown"
-        #self.configGeneral.getConfig('cfgbasedir')
+        # self.configGeneral.getConfig('cfgbasedir')
         CurrentCPU = platform.processor()
-        CurrentCPU = re.sub(r'\s', '', CurrentCPU)	
+        CurrentCPU = re.sub(r'\s', '', CurrentCPU)
         CurrentDist = platform.linux_distribution()
         CurrentDist = re.sub(r'\s', '', str(CurrentDist))
-        ServerUrl = "http://stats.webcampak.com/stats.run.html?v=" + str(SwVersion) +"&t=" + self.configSource.getConfig('cfgsourcetype') + "&c=" + CurrentCPU + "&d=" + CurrentDist
-        ServerUrl=ServerUrl.rstrip()
-        #print "Server URL:" + ServerUrl
+        ServerUrl = "http://stats.webcampak.com/stats.run.html?v=" + str(
+            SwVersion) + "&t=" + self.configSource.getConfig('cfgsourcetype') + "&c=" + CurrentCPU + "&d=" + CurrentDist
+        ServerUrl = ServerUrl.rstrip()
+        # print "Server URL:" + ServerUrl
         socket.setdefaulttimeout(10)
-        try: 
+        try:
             urllib.urlretrieve(ServerUrl, self.dirCurrentSourceTmp + "tmpfile")
-            self.log.info("captureUtils.sendUsageStats(): " + _("Stats Program: Communication with central server successful"))                
-        except: 
-            self.log.info("captureUtils.sendUsageStats(): " + _("Stats Program: Unable to communicate with central server"))	
+            self.log.info(
+                "captureUtils.sendUsageStats(): " + _("Stats Program: Communication with central server successful"))
+        except:
+            self.log.info(
+                "captureUtils.sendUsageStats(): " + _("Stats Program: Unable to communicate with central server"))
 
-										
     def generateFailedCaptureHotlink(self):
         """ In case of capture error, and if configured to do so, the system will generate failed hotlink pictures and send those via FTP 
             The source for these hotlink pictures is the capture-failed.jpg file located in corresponding locales directory.
-        """     
-        
-        self.log.debug("captureUtils.generateFailedCaptureHotlink(): " + _("Start"))        
+        """
+
+        self.log.debug("captureUtils.generateFailedCaptureHotlink(): " + _("Start"))
         if self.configSource.getConfig('cfghotlinkerrorcreate') == "yes":
-            failedCaptureSourceFile = self.dirLocale + self.configSource.getConfig('cfgsourcelanguage') + "/messages/capture-failed.jpg"
-            self.log.info("captureUtils.generateFailedCaptureHotlink(): " + _("Using failed capture file: %(failedCaptureSourceFile)s") % {'failedCaptureSourceFile': failedCaptureSourceFile} )                                
+            failedCaptureSourceFile = self.dirLocale + self.configSource.getConfig(
+                'cfgsourcelanguage') + "/messages/capture-failed.jpg"
+            self.log.info("captureUtils.generateFailedCaptureHotlink(): " + _(
+                "Using failed capture file: %(failedCaptureSourceFile)s") % {
+                              'failedCaptureSourceFile': failedCaptureSourceFile})
             if os.path.isfile(failedCaptureSourceFile) == False:
                 failedCaptureSourceFile = self.dirLocale + "en_US.utf8/messages/capture-failed.jpg"
-                self.log.info("captureUtils.generateFailedCaptureHotlink(): " + _("Failed capture not found, fallback on English version: %(failedCaptureSourceFile)s") % {'failedCaptureSourceFile': failedCaptureSourceFile} )                    
-            failedCaptureFile = self.dirCurrentSourceTmp + self.captureClass.getCaptureTime().strftime("%Y%m%d%H%M%S") + ".jpg"
+                self.log.info("captureUtils.generateFailedCaptureHotlink(): " + _(
+                    "Failed capture not found, fallback on English version: %(failedCaptureSourceFile)s") % {
+                                  'failedCaptureSourceFile': failedCaptureSourceFile})
+            failedCaptureFile = self.dirCurrentSourceTmp + self.captureClass.getCaptureTime().strftime(
+                "%Y%m%d%H%M%S") + ".jpg"
 
-            self.log.info("captureUtils.generateFailedCaptureHotlink(): " + _("Copying capture file to: %(failedCaptureFile)s") % {'failedCaptureFile': failedCaptureFile} )                                
+            self.log.info("captureUtils.generateFailedCaptureHotlink(): " + _(
+                "Copying capture file to: %(failedCaptureFile)s") % {'failedCaptureFile': failedCaptureFile})
             shutil.copy(failedCaptureSourceFile, failedCaptureFile)
             self.pictureTransformations.setFilesourcePath(failedCaptureFile)
-            self.pictureTransformations.setFiledestinationPath(failedCaptureFile) 
-            self.pictureTransformations.Text(self.configSource.getConfig('cfgimgtextfont'), "10", "southwest", "black", "14,10", _("Capture Error - "), self.formatDateLegend(self.captureClass.getCaptureTime(), self.configSource.getConfig('cfgimgdateformat')), "black", "14,10")
+            self.pictureTransformations.setFiledestinationPath(failedCaptureFile)
+            self.pictureTransformations.Text(self.configSource.getConfig('cfgimgtextfont'), "10", "southwest", "black",
+                                             "14,10", _("Capture Error - "),
+                                             self.formatDateLegend(self.captureClass.getCaptureTime(),
+                                                                   self.configSource.getConfig('cfgimgdateformat')),
+                                             "black", "14,10")
 
-            self.log.debug("captureUtils.generateFailedCaptureHotlink(): " + _("Generating hotlinks"))        
+            self.log.debug("captureUtils.generateFailedCaptureHotlink(): " + _("Generating hotlinks"))
             self.generateHotlinks()
-            
-            self.log.info("captureUtils.generateFailedCaptureHotlink(): " + _("Removing temporary file: %(failedCaptureFile)s") % {'failedCaptureFile': failedCaptureFile} )                                            
-            os.remove(failedCaptureFile)                           
+
+            self.log.info("captureUtils.generateFailedCaptureHotlink(): " + _(
+                "Removing temporary file: %(failedCaptureFile)s") % {'failedCaptureFile': failedCaptureFile})
+            os.remove(failedCaptureFile)
         else:
-            self.log.debug("captureUtils.generateFailedCaptureHotlink(): " + _("Failed hotlink creation disabled"))      
-        
+            self.log.debug("captureUtils.generateFailedCaptureHotlink(): " + _("Failed hotlink creation disabled"))
+
     def getCustomCounter(self, CustomFile):
         """ Webcampak uses some files to store counter values, this is mostly a legacy behavior and should be updated at some point
        
@@ -620,9 +750,10 @@ class captureUtils(object):
                 int, value of the counter, 0 if file does not exists
         """
         self.log.debug("captureUtils.getCustomCounter(): " + _("Start"))
-        self.log.info("captureUtils.getCustomCounter(): " + _("Opening file: %(customCounter)s") % {'customCounter': self.dirCache + "source" + self.currentSourceId + "-" + CustomFile} )
+        self.log.info("captureUtils.getCustomCounter(): " + _("Opening file: %(customCounter)s") % {
+            'customCounter': self.dirCache + "source" + self.currentSourceId + "-" + CustomFile})
         if os.path.isfile(self.dirCache + "source" + self.currentSourceId + "-" + CustomFile):
-            f = open(self.dirCache + "source" + self.currentSourceId + "-" + CustomFile, 'r')		
+            f = open(self.dirCache + "source" + self.currentSourceId + "-" + CustomFile, 'r')
             try:
                 return int(f.read())
             except:
@@ -638,9 +769,10 @@ class captureUtils(object):
         Args:
             CustomFile: tag of the file to be used   
             ErrorCount: Count to be added to the file       
-        """                  
+        """
         self.log.debug("captureUtils.setCustomCounter(): " + _("Start"))
-        self.log.info("captureUtils.setCustomCounter(): " + _("Opening file: %(customCounter)s") % {'customCounter': self.dirCache + "source" + self.currentSourceId + "-" + CustomFile} )
+        self.log.info("captureUtils.setCustomCounter(): " + _("Opening file: %(customCounter)s") % {
+            'customCounter': self.dirCache + "source" + self.currentSourceId + "-" + CustomFile})
         f = open(self.dirCache + "source" + self.currentSourceId + "-" + CustomFile, 'w')
         f.write(str(ErrorCount))
-        f.close()        
+        f.close()

@@ -18,32 +18,32 @@ import time
 
 from wpakPhidgets import phidgets
 
+
 class phidgetsUtils(object):
     def __init__(self, parentClass):
         self.log = parentClass.log
         self.config_dir = parentClass.config_dir
-        
+
         self.configGeneral = parentClass.configGeneral
         self.configSource = parentClass.configSource
 
-        self.dirBin = parentClass.dirBin        
+        self.dirBin = parentClass.dirBin
         self.binPhidgets = self.dirBin + self.configGeneral.getConfig('cfgphidgetbin')
-        
+
     def restartCamera(self):
         """Restart a gphoto camera based on configured ports"""
-        self.log.debug("phidgetsUtils.restartCamera(): " + _("Start"))   
+        self.log.debug("phidgetsUtils.restartCamera(): " + _("Start"))
         if self.configGeneral.getConfig('cfgphidgetactivate') == "yes":
             phidgetPort = int(self.configSource.getConfig('cfgphidgetcameraport'))
             phidgetsClass = phidgets(self)
             outputValue = phidgetsClass.setOutputValue(phidgetPort, 0)
-            self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to:  %(outputValue)s)") % {'outputValue': str(outputValue)})
+            self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to:  %(outputValue)s)") % {
+                'outputValue': str(outputValue)})
             if outputValue != 0:
                 self.log.error("phidgetsUtils.restartCamera(): " + _("Error Unable to set port to 0"))
-            time.sleep(5)   
+            time.sleep(5)
             outputValue = phidgetsClass.setOutputValue(phidgetPort, 1)
-            self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to:  %(outputValue)s)") % {'outputValue': str(outputValue)})
+            self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to:  %(outputValue)s)") % {
+                'outputValue': str(outputValue)})
             if outputValue != 1:
-                self.log.error("phidgetsUtils.restartCamera(): " + _("Error Unable to set port to 1"))            
- 
-
-        
+                self.log.error("phidgetsUtils.restartCamera(): " + _("Error Unable to set port to 1"))

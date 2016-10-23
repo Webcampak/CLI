@@ -23,24 +23,26 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 
 from wpakConfigObj import Config
+
+
 #
 class timeUtils:
     def __init__(self, parentClass):
         self.log = parentClass.log
         self.config_dir = parentClass.config_dir
         self.configPaths = parentClass.configPaths
-        
+
         self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
-        
+
         self.configGeneral = parentClass.configGeneral
-        
+
     # Getters and Setters        
     def getTimezone(self):
         return self.configGeneral.getConfig('cfgservertimezone')
-    
-    def getCurrentDate(self):    
+
+    def getCurrentDate(self):
         return datetime.now(pytz.timezone(self.getTimezone()))
-    
+
     def getCurrentDateIso(self):
         return self.getCurrentDate().isoformat()
 
@@ -49,73 +51,87 @@ class timeUtils:
     def getCurrentSourceTime(self, sourceConfig):
         self.log.debug("timeUtils.getCurrentSourceTime(): " + _("Start"))
         cfgnowsource = datetime.utcnow()
-        if sourceConfig.getConfig('cfgcapturetimezone') != "": # Update the timezone from UTC to the source's timezone
-            self.log.info("timeUtils.getCurrentSourceTime(): " + _("Source Timezone is: %(sourceTimezone)s") % {'sourceTimezone': sourceConfig.getConfig('cfgcapturetimezone')})        
+        if sourceConfig.getConfig('cfgcapturetimezone') != "":  # Update the timezone from UTC to the source's timezone
+            self.log.info("timeUtils.getCurrentSourceTime(): " + _("Source Timezone is: %(sourceTimezone)s") % {
+                'sourceTimezone': sourceConfig.getConfig('cfgcapturetimezone')})
             sourceTimezone = tz.gettz(sourceConfig.getConfig('cfgcapturetimezone'))
-            cfgnowsource = cfgnowsource.replace(tzinfo=tz.gettz('UTC'))				
+            cfgnowsource = cfgnowsource.replace(tzinfo=tz.gettz('UTC'))
             cfgnowsource = cfgnowsource.astimezone(sourceTimezone)
-        self.log.info("timeUtils.getCurrentSourceTime(): " + _("Current source time: %(cfgnowsource)s") % {'cfgnowsource': cfgnowsource.isoformat()})  
+        self.log.info("timeUtils.getCurrentSourceTime(): " + _("Current source time: %(cfgnowsource)s") % {
+            'cfgnowsource': cfgnowsource.isoformat()})
         return cfgnowsource
-        
+
     # Using a webcampak timestamp, capture the file date and time
     def getTimeFromFilename(self, fileName, sourceConfig):
         self.log.debug("timeUtils.getTimeFromFilename(): " + _("Start"))
-        self.log.info("timeUtils.getTimeFromFilename(): " + _("Extract time from: %(fileName)s") % {'fileName': fileName})
+        self.log.info(
+            "timeUtils.getTimeFromFilename(): " + _("Extract time from: %(fileName)s") % {'fileName': fileName})
         try:
             fileTime = datetime.strptime(os.path.splitext(os.path.basename(fileName))[0], "%Y%m%d%H%M%S")
-            if sourceConfig.getConfig('cfgcapturetimezone') != "": # Update the timezone from UTC to the source's timezone
-                self.log.info("timeUtils.getTimeFromFilename(): " + _("Source timezone is: %(sourceTimezone)s") % {'sourceTimezone': sourceConfig.getConfig('cfgcapturetimezone')})            
+            if sourceConfig.getConfig(
+                    'cfgcapturetimezone') != "":  # Update the timezone from UTC to the source's timezone
+                self.log.info("timeUtils.getTimeFromFilename(): " + _("Source timezone is: %(sourceTimezone)s") % {
+                    'sourceTimezone': sourceConfig.getConfig('cfgcapturetimezone')})
                 sourceTimezone = tz.gettz(sourceConfig.getConfig('cfgcapturetimezone'))
-                fileTime = fileTime.replace(tzinfo=tz.gettz('UTC'))				
+                fileTime = fileTime.replace(tzinfo=tz.gettz('UTC'))
                 fileTime = fileTime.astimezone(sourceTimezone)
-            self.log.info("timeUtils.getTimeFromFilename(): " + _("Picture date is: %(picDate)s") % {'picDate': fileTime.isoformat()})                
-            return fileTime            
-        except: 
+            self.log.info("timeUtils.getTimeFromFilename(): " + _("Picture date is: %(picDate)s") % {
+                'picDate': fileTime.isoformat()})
+            return fileTime
+        except:
             return False
 
     # Using a webcampak timestamp, capture the file date and time
     def getTimeFromExif(self, filePath, sourceConfig):
         self.log.info("timeUtils.getTimeFromExif(): " + _("Start"))
-        self.log.info("timeUtils.getTimeFromExif(): " + _("Extract EXIF time from: %(filePath)s") % {'filePath': filePath})
+        self.log.info(
+            "timeUtils.getTimeFromExif(): " + _("Extract EXIF time from: %(filePath)s") % {'filePath': filePath})
         try:
             img = Image.open(filePath)
         except:
-            self.log.info("timeUtils.getTimeFromExif(): " + _("Failed to open %(filePath)s as a picture") % {'filePath': filePath})                        
+            self.log.info("timeUtils.getTimeFromExif(): " + _("Failed to open %(filePath)s as a picture") % {
+                'filePath': filePath})
             return False
-        
-        if hasattr( img, '_getexif' ):
+
+        if hasattr(img, '_getexif'):
             exifinfo = img._getexif()
         if exifinfo != None:
             for tag, value in exifinfo.items():
                 decoded = TAGS.get(tag, tag)
                 if decoded == "DateTimeDigitized":
-                    #print "DECODED:" + str(decoded) + "VALUE" + str(value)
-                    #2012:05:20 10:46:37
+                    # print "DECODED:" + str(decoded) + "VALUE" + str(value)
+                    # 2012:05:20 10:46:37
                     fileTime = datetime(*time.strptime(value, "%Y:%m:%d %H:%M:%S")[0:6])
-                    if sourceConfig.getConfig('cfgcapturetimezone') != "": # Update the timezone from UTC to the source's timezone
-                        self.log.info("timeUtils.getTimeFromExif(): " + _("Source timezone is: %(sourceTimezone)s") % {'sourceTimezone': sourceConfig.getConfig('cfgcapturetimezone')})            
+                    if sourceConfig.getConfig(
+                            'cfgcapturetimezone') != "":  # Update the timezone from UTC to the source's timezone
+                        self.log.info("timeUtils.getTimeFromExif(): " + _("Source timezone is: %(sourceTimezone)s") % {
+                            'sourceTimezone': sourceConfig.getConfig('cfgcapturetimezone')})
                         sourceTimezone = tz.gettz(sourceConfig.getConfig('cfgcapturetimezone'))
-                        fileTime = fileTime.replace(tzinfo=tz.gettz('UTC'))				
+                        fileTime = fileTime.replace(tzinfo=tz.gettz('UTC'))
                         fileTime = fileTime.astimezone(sourceTimezone)
                     return fileTime
-                    self.log.info("timeUtils.getTimeFromExif(): " + _("Picture date is: %(picDate)s") % {'picDate': fileTime.isoformat()})                                
+                    self.log.info("timeUtils.getTimeFromExif(): " + _("Picture date is: %(picDate)s") % {
+                        'picDate': fileTime.isoformat()})
                     break;
         return False
-      
+
     # Using a webcampak timestamp, capture the file date and time
     def getTimeFromFiledate(self, filePath, sourceConfig):
         self.log.info("timeUtils.getTimeFromFiledate(): " + _("Start"))
-        self.log.info("timeUtils.getTimeFromFiledate(): " + _("Extract time from: %(filePath)s") % {'filePath': filePath})
+        self.log.info(
+            "timeUtils.getTimeFromFiledate(): " + _("Extract time from: %(filePath)s") % {'filePath': filePath})
         try:
             fileTimeStamp = int(os.path.getmtime(filePath))
-            fileTime = datetime.fromtimestamp(fileTimeStamp)            
-            if sourceConfig.getConfig('cfgcapturetimezone') != "": # Update the timezone from UTC to the source's timezone
-                self.log.info("timeUtils.getTimeFromFiledate(): " + _("Source timezone is: %(sourceTimezone)s") % {'sourceTimezone': sourceConfig.getConfig('cfgcapturetimezone')})
+            fileTime = datetime.fromtimestamp(fileTimeStamp)
+            if sourceConfig.getConfig(
+                    'cfgcapturetimezone') != "":  # Update the timezone from UTC to the source's timezone
+                self.log.info("timeUtils.getTimeFromFiledate(): " + _("Source timezone is: %(sourceTimezone)s") % {
+                    'sourceTimezone': sourceConfig.getConfig('cfgcapturetimezone')})
                 sourceTimezone = tz.gettz(sourceConfig.getConfig('cfgcapturetimezone'))
-                fileTime = fileTime.replace(tzinfo=tz.gettz('UTC'))				
+                fileTime = fileTime.replace(tzinfo=tz.gettz('UTC'))
                 fileTime = fileTime.astimezone(sourceTimezone)
-            self.log.info("timeUtils.getTimeFromFiledate(): " + _("Picture date is: %(picDate)s") % {'picDate': fileTime.isoformat()})                                                
+            self.log.info("timeUtils.getTimeFromFiledate(): " + _("Picture date is: %(picDate)s") % {
+                'picDate': fileTime.isoformat()})
             return fileTime
-        except: 
+        except:
             return False
-        

@@ -20,6 +20,7 @@ import jsonschema
 
 from ..wpakFileUtils import fileUtils
 
+
 class sensorsObj(object):
     """ Builds an object containing details about a capture
 
@@ -33,7 +34,7 @@ class sensorsObj(object):
         lastSensors: A dictionary, containing all values of the capture object
     """
 
-    def __init__(self, log, fileSensorsLog = None):
+    def __init__(self, log, fileSensorsLog=None):
         self.log = log
         self.fileSensorsLog = fileSensorsLog
 
@@ -46,18 +47,19 @@ class sensorsObj(object):
             , "type": "object"
             , "additionalProperties": False
             , "properties": {
-                "date":                     {"type": ["string", "null"], "description": "Date of the capture"}
-                , "sensors":                {
+                "date": {"type": ["string", "null"], "description": "Date of the capture"}
+                , "sensors": {
                     "type": ["object", "null"]
                     , "description": "Sensor values captures on a phidget board"
                     , "patternProperties": {
                         "^(.)+": {
                             "type": "object"
                             , "properties": {
-                                "description":  {"type": "string", "description": "Description of the sensor"}
-                                , "type":       {"type": "string", "description": "Sensor Type"}
-                                , "value":      {"type": "number", "description": "Captured value after applying formula"}
-                                , "valueRaw":   {"type": "number", "description": "Captured value before applying formula"}
+                                "description": {"type": "string", "description": "Description of the sensor"}
+                                , "type": {"type": "string", "description": "Sensor Type"}
+                                , "value": {"type": "number", "description": "Captured value after applying formula"}
+                                ,
+                                "valueRaw": {"type": "number", "description": "Captured value before applying formula"}
                             }
                         }
                     }
@@ -72,7 +74,7 @@ class sensorsObj(object):
         jsonschema.validate(self.lastSensors, self.schema)
 
     def getSensorsValue(self, index):
-        if(self.lastSensors.has_key(index)):
+        if (self.lastSensors.has_key(index)):
             return self.lastSensors[index]
         else:
             return None
@@ -96,7 +98,9 @@ class sensorsObj(object):
         """Append the content of the object into a log file containing previous captures"""
         self.log.debug("sensorsObj.archiveSensorsFile(): " + _("Start"))
         if self.archiveJsonFile(self.fileSensorsLog, self.getSensors()) == True:
-            self.log.info("sensorsObj.archiveSensorsFile(): " + _("Successfully archived sensor file to: %(captureFile)s") % {'captureFile': str(self.fileSensorsLog)})
+            self.log.info(
+                "sensorsObj.archiveSensorsFile(): " + _("Successfully archived sensor file to: %(captureFile)s") % {
+                    'captureFile': str(self.fileSensorsLog)})
             return True
         else:
             self.log.error("sensorsObj.archiveSensorsFile(): " + _("Error saving last capture file"))
@@ -106,7 +110,8 @@ class sensorsObj(object):
         """Loads the content of a JSON file"""
         self.log.debug("sensorsObj.loadJsonFile(): " + _("Start"))
         if os.path.isfile(jsonFile):
-            self.log.info("sensorsObj.loadJsonFile(): " + _("Load JSON file into memory: %(jsonFile)s") % {'jsonFile': jsonFile} )
+            self.log.info(
+                "sensorsObj.loadJsonFile(): " + _("Load JSON file into memory: %(jsonFile)s") % {'jsonFile': jsonFile})
             with open(jsonFile) as threadJsonFile:
                 threadJson = json.load(threadJsonFile)
                 return threadJson
@@ -114,7 +119,7 @@ class sensorsObj(object):
 
     def writeJsonFile(self, jsonFile, jsonContent):
         """Write the content of a dictionary to a JSON file"""
-        self.log.info("sensorsObj.writeJsonFile(): " + _("Writing to: %(jsonFile)s") % {'jsonFile': jsonFile} )
+        self.log.info("sensorsObj.writeJsonFile(): " + _("Writing to: %(jsonFile)s") % {'jsonFile': jsonFile})
         if fileUtils.CheckFilepath(jsonFile) != "":
             with open(jsonFile, "w") as threadJsonFile:
                 threadJsonFile.write(json.dumps(jsonContent))
@@ -123,10 +128,9 @@ class sensorsObj(object):
 
     def archiveJsonFile(self, jsonFile, jsonContent):
         """Append the content of a dictionary to a JSONL file"""
-        self.log.info("sensorsObj.archiveJsonFile(): " + _("Writing to: %(jsonFile)s") % {'jsonFile': jsonFile} )
+        self.log.info("sensorsObj.archiveJsonFile(): " + _("Writing to: %(jsonFile)s") % {'jsonFile': jsonFile})
         if fileUtils.CheckFilepath(jsonFile) != "":
             with open(jsonFile, "a+") as threadJsonFile:
                 threadJsonFile.write(json.dumps(jsonContent) + '\n')
             return True
         return False
-    

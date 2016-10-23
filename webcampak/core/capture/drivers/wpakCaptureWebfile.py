@@ -19,6 +19,7 @@ import socket
 import urllib
 from urllib2 import URLError, HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler, build_opener
 
+
 class captureWebfile(object):
     def __init__(self, parentClass):
         self.log = parentClass.log
@@ -31,46 +32,52 @@ class captureWebfile(object):
         self.dirCache = self.configPaths.getConfig('parameters')['dir_cache']
         self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']
         self.dirResources = self.configPaths.getConfig('parameters')['dir_resources']
-                                                            
+
         self.configGeneral = parentClass.configGeneral
         self.configSource = parentClass.configSource
         self.currentSourceId = parentClass.getSourceId()
         self.currentCaptureDetails = parentClass.currentCaptureDetails
-        
-        self.dirCurrentSourceTmp = self.dirSources + 'source' + self.currentSourceId +'/' + self.configPaths.getConfig('parameters')['dir_source_tmp']
-        self.dirCurrentSourcePictures = self.dirSources + 'source' + self.currentSourceId +'/' + self.configPaths.getConfig('parameters')['dir_source_pictures']
-        
-        #self.captureDate = parentClass.getCaptureTime().strftime("%Y%m%d%H%M%S")
-        #self.captureFilename = self.captureDate + ".jpg"
-        
+
+        self.dirCurrentSourceTmp = self.dirSources + 'source' + self.currentSourceId + '/' + \
+                                   self.configPaths.getConfig('parameters')['dir_source_tmp']
+        self.dirCurrentSourcePictures = self.dirSources + 'source' + self.currentSourceId + '/' + \
+                                        self.configPaths.getConfig('parameters')['dir_source_pictures']
+
+        # self.captureDate = parentClass.getCaptureTime().strftime("%Y%m%d%H%M%S")
+        # self.captureFilename = self.captureDate + ".jpg"
+
         self.fileUtils = parentClass.fileUtils
         self.captureUtils = parentClass.captureUtils
         self.timeUtils = parentClass.timeUtils
         self.pictureTransformations = parentClass.pictureTransformations
-        
+
     # Function: Capture
     # Description; This function is used to capture a sample picture
     # Return: Nothing
     def capture(self):
         self.log.info("captureTestPicture.capture(): " + _("Starting the capture process"))
-        self.currentCaptureDetails.setCaptureValue('captureDate', self.timeUtils.getCurrentSourceTime(self.configSource).isoformat())
-        
-        self.captureFilename = self.captureClass.getCaptureTime().strftime("%Y%m%d%H%M%S")   
+        self.currentCaptureDetails.setCaptureValue('captureDate',
+                                                   self.timeUtils.getCurrentSourceTime(self.configSource).isoformat())
+
+        self.captureFilename = self.captureClass.getCaptureTime().strftime("%Y%m%d%H%M%S")
         self.fileUtils.CheckFilepath(self.dirCurrentSourceTmp + self.captureFilename + ".jpg")
 
         socket.setdefaulttimeout(10)
-        url = self.configSource.getConfig('cfgsourcewebfileurl')        
-        self.log.info("captureWebfile.capture(): " + _("Starting the capture process, URL: %(remoteURL)s") % {'remoteURL': url})
+        url = self.configSource.getConfig('cfgsourcewebfileurl')
+        self.log.info(
+            "captureWebfile.capture(): " + _("Starting the capture process, URL: %(remoteURL)s") % {'remoteURL': url})
         urlusername = ""
-        try: 		
+        try:
             userpass = url.split("@", 1)[0]
             targeturl = url.split("@", 1)[1]
-            targeturl = userpass.split("//", 1)[0]	+ "//" + targeturl	
-            userpass = userpass.split("//", 1)[1]		
+            targeturl = userpass.split("//", 1)[0] + "//" + targeturl
+            userpass = userpass.split("//", 1)[1]
             urlusername = userpass.split(":", 1)[0]
-            urlpassword = userpass.split(":", 1)[1]	
-            self.log.info("captureWebfile.capture(): " + _("Url contains username and password, Username is: %(urlusername)s") % {'urlusername': urlusername} )		
-        except: 		
+            urlpassword = userpass.split(":", 1)[1]
+            self.log.info(
+                "captureWebfile.capture(): " + _("Url contains username and password, Username is: %(urlusername)s") % {
+                    'urlusername': urlusername})
+        except:
             self.log.info("captureWebfile.capture(): " + _("Url does not contain username and password"))
 
         if urlusername != "":
@@ -79,18 +86,19 @@ class captureWebfile(object):
                 password_mgr = HTTPPasswordMgrWithDefaultRealm()
                 password_mgr.add_password(None, targeturl, urlusername, urlpassword)
                 opener = build_opener(HTTPBasicAuthHandler(password_mgr))
-                file = opener.open(targeturl)	
+                file = opener.open(targeturl)
                 localFile = open(self.dirCurrentSourceTmp + self.captureFilename + ".jpg", 'w')
                 localFile.write(file.read())
                 localFile.close()
             except URLError:
-                self.log.info("captureWebfile.capture(): " + _("Error opening the URL"))	
-                self.log.info("captureWebfile.capture(): " + _("Check your username and password"))	
+                self.log.info("captureWebfile.capture(): " + _("Error opening the URL"))
+                self.log.info("captureWebfile.capture(): " + _("Check your username and password"))
                 return False
-        else:	                
-            try: 
-                urllib.urlretrieve(self.configSource.getConfig('cfgsourcewebfileurl'), self.dirCurrentSourceTmp + self.captureFilename + ".jpg")
-            except: 
+        else:
+            try:
+                urllib.urlretrieve(self.configSource.getConfig('cfgsourcewebfileurl'),
+                                   self.dirCurrentSourceTmp + self.captureFilename + ".jpg")
+            except:
                 self.log.info("captureWebfile.capture(): " + _("Error opening the URL"))
                 return False
 
@@ -100,7 +108,4 @@ class captureWebfile(object):
             self.log.error("captureWebfile.triggerCapture(): " + _("Failed to capture from Camera"))
             if os.path.isfile(self.dirCurrentSourceTmp + self.captureFilename + ".jpg"):
                 os.remove(self.dirCurrentSourceTmp + self.captureFilename + ".jpg")
-            return False 
-       
-            
-            
+            return False

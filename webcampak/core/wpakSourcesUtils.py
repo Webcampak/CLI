@@ -17,15 +17,16 @@
 import os
 from wpakConfigObj import Config
 
+
 class sourcesUtils:
     def __init__(self, parentClass):
         self.log = parentClass.log
         self.config_dir = parentClass.config_dir
         self.configPaths = parentClass.configPaths
-        
+
         self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
         self.dirSources = self.configPaths.getConfig('parameters')['dir_sources']
-        
+
         self.configGeneral = parentClass.configGeneral
 
     def getSourcesIds(self):
@@ -44,10 +45,11 @@ class sourcesUtils:
         for currentSource in sourcesIds:
             configSource = Config(self.log, self.dirEtc + 'config-source' + str(currentSource) + '.cfg')
             if configSource.getConfig('cfgsourceactive') == "yes":
-                self.log.info("sourcesUtils.getActiveSourcesIds(): " + _("Source: %(currentSource)s is active.") % {'currentSource': str(currentSource)})
+                self.log.info("sourcesUtils.getActiveSourcesIds(): " + _("Source: %(currentSource)s is active.") % {
+                    'currentSource': str(currentSource)})
                 activeSourcesIds.append(currentSource)
             else:
-                self.log.info("sourcesUtils.getActiveSourcesIds(): " + _("Source: %(currentSource)s is inactive.") % {'currentSource': str(currentSource)})
+                self.log.info("sourcesUtils.getActiveSourcesIds(): " + _("Source: %(currentSource)s is inactive.") % {
+                    'currentSource': str(currentSource)})
         activeSourcesIds.sort()
         return activeSourcesIds
-

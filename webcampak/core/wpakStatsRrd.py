@@ -28,6 +28,7 @@ from wpakTransferUtils import transferUtils
 
 from wpakFTPUtils import FTPUtils
 
+
 # This class is used to generate a RRD graph from a source
 class statsRrd(object):
     """ This class is used to capture from a source
@@ -40,15 +41,16 @@ class statsRrd(object):
         
     Attributes:
         tbc
-    """    
-    def __init__(self, log, appConfig, config_dir, sourceId):    
+    """
+
+    def __init__(self, log, appConfig, config_dir, sourceId):
         self.log = log
 
         self.appConfig = appConfig
         self.config_dir = config_dir
         self.currentSourceId = sourceId
 
-        self.configPaths = Config(self.log, self.config_dir + 'param_paths.yml')   
+        self.configPaths = Config(self.log, self.config_dir + 'param_paths.yml')
         self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
         self.dirConfig = self.configPaths.getConfig('parameters')['dir_config']
         self.dirBin = self.configPaths.getConfig('parameters')['dir_bin']
@@ -57,47 +59,51 @@ class statsRrd(object):
         self.dirSourceCapture = self.configPaths.getConfig('parameters')['dir_source_capture']
         self.dirLocale = self.configPaths.getConfig('parameters')['dir_locale']
         self.dirLocaleMessage = self.configPaths.getConfig('parameters')['dir_locale_message']
-        self.dirStats = self.configPaths.getConfig('parameters')['dir_stats']        
+        self.dirStats = self.configPaths.getConfig('parameters')['dir_stats']
         self.dirCache = self.configPaths.getConfig('parameters')['dir_cache']
-        self.dirEmails = self.configPaths.getConfig('parameters')['dir_emails']                
-        self.dirResources = self.configPaths.getConfig('parameters')['dir_resources']  
+        self.dirEmails = self.configPaths.getConfig('parameters')['dir_emails']
+        self.dirResources = self.configPaths.getConfig('parameters')['dir_resources']
         self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']
         self.dirXferQueue = self.configPaths.getConfig('parameters')['dir_xfer'] + 'queued/'
-        self.dirCurrentSource = self.dirSources + 'source' + self.currentSourceId +'/'        
-        self.dirCurrentSourceTmp = self.dirSources + 'source' + self.currentSourceId +'/' + self.configPaths.getConfig('parameters')['dir_source_tmp']
-        self.dirCurrentSourceCapture = self.dirSources + 'source' + self.currentSourceId +'/' + self.dirSourceCapture       
-        self.dirCurrentSourcePictures = self.dirSources + 'source' + self.currentSourceId +'/' + self.configPaths.getConfig('parameters')['dir_source_pictures']        
-        self.dirCurrentSourceLogs = self.dirLogs + 'source' + self.currentSourceId +'/'        
-                
+        self.dirCurrentSource = self.dirSources + 'source' + self.currentSourceId + '/'
+        self.dirCurrentSourceTmp = self.dirSources + 'source' + self.currentSourceId + '/' + \
+                                   self.configPaths.getConfig('parameters')['dir_source_tmp']
+        self.dirCurrentSourceCapture = self.dirSources + 'source' + self.currentSourceId + '/' + self.dirSourceCapture
+        self.dirCurrentSourcePictures = self.dirSources + 'source' + self.currentSourceId + '/' + \
+                                        self.configPaths.getConfig('parameters')['dir_source_pictures']
+        self.dirCurrentSourceLogs = self.dirLogs + 'source' + self.currentSourceId + '/'
+
         self.setupLog()
         self.log.info("===START===")
         self.log.info("statsRrd(): Start")
-        
+
         self.configGeneral = Config(self.log, self.dirConfig + 'config-general.cfg')
         self.configSource = Config(self.log, self.dirEtc + 'config-source' + str(self.currentSourceId) + '.cfg')
-        self.configSourceFTP = Config(self.log, self.dirEtc + 'config-source' + str(self.currentSourceId) + '-ftpservers.cfg')        
+        self.configSourceFTP = Config(self.log,
+                                      self.dirEtc + 'config-source' + str(self.currentSourceId) + '-ftpservers.cfg')
 
-        self.dirCurrentLocaleMessages = self.dirLocale + self.configSource.getConfig('cfgsourcelanguage') + "/" + self.dirLocaleMessage
+        self.dirCurrentLocaleMessages = self.dirLocale + self.configSource.getConfig(
+            'cfgsourcelanguage') + "/" + self.dirLocaleMessage
 
-        self.initGetText(self.dirLocale, self.configGeneral.getConfig('cfgsystemlang'), self.configGeneral.getConfig('cfggettextdomain'))
-                
+        self.initGetText(self.dirLocale, self.configGeneral.getConfig('cfgsystemlang'),
+                         self.configGeneral.getConfig('cfggettextdomain'))
+
         self.timeUtils = timeUtils(self)
         self.fileUtils = fileUtils(self)
         self.FTPUtils = FTPUtils(self)
         self.transferUtils = transferUtils(self)
 
-
-    def setupLog(self):      
-        """ Setup logging to file"""  
+    def setupLog(self):
+        """ Setup logging to file"""
         if not os.path.exists(self.dirCurrentSourceLogs):
-            os.makedirs(self.dirCurrentSourceLogs)  
+            os.makedirs(self.dirCurrentSourceLogs)
         logFilename = self.dirCurrentSourceLogs + "statsrrd.log"
         self.appConfig.set(self.log._meta.config_section, 'file', logFilename)
         self.appConfig.set(self.log._meta.config_section, 'rotate', True)
         self.appConfig.set(self.log._meta.config_section, 'max_bytes', 512000)
         self.appConfig.set(self.log._meta.config_section, 'max_files', 10)
         self.log._setup_file_log()
-              
+
     def initGetText(self, dirLocale, cfgsystemlang, cfggettextdomain):
         """ Initialize Gettext with the corresponding translation domain
         
@@ -108,21 +114,25 @@ class statsRrd(object):
         
         Returns:
             None
-        """    	        
+        """
         self.log.debug("statsrrd.initGetText(): Start")
         try:
             t = gettext.translation(cfggettextdomain, dirLocale, [cfgsystemlang], fallback=True)
             _ = t.ugettext
             t.install()
-            self.log.info("statsrrd.initGetText(): " + _("Initialized gettext with Domain: %(cfggettextdomain)s - Language: %(cfgsystemlang)s - Path: %(dirLocale)s")
-                                                    % {'cfggettextdomain': cfggettextdomain, 'cfgsystemlang': cfgsystemlang, 'dirLocale': dirLocale} )        
+            self.log.info("statsrrd.initGetText(): " + _(
+                "Initialized gettext with Domain: %(cfggettextdomain)s - Language: %(cfgsystemlang)s - Path: %(dirLocale)s")
+                          % {'cfggettextdomain': cfggettextdomain, 'cfgsystemlang': cfgsystemlang,
+                             'dirLocale': dirLocale})
         except:
             self.log.error("No translation file available")
-            
+
     def run(self):
         """ Initiate rrd graph creation for the source """
-        if self.configSource.getConfig('cfgphidgetsensorsgraph') == "yes" and self.configSource.getConfig('cfgsourceactive') == "yes":
-            self.log.info("statsrrd.run(): " + _("Initiate RRD Graph creation for source: %(currentSourceId)s") % {'currentSourceId': str(self.currentSourceId)} )
+        if self.configSource.getConfig('cfgphidgetsensorsgraph') == "yes" and self.configSource.getConfig(
+                'cfgsourceactive') == "yes":
+            self.log.info("statsrrd.run(): " + _("Initiate RRD Graph creation for source: %(currentSourceId)s") % {
+                'currentSourceId': str(self.currentSourceId)})
 
             # List Capture files contained in the directory
             allSensorsFiles = []
@@ -133,22 +143,25 @@ class statsRrd(object):
 
             processedCpt = 0
             for currentCaptureFile in allSensorsFiles:
-                self.log.info("statsrrd.run(): " + _("Processing: %(currentCaptureFile)s") % {'currentCaptureFile': currentCaptureFile} )
+                self.log.info("statsrrd.run(): " + _("Processing: %(currentCaptureFile)s") % {
+                    'currentCaptureFile': currentCaptureFile})
                 processedCpt = processedCpt + 1
 
-                #List all sensors contained in the file
+                # List all sensors contained in the file
                 sensors = self.getSensorsFromFile(currentCaptureFile)
                 sensorsDay = self.getSensorDayFromFile(currentCaptureFile)
-                #{"scriptEndDate": "2016-09-29T04:59:43.956108+02:00", "totalCaptureSize": 10945697, "captureSuccess": true, "scriptRuntime": 2531, "storedRawSize": 0
+                # {"scriptEndDate": "2016-09-29T04:59:43.956108+02:00", "totalCaptureSize": 10945697, "captureSuccess": true, "scriptRuntime": 2531, "storedRawSize": 0
                 # , "scriptStartDate": "2016-09-29T04:59:41.424850+02:00", "processedPicturesCount": 1, "storedJpgSize": 10945697, "captureDate": "2016-09-29T04:59:41.472365+02:00"
                 # , "sensors": {"789275965fe98d9ad9275648a21b095982d673a189f5cb3fad8155f9": {"type": "Temperature", "legend": "Outside Tempe abcd", "value": 25.8, "valueRaw": 1601}, "574eb9c9ee7e0bbe610a7aab0e359864fdd7810d113edee1da80a5af": {"type": "Temperature", "legend": "Inside Temperature", "value": 25.8, "valueRaw": 1601}, "fbdde0c3fe0b6aecc5f1027262ec79813f2cf77c9361642c4a7d57a3": {"type": "Luminosity", "legend": "Humidity", "value": 460.8, "valueRaw": 1887}}}
 
                 for currentSensor in sensors:
-                    if os.path.isfile(self.dirCurrentSourcePictures + sensorsDay + "/sensor-" + currentSensor + ".rrd") == False or processedCpt <= 1:
-                        self.log.info("statsrrd.run(): " + _("Currently processing Sensor: %(currentSensor)s") % {'currentSensor': currentSensor} )
+                    if os.path.isfile(
+                                                            self.dirCurrentSourcePictures + sensorsDay + "/sensor-" + currentSensor + ".rrd") == False or processedCpt <= 1:
+                        self.log.info("statsrrd.run(): " + _("Currently processing Sensor: %(currentSensor)s") % {
+                            'currentSensor': currentSensor})
 
                         ValueTable = {}
-                        #ValueKeys = []
+                        # ValueKeys = []
                         ValueTableKeys = []
                         ValueKeysDiff = []
                         ValueInsertTable = {}
@@ -156,7 +169,6 @@ class statsRrd(object):
                             DefinedInterval = int(self.configSource.getConfig('cfgcroncapturevalue')) * 60
                         elif self.configSource.getConfig('cfgcroncaptureinterval') == "seconds":
                             DefinedInterval = int(self.configSource.getConfig('cfgcroncapturevalue'))
-
 
                         SensorLegend = "UNAVAILABLE"
                         SensorColor = "#FF0000"
@@ -172,7 +184,8 @@ class statsRrd(object):
                             if 'sensors' in currentCaptureLine:
                                 if currentCaptureLine['sensors'] != None:
                                     if currentSensor in currentCaptureLine['sensors']:
-                                        ValueTable[currentTimestamp] = currentCaptureLine['sensors'][currentSensor]['value']
+                                        ValueTable[currentTimestamp] = currentCaptureLine['sensors'][currentSensor][
+                                            'value']
                                         SensorLegend = currentCaptureLine['sensors'][currentSensor]['legend']
                                         if 'color' in currentCaptureLine['sensors'][currentSensor]:
                                             SensorColor = currentCaptureLine['sensors'][currentSensor]['color']
@@ -180,45 +193,64 @@ class statsRrd(object):
                         ValueTableKeys = ValueTable.keys()
                         ValueTableKeys.sort()
 
-                        self.log.info("statsrrd.run(): " + _("Preparing the RRD base file: %(SensorRRDFile)s") % {'SensorRRDFile': str(self.dirCurrentSourcePictures + sensorsDay + "/sensor-" + currentSensor + ".rrd")} )
+                        self.log.info("statsrrd.run(): " + _("Preparing the RRD base file: %(SensorRRDFile)s") % {
+                            'SensorRRDFile': str(
+                                self.dirCurrentSourcePictures + sensorsDay + "/sensor-" + currentSensor + ".rrd")})
 
                         rrdstart = str(int(min(ValueTableKeys)))
-                        #rrdstart = str(int(min(ValueTableKeys)))
+                        # rrdstart = str(int(min(ValueTableKeys)))
                         rrdend = str(max(ValueTableKeys))
-                        ret = rrdtool.create(str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".rrd")\
-                                             , "--step", str(DefinedInterval)\
-                                             , "--start"\
-                                             , rrdstart\
-                                             , "DS:GRAPHAREA:GAUGE:600:U:U"\
-                                             , "RRA:AVERAGE:0.5:1:" + str(len(ValueTable)))
+                        ret = rrdtool.create(
+                            str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".rrd") \
+                            , "--step", str(DefinedInterval) \
+                            , "--start" \
+                            , rrdstart \
+                            , "DS:GRAPHAREA:GAUGE:600:U:U" \
+                            , "RRA:AVERAGE:0.5:1:" + str(len(ValueTable)))
 
                         for i in xrange(len(ValueTableKeys)):
-                            self.log.info("statsrrd.run(): " + _("Adding Timestamp: %(currentTimestamp)s - Value: %(currentValue)s") % {'currentTimestamp': str(ValueTableKeys[i]), 'currentValue': str(ValueTable[ValueTableKeys[i]]), } )
+                            self.log.info("statsrrd.run(): " + _(
+                                "Adding Timestamp: %(currentTimestamp)s - Value: %(currentValue)s") % {
+                                              'currentTimestamp': str(ValueTableKeys[i]),
+                                              'currentValue': str(ValueTable[ValueTableKeys[i]]),})
                             if i == 0:
                                 CurrentTimestamp = int(ValueTableKeys[i])
                             else:
                                 CurrentTimestamp = CurrentTimestamp + DefinedInterval
-                                ret = rrdtool.update(str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".rrd"), str(int(CurrentTimestamp)) + ':' + str(ValueTable[ValueTableKeys[i]]))
+                                ret = rrdtool.update(str(self.dirCurrentSourcePictures + str(
+                                    sensorsDay) + "/sensor-" + currentSensor + ".rrd"),
+                                                     str(int(CurrentTimestamp)) + ':' + str(
+                                                         ValueTable[ValueTableKeys[i]]))
 
-                        ret = rrdtool.graph(str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".png")\
-                                            , "--start"\
-                                            , rrdstart\
-                                            , "--end"\
-                                            , rrdend\
-                                            , "--vertical-label="+ str(SensorLegend)\
-                                            , "DEF:GRAPHAREA=" + str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".rrd") + ":GRAPHAREA:AVERAGE" \
-                                            , "AREA:GRAPHAREA" + str(SensorColor) + ":" + str(SensorLegend))
+                        ret = rrdtool.graph(
+                            str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".png") \
+                            , "--start" \
+                            , rrdstart \
+                            , "--end" \
+                            , rrdend \
+                            , "--vertical-label=" + str(SensorLegend) \
+                            , "DEF:GRAPHAREA=" + str(self.dirCurrentSourcePictures + str(
+                                sensorsDay) + "/sensor-" + currentSensor + ".rrd") + ":GRAPHAREA:AVERAGE" \
+                            , "AREA:GRAPHAREA" + str(SensorColor) + ":" + str(SensorLegend))
 
                         if self.configSource.getConfig('cfgftpphidgetserverid') != "":
                             currentTime = self.timeUtils.getCurrentSourceTime(self.configSource)
-                            self.transferUtils.transferFile(currentTime, self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".rrd", "sensor-" + currentSensor + ".rrd", self.configSource.getConfig('cfgftpphidgetserverid'), self.configSource.getConfig('cfgftpphidgetserverretry'))
-                            self.transferUtils.transferFile(currentTime, self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".png", "sensor-" + currentSensor + ".png", self.configSource.getConfig('cfgftpphidgetserverid'), self.configSource.getConfig('cfgftpphidgetserverretry'))
+                            self.transferUtils.transferFile(currentTime, self.dirCurrentSourcePictures + str(
+                                sensorsDay) + "/sensor-" + currentSensor + ".rrd", "sensor-" + currentSensor + ".rrd",
+                                                            self.configSource.getConfig('cfgftpphidgetserverid'),
+                                                            self.configSource.getConfig('cfgftpphidgetserverretry'))
+                            self.transferUtils.transferFile(currentTime, self.dirCurrentSourcePictures + str(
+                                sensorsDay) + "/sensor-" + currentSensor + ".png", "sensor-" + currentSensor + ".png",
+                                                            self.configSource.getConfig('cfgftpphidgetserverid'),
+                                                            self.configSource.getConfig('cfgftpphidgetserverretry'))
 
 
 
 
         else:
-            self.log.info("statsrrd.run(): " + _("Creation of the RRD Graph disabled for source: %(currentSourceId)s") % {'currentSourceId': str(self.currentSourceId)} )
+            self.log.info(
+                "statsrrd.run(): " + _("Creation of the RRD Graph disabled for source: %(currentSourceId)s") % {
+                    'currentSourceId': str(self.currentSourceId)})
 
     def getSensorsFromFile(self, currentCaptureFile):
         """ Scan a file to identify all sensor values it contains
@@ -231,7 +263,7 @@ class statsRrd(object):
         self.log.debug("statsrrd.getSensorsFromFile(): " + _("Start"))
         sensors = {}
         for line in open(currentCaptureFile).readlines():
-            #currentCaptureLine = json.loads(line, object_pairs_hook=OrderedDict)
+            # currentCaptureLine = json.loads(line, object_pairs_hook=OrderedDict)
             try:
                 currentCaptureLine = json.loads(line)
             except Exception:
@@ -239,7 +271,7 @@ class statsRrd(object):
                 break
             if 'sensors' in currentCaptureLine:
                 if currentCaptureLine['sensors'] != None:
-                    #print currentCaptureLine['sensors']
+                    # print currentCaptureLine['sensors']
                     for sensorId in currentCaptureLine['sensors']:
                         if sensorId in sensors:
                             sensors[sensorId] += 1
@@ -267,9 +299,3 @@ class statsRrd(object):
                 currentSensorDate = dateutil.parser.parse(currentSensorLine['date'])
                 return currentSensorDate.strftime("%Y%m%d")
         return date
-
-
-
-
-     
-               

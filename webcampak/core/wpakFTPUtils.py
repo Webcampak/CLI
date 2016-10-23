@@ -19,6 +19,7 @@ import hashlib
 from wpakConfigObj import Config
 from wpakFileUtils import fileUtils
 
+
 # This class is used to initialize transfer queues and dispatch files to the queue
 # It reads files from the global queue directory, starting from the oldest ones, and stops one all threads are full
 # Each transfer queue (or thread) can hold up to "self.maxFilesPerThread" files 
@@ -28,7 +29,7 @@ class FTPUtils:
         self.log = parentClass.log
         self.config_dir = parentClass.config_dir
         self.configPaths = parentClass.configPaths
-        
+
         self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
 
     # Calculate the FTP server hash
@@ -37,9 +38,5 @@ class FTPUtils:
         self.log.debug("FTPUtils.calculateFTPServerHash(): Start")
         FTPServer = ftpServerConfig.getConfig('cfgftpserverslist' + str(serverId))[1]
         FTPUsername = ftpServerConfig.getConfig('cfgftpserverslist' + str(serverId))[2]
-        
+
         return hashlib.sha224(FTPServer + FTPUsername).hexdigest()
-
-                
-
-        

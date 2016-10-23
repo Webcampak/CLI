@@ -21,6 +21,7 @@ import jsonschema
 
 from ..wpakFileUtils import fileUtils
 
+
 class captureObj(object):
     """ Builds an object containing details about a capture
     
@@ -32,12 +33,12 @@ class captureObj(object):
         log: A class, the logging interface
         fileCaptureLog: A string, path to a jsonl file containing an archive of all capture objects for a specific day
         lastCapture: A dictionary, containing all values of the capture object
-    """    
-    
-    def __init__(self, log, fileCaptureLog = None):
+    """
+
+    def __init__(self, log, fileCaptureLog=None):
         self.log = log
         self.fileCaptureLog = fileCaptureLog
-        
+
         # Declare the schema used   
         # The schema is validate each time single values are set or the entire dictionary is loaded or set
         self.schema = {
@@ -47,15 +48,18 @@ class captureObj(object):
             , "type": "object"
             , "additionalProperties": False
             , "properties": {
-                "storedJpgSize":            {"type": "number", "description": "Size in bytes of the JPG file(s)"}
-                , "storedRawSize":          {"type": "number", "description": "Size in bytes of the RAW file(s)"}
-                , "totalCaptureSize":       {"type": "number", "description": "Size in bytes of all pictures captured (SUM storedJpgSize and storedRawSize)"}
-                , "scriptStartDate":        {"type": ["string", "null"], "description": "Record when the capture script started"}
-                , "scriptEndDate":          {"type": ["string", "null"], "description": "Record when the capture script ended"}
-                , "scriptRuntime":          {"type": ["number", "null"], "description": "In miliseconds, record script runtime"}
-                , "processedPicturesCount": {"type": "number", "description": "Number of pictures captued, in some situations multiple files might be processed in batch"}
-                , "captureSuccess":         {"type": ["boolean", "null"],"description": "Record if capture was successful"}
-                , "captureDate":            {"type": ["string", "null"], "description": "Date of the capture"}
+                "storedJpgSize": {"type": "number", "description": "Size in bytes of the JPG file(s)"}
+                , "storedRawSize": {"type": "number", "description": "Size in bytes of the RAW file(s)"}
+                , "totalCaptureSize": {"type": "number",
+                                       "description": "Size in bytes of all pictures captured (SUM storedJpgSize and storedRawSize)"}
+                ,
+                "scriptStartDate": {"type": ["string", "null"], "description": "Record when the capture script started"}
+                , "scriptEndDate": {"type": ["string", "null"], "description": "Record when the capture script ended"}
+                , "scriptRuntime": {"type": ["number", "null"], "description": "In miliseconds, record script runtime"}
+                , "processedPicturesCount": {"type": "number",
+                                             "description": "Number of pictures captued, in some situations multiple files might be processed in batch"}
+                , "captureSuccess": {"type": ["boolean", "null"], "description": "Record if capture was successful"}
+                , "captureDate": {"type": ["string", "null"], "description": "Date of the capture"}
             }
         }
         self.initCapture()
@@ -64,9 +68,9 @@ class captureObj(object):
     def setCaptureValue(self, index, value):
         self.lastCapture[index] = value
         jsonschema.validate(self.lastCapture, self.schema)
-                
+
     def getCaptureValue(self, index):
-        if(self.lastCapture.has_key(index)):
+        if (self.lastCapture.has_key(index)):
             return self.lastCapture[index]
         else:
             return None
@@ -74,13 +78,14 @@ class captureObj(object):
     def setCapture(self, lastCapture):
         jsonschema.validate(lastCapture, self.schema)
         self.lastCapture = lastCapture
-        
+
     def getCapture(self):
         jsonschema.validate(self.lastCapture, self.schema)
         return self.lastCapture
-    
+
     def setCaptureFile(self, captureFile):
-        self.log.info("captureObj.setCaptureFile(): " + _("Capture file set to: %(captureFile)s") % {'captureFile': captureFile})
+        self.log.info(
+            "captureObj.setCaptureFile(): " + _("Capture file set to: %(captureFile)s") % {'captureFile': captureFile})
         self.captureFile = captureFile
 
     def getCaptureFile(self):
@@ -104,7 +109,8 @@ class captureObj(object):
         self.log.debug("captureObj.getLastCaptureTime(): " + _("Start"))
         try:
             lastCaptureTime = dateutil.parser.parse(self.getCaptureValue('captureDate'))
-            self.log.info("captureObj.getLastCaptureTime(): " + _("Last capture time: %(lastCaptureTime)s") % {'lastCaptureTime': lastCaptureTime})
+            self.log.info("captureObj.getLastCaptureTime(): " + _("Last capture time: %(lastCaptureTime)s") % {
+                'lastCaptureTime': lastCaptureTime})
             return lastCaptureTime
         except:
             return None
@@ -122,7 +128,9 @@ class captureObj(object):
         """Write the content of the object into a capture file"""
         self.log.debug("captureObj.writeCaptureFile(): " + _("Start"))
         if self.writeJsonFile(self.captureFile, self.getCapture()) == True:
-            self.log.info("captureObj.writeCaptureFile(): " + _("Successfully saved last capture file to: %(captureFile)s") % {'captureFile': str(self.captureFile)})
+            self.log.info(
+                "captureObj.writeCaptureFile(): " + _("Successfully saved last capture file to: %(captureFile)s") % {
+                    'captureFile': str(self.captureFile)})
             return True
         else:
             self.log.error("captureObj.writeCaptureFile(): " + _("Error saving last capture file"))
@@ -132,7 +140,9 @@ class captureObj(object):
         """Append the content of the object into a log file containing previous captures"""
         self.log.debug("captureObj.archiveCaptureFile(): " + _("Start"))
         if self.archiveJsonFile(self.fileCaptureLog, self.getCapture()) == True:
-            self.log.info("captureObj.archiveCaptureFile(): " + _("Successfully archived capture file to: %(captureFile)s") % {'captureFile': str(self.fileCaptureLog)})
+            self.log.info(
+                "captureObj.archiveCaptureFile(): " + _("Successfully archived capture file to: %(captureFile)s") % {
+                    'captureFile': str(self.fileCaptureLog)})
             return True
         else:
             self.log.error("captureObj.archiveCaptureFile(): " + _("Error saving last capture file"))
@@ -142,7 +152,8 @@ class captureObj(object):
         """Loads the content of a JSON file"""
         self.log.debug("captureObj.loadJsonFile(): " + _("Start"))
         if os.path.isfile(jsonFile):
-            self.log.info("captureObj.loadJsonFile(): " + _("Load JSON file into memory: %(jsonFile)s") % {'jsonFile': jsonFile} )
+            self.log.info(
+                "captureObj.loadJsonFile(): " + _("Load JSON file into memory: %(jsonFile)s") % {'jsonFile': jsonFile})
             with open(jsonFile) as threadJsonFile:
                 threadJson = json.load(threadJsonFile)
                 return threadJson
@@ -150,7 +161,7 @@ class captureObj(object):
 
     def writeJsonFile(self, jsonFile, jsonContent):
         """Write the content of a dictionary to a JSON file"""
-        self.log.info("captureObj.writeJsonFile(): " + _("Writing to: %(jsonFile)s") % {'jsonFile': jsonFile} )
+        self.log.info("captureObj.writeJsonFile(): " + _("Writing to: %(jsonFile)s") % {'jsonFile': jsonFile})
         if fileUtils.CheckFilepath(jsonFile) != "":
             with open(jsonFile, "w") as threadJsonFile:
                 threadJsonFile.write(json.dumps(jsonContent))
@@ -159,10 +170,9 @@ class captureObj(object):
 
     def archiveJsonFile(self, jsonFile, jsonContent):
         """Append the content of a dictionary to a JSONL file"""
-        self.log.info("captureObj.archiveJsonFile(): " + _("Writing to: %(jsonFile)s") % {'jsonFile': jsonFile} )
-        if fileUtils.CheckFilepath(jsonFile) != "":                
+        self.log.info("captureObj.archiveJsonFile(): " + _("Writing to: %(jsonFile)s") % {'jsonFile': jsonFile})
+        if fileUtils.CheckFilepath(jsonFile) != "":
             with open(jsonFile, "a+") as threadJsonFile:
                 threadJsonFile.write(json.dumps(jsonContent) + '\n')
             return True
         return False
-    
