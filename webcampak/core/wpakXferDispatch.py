@@ -265,11 +265,8 @@ class xferDispatch:
         for currentThreadUUID in self.xferUtils.getThreadsUUID():
             self.log.info("xferDispatch.initializeThreads(): Current thread file: " + currentThreadUUID + ".json")
             if os.path.exists(self.dirXferThreads + currentThreadUUID):
-                try:
-                    threadJson = self.xferUtils.loadJsonFile(self.dirXferThreads + currentThreadUUID + ".json")
-                except Exception:
-                    threadJson = {'last_job': None}
-                if threadJson['last_job'] != None:
+                threadJson = self.xferUtils.loadJsonFile(self.dirXferThreads + currentThreadUUID + ".json")
+                if threadJson != {} and threadJson['last_job'] != None:
                     lastJobCompletion = dateutil.parser.parse(threadJson['last_job']['date_completed'])
                     currentDate = self.timeUtils.getCurrentDate()
                     if (currentDate - lastJobCompletion).total_seconds() < 1800:
