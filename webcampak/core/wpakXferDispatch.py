@@ -354,12 +354,14 @@ class xferDispatch:
                 # Look into the threads directory for json files, load all of them and increase counts
                 for currentFilename in [f for f in os.listdir(self.dirXferThreads + currentThreadHash + '/') if
                                         f.endswith(".json")]:
-                    threadJson = self.xferUtils.loadJsonFile(
-                        self.dirXferThreads + currentThreadHash + '/' + currentFilename)
-                    threadsFilesCount = threadsFilesCount + 1
-                    if (threadJson['job']['destination']['ftpserverhash'] == ftpserverHash or
-                                threadJson['job']['source']['ftpserverhash'] == ftpserverHash):
-                        ftpserverHashCount = ftpserverHashCount + 1
+                    try:
+                        threadJson = self.xferUtils.loadJsonFile(self.dirXferThreads + currentThreadHash + '/' + currentFilename)
+                        threadsFilesCount = threadsFilesCount + 1
+                        if (threadJson['job']['destination']['ftpserverhash'] == ftpserverHash or threadJson['job']['source']['ftpserverhash'] == ftpserverHash):
+                            ftpserverHashCount = ftpserverHashCount + 1
+                    except:
+                        self.log.info("timeUtils.getTimeFromExif(): " + _("File was likely removed during processing: %(filePath)s") % {'filePath': self.dirXferThreads + currentThreadHash + '/' + currentFilename})
+
                 threads[currentThreadHash] = {}
                 threads[currentThreadHash]['filesCount'] = threadsFilesCount
                 threads[currentThreadHash]['hashCount'] = ftpserverHashCount
