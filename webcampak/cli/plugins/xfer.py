@@ -72,7 +72,7 @@ class ExamplePluginController(CementBaseController):
         except Exception:
             self.app.log.fatal("Ooops! Something went terribly wrong, stack trace below:", exc_info=True)
             raise
-        
+
     @expose(help="Stop XFer jobs queue processing")
     def stop(self):
         self.app.log.info("Stopping XFer Jobs", __file__)

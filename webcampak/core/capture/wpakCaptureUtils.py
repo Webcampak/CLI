@@ -458,7 +458,7 @@ class captureUtils(object):
                 if self.configSource.getConfig('cfgftphotlinkserverid') != "":
                     self.transferUtils.transferFile(self.captureClass.getCaptureTime(),
                                                     self.dirCurrentSourceLive + "webcam-" + hotlinkSize + ".jpg",
-                                                    "live/webcam-" + hotlinkSize + ".jpg",
+                                                    "webcam-" + hotlinkSize + ".jpg",
                                                     self.configSource.getConfig('cfgftphotlinkserverid'),
                                                     self.configSource.getConfig('cfgftphotlinkserverretry'))
                     # self.transferFile(self.dirCurrentSourceLive + "webcam-" + hotlinkSize + ".jpg", "live/webcam-" + hotlinkSize + ".jpg", self.configSource.getConfig('cfgftphotlinkserverid'), self.configSource.getConfig('cfgftphotlinkserverretry'))
