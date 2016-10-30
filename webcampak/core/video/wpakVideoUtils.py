@@ -1042,7 +1042,7 @@ class videoUtils(object):
             self.transferUtils.transferFile(self.videoClass.getScriptStartTime(),
                                             self.dirCurrentSourceLive + TargetLiveVideoFilename + ".mp4",
                                             TargetLiveVideoFilename + ".mp4",
-                                            self.configSourceVideo.getConfig('VideoType'),
+                                            self.configSourceVideo.getConfig('cfgftphotlinkservermp4id'),
                                             self.configSourceVideo.getConfig('cfgftphotlinkservermp4retry'))
             self.log.info(
                 "videoUtilss.sendVideos(): " + _("Video: %(VideoType)s: Sending file via FTP: %(FTPFile)s") % {
@@ -1050,5 +1050,5 @@ class videoUtils(object):
             self.transferUtils.transferFile(self.videoClass.getScriptStartTime(),
                                             self.dirCurrentSourceLive + TargetLiveVideoFilename + ".jpg",
                                             TargetLiveVideoFilename + ".jpg",
-                                            self.configSourceVideo.getConfig('VideoType'),
+                                            self.configSourceVideo.getConfig('cfgftphotlinkservermp4id'),
                                             self.configSourceVideo.getConfig('cfgftphotlinkservermp4retry'))
