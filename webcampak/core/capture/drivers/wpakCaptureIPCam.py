@@ -130,7 +130,7 @@ class captureIPCam(object):
         elif fileExtension == '.jsonl' and "sensors" in fileName:
             self.log.info(_("captureIPCam.processFile(): Processing a sensor file: %(filePath)s") % {'filePath': os.path.basename(filePath)})
             captureDirectory = fileName[:8]
-            destinationSensorFilePath = self.dirCurrentSourcePictures + captureDirectory + "/" + fileName
+            destinationSensorFilePath = self.dirCurrentSourcePictures + captureDirectory + "/" + fileName + ".jsonl"
             self.fileUtils.CheckFilepath(destinationSensorFilePath)
             shutil.copy(filePath, destinationSensorFilePath)
             os.chmod(destinationSensorFilePath, 0775)
