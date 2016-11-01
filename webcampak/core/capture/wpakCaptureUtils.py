@@ -499,6 +499,27 @@ class captureUtils(object):
                                   FTPServerRetries)
                 # self.transferFile(rawFileName,  "pictures/" + captureDirectory + "/" + captureFilename + ".raw", FTPServerId, FTPServerRetries)
 
+    def sendSensor(self, FTPServerId, FTPServerRetries, sensorFilename):
+        """ Send sensor file to a remote destination
+
+        Args:
+            FTPServerId: If in the config-sourceXX-ftpservers.cfg file
+            FTPServerRetries: Number of retries when sending this file
+            sensorFilename: Filename of the picture to copy
+
+        """
+        self.log.debug("captureUtils.sendSensor(): " + _("Start"))
+        if FTPServerId != "":
+            captureDirectory = sensorFilename[:8]
+            sensorFilePath = self.dirCurrentSourcePictures + captureDirectory + "/" + sensorFilename
+            if os.path.isfile(sensorFilePath):
+                self.log.info(
+                    "captureUtils.sendPicture(): " + _("Preparing to send sensor JSONL file located in  %(sensorFilePath)s") % {
+                        'sensorFilePath': sensorFilePath})
+                self.transferUtils.transferFile(self.captureClass.getCaptureTime(), sensorFilePath,
+                                                captureDirectory + "/" + sensorFilename, FTPServerId,
+                                                FTPServerRetries)
+
     def copyPicture(self, destinationSourceId, copyRaw, captureFilename):
         """ Copy picture to another source on this webcampaks
         
@@ -513,6 +534,8 @@ class captureUtils(object):
         sourceTmpDirectory = self.configGeneral.getConfig('cfgbasedir') + self.configGeneral.getConfig(
             'cfgsourcesdir') + "source" + str(destinationSourceId) + "/tmp/"
         if os.path.isdir(sourceTmpDirectory):
+            sensorFilePath = self.dirCurrentSourcePictures + captureDirectory + "/" + sensorFilename
+
             sourceJpgFilePath = self.dirCurrentSourcePictures + captureDirectory + "/" + captureFilename + ".jpg"
             destinationJpgFilePath = sourceTmpDirectory + captureDirectory + "/" + captureFilename + ".jpg"
             sourceRawFilePath = self.dirCurrentSourcePictures + "raw/" + captureDirectory + "/" + captureFilename + ".raw"
@@ -532,6 +555,32 @@ class captureUtils(object):
                                   'destinationRawFilePath': destinationRawFilePath})
         else:
             self.log.info("captureUtils.copyPicture(): " + _(
+                "SourceCopy: Directory %(sourceTmpDirectory)s does not exist, ensure source exists") % {
+                              'sourceTmpDirectory': str(sourceTmpDirectory)})
+
+    def copySensor(self, destinationSourceId, sensorFilename):
+        """ Copy sensor file to another source on this webcampaks
+
+        Args:
+            destinationSourceId: source ID where to copy the picture to
+            sensorFilename: Filename of the picture to copy
+
+        """
+        self.log.debug("captureUtils.copySensor(): " + _("Start"))
+        captureDirectory = sensorFilename[:8]
+        sourceTmpDirectory = self.configGeneral.getConfig('cfgbasedir') + self.configGeneral.getConfig(
+            'cfgsourcesdir') + "source" + str(destinationSourceId) + "/tmp/"
+        if os.path.isdir(sourceTmpDirectory):
+            sourceSensorFilePath = self.dirCurrentSourcePictures + captureDirectory + "/" + sensorFilename
+            destinationSensorFilePath = sourceTmpDirectory + captureDirectory + "/" + sensorFilename
+            self.fileUtils.CheckFilepath(destinationSensorFilePath)
+            shutil.copy(sourceSensorFilePath, destinationSensorFilePath)
+            os.chmod(destinationSensorFilePath, 0775)
+            self.log.info(
+                "captureUtils.copySensor(): " + _("SourceCopy: JPG Picture copied to %(destinationSensorFilePath)s") % {
+                    'destinationSensorFilePath': str(destinationSensorFilePath)})
+        else:
+            self.log.info("captureUtils.copySensor(): " + _(
                 "SourceCopy: Directory %(sourceTmpDirectory)s does not exist, ensure source exists") % {
                               'sourceTmpDirectory': str(sourceTmpDirectory)})
 

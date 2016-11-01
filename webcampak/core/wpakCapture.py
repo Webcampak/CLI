@@ -410,18 +410,43 @@ class Capture(object):
 
             if self.configGeneral.getConfig('cfgphidgetactivate') == "yes" and self.configSource.getConfig(
                     'cfgphidgetactivate') == "yes":
+                sensorFilename = self.getCaptureTime().strftime("%Y%m%d") + "-sensors.jsonl"
                 fileCaptureLog = self.dirCurrentSourcePictures + self.getCaptureTime().strftime(
-                    "%Y%m%d") + "/sensors.jsonl"
+                    "%Y%m%d") + "/" + sensorFilename
                 capturedSensors = capturePhidget(self).capture()
                 currentSensorsDetails = sensorsObj(self.log, fileCaptureLog)
                 currentSensorsDetails.setSensorsValue('date', self.getCaptureTime().isoformat())
                 currentSensorsDetails.setSensorsValue('sensors', capturedSensors)
                 currentSensorsDetails.archiveSensorsFile()
-                if self.configSource.getConfig('cfgftpphidgetserverid') != "":
-                    self.transferUtils.transferFile(self.getCaptureTime(), fileCaptureLog,
-                                                    self.getCaptureTime().strftime("%Y%m%d") + "/sensors.jsonl",
-                                                    self.configSource.getConfig('cfgftpphidgetserverid'),
-                                                    self.configSource.getConfig('cfgftpphidgetserverretry'))
+
+                # Send file to first remote FTP Server
+                self.captureUtils.sendSensor(self.configSource.getConfig('cfgftpmainserverid'),
+                                              self.configSource.getConfig('cfgftpmainserverretry'),
+                                              sensorFilename)
+
+                # Send file to second remote FTP Server
+                self.captureUtils.sendSensor(self.configSource.getConfig('cfgftpsecondserverid'),
+                                              self.configSource.getConfig('cfgftpsecondserverretry'),
+                                              sensorFilename)
+
+                # Copy file to first internal source
+                if self.configSource.getConfig('cfgcopymainenable') == "yes":
+                    self.captureUtils.copyPicture(self.configSource.getConfig('cfgcopymainsourceid'),
+                                                  self.configSource.getConfig('cfgcopymainsourceraw'),
+                                                  sensorFilename)
+
+                # Copy file to second internal source
+                if self.configSource.getConfig('cfgcopysecondenable') == "yes":
+                    self.captureUtils.copyPicture(self.configSource.getConfig('cfgcopysecondsourceid'),
+                                                  self.configSource.getConfig('cfgcopysecondsourceraw'),
+                                                  sensorFilename)
+
+
+                #if self.configSource.getConfig('cfgftpphidgetserverid') != "":
+                #    self.transferUtils.transferFile(self.getCaptureTime(), fileCaptureLog,
+                #                                    self.getCaptureTime().strftime("%Y%m%d") + "/sensors.jsonl",
+                #                                    self.configSource.getConfig('cfgftpphidgetserverid'),
+                #                                    self.configSource.getConfig('cfgftpphidgetserverretry'))
 
             scriptEndDate = self.timeUtils.getCurrentSourceTime(self.configSource)
             totalCaptureTime = int((scriptEndDate - self.getScriptStartTime()).total_seconds() * 1000)
