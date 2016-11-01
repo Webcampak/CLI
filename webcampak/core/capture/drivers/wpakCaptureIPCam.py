@@ -127,6 +127,14 @@ class captureIPCam(object):
                             self.dirCurrentSourceTmp + self.captureFilename + ".raw")
 
             return self.dirCurrentSourceTmp + self.captureFilename + ".jpg"
+        elif fileExtension == '.jsonl' and "sensors" in fileName:
+            self.log.info(_("captureIPCam.processFile(): Processing a sensor file: %(filePath)s") % {'filePath': os.path.basename(filePath)})
+            captureDirectory = fileName[:8]
+            destinationSensorFilePath = self.dirCurrentSourcePictures + captureDirectory + "/" + fileName
+            self.fileUtils.CheckFilepath(destinationSensorFilePath)
+            shutil.copy(filePath, destinationSensorFilePath)
+            os.chmod(destinationSensorFilePath, 0775)
+            self.log.info("captureIPCam.processFile(): " + _("Sensor file copied to %(destinationSensorFilePath)s") % {'destinationSensorFilePath': str(destinationSensorFilePath)})
         else:
             self.log.info(_("captureIPCam.processFile(): %(filePath)s is not a picture or is too small") % {
                 'filePath': os.path.basename(filePath)})

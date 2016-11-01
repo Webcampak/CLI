@@ -441,13 +441,6 @@ class Capture(object):
                                                   self.configSource.getConfig('cfgcopysecondsourceraw'),
                                                   sensorFilename)
 
-
-                #if self.configSource.getConfig('cfgftpphidgetserverid') != "":
-                #    self.transferUtils.transferFile(self.getCaptureTime(), fileCaptureLog,
-                #                                    self.getCaptureTime().strftime("%Y%m%d") + "/sensors.jsonl",
-                #                                    self.configSource.getConfig('cfgftpphidgetserverid'),
-                #                                    self.configSource.getConfig('cfgftpphidgetserverretry'))
-
             scriptEndDate = self.timeUtils.getCurrentSourceTime(self.configSource)
             totalCaptureTime = int((scriptEndDate - self.getScriptStartTime()).total_seconds() * 1000)
             self.log.info("capture.run(): " + _("Capture: Overall capture time: %(TotalCaptureTime)s ms") % {
