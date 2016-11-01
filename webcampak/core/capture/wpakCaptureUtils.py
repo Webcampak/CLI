@@ -534,8 +534,6 @@ class captureUtils(object):
         sourceTmpDirectory = self.configGeneral.getConfig('cfgbasedir') + self.configGeneral.getConfig(
             'cfgsourcesdir') + "source" + str(destinationSourceId) + "/tmp/"
         if os.path.isdir(sourceTmpDirectory):
-            sensorFilePath = self.dirCurrentSourcePictures + captureDirectory + "/" + sensorFilename
-
             sourceJpgFilePath = self.dirCurrentSourcePictures + captureDirectory + "/" + captureFilename + ".jpg"
             destinationJpgFilePath = sourceTmpDirectory + captureDirectory + "/" + captureFilename + ".jpg"
             sourceRawFilePath = self.dirCurrentSourcePictures + "raw/" + captureDirectory + "/" + captureFilename + ".raw"
