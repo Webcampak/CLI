@@ -119,7 +119,7 @@ class captureIPCam(object):
                 return None
 
             self.currentCaptureDetails.setCaptureValue('captureDate', currentFileTime.isoformat())
-            self.captureFilename = fileName
+            self.captureFilename = currentFileTime.strftime("%Y%m%d%H%M%S") + ".jpg"
 
             # Move file to root of tmp directory
             self.log.info(
