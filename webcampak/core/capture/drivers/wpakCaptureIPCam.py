@@ -86,7 +86,7 @@ class captureIPCam(object):
                                                                                                  'fileSize': os.path.getsize(
                                                                                                      filePath)})
         fileName, fileExtension = os.path.splitext(os.path.basename(filePath))
-        if fileExtension == '.jpg' and os.path.getsize(filePath) > int(
+        if (fileExtension == '.jpg' or fileExtension == '.JPG') and os.path.getsize(filePath) > int(
                 self.configSource.getConfig('cfgcaptureminisize')):
             self.log.info("captureIPCam.processFile(): " + _("File is a picture"))
 
