@@ -95,7 +95,10 @@ class captureIPCam(object):
                     'cfgsourcetype') == "wpak"):
                 self.log.info("captureIPCam.processFile(): " + _(
                     "Determining picture date based on webcampak name template (YYYYMMDDHHMMSS.jpg)"))
-                currentFileTime = self.timeUtils.getTimeFromFilename(fileName, self.configSource)
+                currentFileTime = self.timeUtils.getTimeFromFilename(fileName, self.configSource, "YYYYMMDDHHMMSS")
+            elif self.configSource.getConfig('cfgsourcecamiptemplate') == "harbortronics":
+                self.log.info("captureIPCam.processFile(): " + _("Determining picture date based on harbortonics naming convention"))
+                currentFileTime = self.timeUtils.getTimeFromFilename(fileName, self.configSource, "YYYYMMDD_HHMMSS")
             elif self.configSource.getConfig('cfgsourcecamiptemplate') == "exif":
                 self.log.info("captureIPCam.processFile(): " + _("Determining picture date based on EXIF details"))
                 currentFileTime = self.timeUtils.getTimeFromExif(filePath, self.configSource)

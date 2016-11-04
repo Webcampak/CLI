@@ -62,12 +62,15 @@ class timeUtils:
         return cfgnowsource
 
     # Using a webcampak timestamp, capture the file date and time
-    def getTimeFromFilename(self, fileName, sourceConfig):
+    def getTimeFromFilename(self, fileName, sourceConfig, dateFormat):
         self.log.debug("timeUtils.getTimeFromFilename(): " + _("Start"))
         self.log.info(
             "timeUtils.getTimeFromFilename(): " + _("Extract time from: %(fileName)s") % {'fileName': fileName})
         try:
-            fileTime = datetime.strptime(os.path.splitext(os.path.basename(fileName))[0], "%Y%m%d%H%M%S")
+            if dateFormat == "YYYYMMDD_HHMMSS":
+                fileTime = datetime.strptime(os.path.splitext(os.path.basename(fileName))[0], "%Y%m%d%H%M%S")
+            else:
+                fileTime = datetime.strptime(os.path.splitext(os.path.basename(fileName))[0], "%Y%m%d_%H%M%S")
             if sourceConfig.getConfig(
                     'cfgcapturetimezone') != "":  # Update the timezone from UTC to the source's timezone
                 self.log.info("timeUtils.getTimeFromFilename(): " + _("Source timezone is: %(sourceTimezone)s") % {
@@ -135,3 +138,4 @@ class timeUtils:
             return fileTime
         except:
             return False
+
