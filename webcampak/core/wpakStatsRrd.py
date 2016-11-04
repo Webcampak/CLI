@@ -155,8 +155,7 @@ class statsRrd(object):
                 # , "sensors": {"789275965fe98d9ad9275648a21b095982d673a189f5cb3fad8155f9": {"type": "Temperature", "legend": "Outside Tempe abcd", "value": 25.8, "valueRaw": 1601}, "574eb9c9ee7e0bbe610a7aab0e359864fdd7810d113edee1da80a5af": {"type": "Temperature", "legend": "Inside Temperature", "value": 25.8, "valueRaw": 1601}, "fbdde0c3fe0b6aecc5f1027262ec79813f2cf77c9361642c4a7d57a3": {"type": "Luminosity", "legend": "Humidity", "value": 460.8, "valueRaw": 1887}}}
 
                 for currentSensor in sensors:
-                    if os.path.isfile(
-                                                            self.dirCurrentSourcePictures + sensorsDay + "/sensor-" + currentSensor + ".rrd") == False or processedCpt <= 1:
+                    if os.path.isfile(self.dirCurrentSourcePictures + sensorsDay + "/sensor-" + currentSensor + ".rrd") == False or processedCpt <= 1:
                         self.log.info("statsrrd.run(): " + _("Currently processing Sensor: %(currentSensor)s") % {
                             'currentSensor': currentSensor})
 
