@@ -65,7 +65,7 @@ class timeUtils:
     def getTimeFromFilename(self, fileName, sourceConfig, dateFormat):
         self.log.debug("timeUtils.getTimeFromFilename(): " + _("Start"))
         self.log.info(
-            "timeUtils.getTimeFromFilename(): " + _("Extract time from: %(fileName)s") % {'fileName': fileName})
+            "timeUtils.getTimeFromFilename(): " + _("Extract time from: %(fileName)s using format %(dateFormat)s") % {'fileName': fileName, 'dateFormat': dateFormat})
         try:
             if dateFormat == "YYYYMMDD_HHMMSS":
                 fileTime = datetime.strptime(os.path.splitext(os.path.basename(fileName))[0], "%Y%m%d_%H%M%S")
