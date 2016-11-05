@@ -76,8 +76,9 @@ class timeUtils:
                 self.log.info("timeUtils.getTimeFromFilename(): " + _("Source timezone is: %(sourceTimezone)s") % {
                     'sourceTimezone': sourceConfig.getConfig('cfgcapturetimezone')})
                 sourceTimezone = tz.gettz(sourceConfig.getConfig('cfgcapturetimezone'))
-                fileTime = fileTime.replace(tzinfo=tz.gettz('UTC'))
-                fileTime = fileTime.astimezone(sourceTimezone)
+                fileTime = fileTime.replace(tzinfo=sourceTimezone)
+                #fileTime = fileTime.replace(tzinfo=tz.gettz('UTC'))
+                #fileTime = fileTime.astimezone(sourceTimezone)
             self.log.info("timeUtils.getTimeFromFilename(): " + _("Picture date is: %(picDate)s") % {
                 'picDate': fileTime.isoformat()})
             return fileTime
