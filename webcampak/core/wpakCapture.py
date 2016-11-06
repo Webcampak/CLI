@@ -433,13 +433,11 @@ class Capture(object):
                 # Copy file to first internal source
                 if self.configSource.getConfig('cfgcopymainenable') == "yes":
                     self.captureUtils.copySensor(self.configSource.getConfig('cfgcopymainsourceid'),
-                                                  self.configSource.getConfig('cfgcopymainsourceraw'),
                                                   sensorFilename)
 
                 # Copy file to second internal source
                 if self.configSource.getConfig('cfgcopysecondenable') == "yes":
                     self.captureUtils.copySensor(self.configSource.getConfig('cfgcopysecondsourceid'),
-                                                  self.configSource.getConfig('cfgcopysecondsourceraw'),
                                                   sensorFilename)
 
             scriptEndDate = self.timeUtils.getCurrentSourceTime(self.configSource)
