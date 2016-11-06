@@ -408,17 +408,18 @@ class Capture(object):
             # if self.configSource.getConfig('cfgemailcapturestats') == "yes":
             #    self.captureEmails.sendCaptureStats()
 
+            sensorFilename = self.getCaptureTime().strftime("%Y%m%d") + "-sensors.jsonl"
+            fileCaptureLog = self.dirCurrentSourcePictures + self.getCaptureTime().strftime("%Y%m%d") + "/" + sensorFilename
             if self.configGeneral.getConfig('cfgphidgetactivate') == "yes" and self.configSource.getConfig(
                     'cfgphidgetactivate') == "yes":
-                sensorFilename = self.getCaptureTime().strftime("%Y%m%d") + "-sensors.jsonl"
-                fileCaptureLog = self.dirCurrentSourcePictures + self.getCaptureTime().strftime(
-                    "%Y%m%d") + "/" + sensorFilename
                 capturedSensors = capturePhidget(self).capture()
                 currentSensorsDetails = sensorsObj(self.log, fileCaptureLog)
                 currentSensorsDetails.setSensorsValue('date', self.getCaptureTime().isoformat())
                 currentSensorsDetails.setSensorsValue('sensors', capturedSensors)
                 currentSensorsDetails.archiveSensorsFile()
 
+            #If the phidget sensor file exists, it is being sent throughout the chain.
+            if (os.path.isfile(fileCaptureLog)):
                 # Send file to first remote FTP Server
                 self.captureUtils.sendSensor(self.configSource.getConfig('cfgftpmainserverid'),
                                               self.configSource.getConfig('cfgftpmainserverretry'),
