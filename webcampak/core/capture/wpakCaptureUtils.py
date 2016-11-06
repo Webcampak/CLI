@@ -575,7 +575,7 @@ class captureUtils(object):
             shutil.copy(sourceSensorFilePath, destinationSensorFilePath)
             os.chmod(destinationSensorFilePath, 0775)
             self.log.info(
-                "captureUtils.copySensor(): " + _("SourceCopy: JPG Picture copied to %(destinationSensorFilePath)s") % {
+                "captureUtils.copySensor(): " + _("SourceCopy: Sensor file copied to %(destinationSensorFilePath)s") % {
                     'destinationSensorFilePath': str(destinationSensorFilePath)})
         else:
             self.log.info("captureUtils.copySensor(): " + _(
