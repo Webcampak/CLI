@@ -207,12 +207,12 @@ class statsRrd(object):
                                               'currentTimestamp': str(ValueTableKeys[i]),
                                               'currentValue': str(ValueTable[ValueTableKeys[i]]),})
                             if i == 0:
-                                CurrentTimestamp = int(ValueTableKeys[i])
+                                currentTimestamp = int(ValueTableKeys[i])
                             else:
-                                CurrentTimestamp = CurrentTimestamp + DefinedInterval
+                                currentTimestamp = currentTimestamp + captureInterval
                                 ret = rrdtool.update(str(self.dirCurrentSourcePictures + str(
                                     sensorsDay) + "/sensor-" + currentSensor + ".rrd"),
-                                                     str(int(CurrentTimestamp)) + ':' + str(
+                                                     str(int(currentTimestamp)) + ':' + str(
                                                          ValueTable[ValueTableKeys[i]]))
 
                         ret = rrdtool.graph(
