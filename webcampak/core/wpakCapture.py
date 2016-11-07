@@ -416,6 +416,11 @@ class Capture(object):
                 currentSensorsDetails = sensorsObj(self.log, fileCaptureLog)
                 currentSensorsDetails.setSensorsValue('date', self.getCaptureTime().isoformat())
                 currentSensorsDetails.setSensorsValue('sensors', capturedSensors)
+                # Record capture interval
+                sourceCaptureInterval = int(self.configSource.getConfig('cfgcroncapturevalue'))
+                if self.configSource.getConfig('cfgcroncaptureinterval') == "minutes":
+                    sourceCaptureInterval = int(self.configSource.getConfig('cfgcroncapturevalue')) * 60
+                currentSensorsDetails.setSensorsValue('interval', sourceCaptureInterval)
                 currentSensorsDetails.archiveSensorsFile()
 
             #If the phidget sensor file exists, it is being sent throughout the chain.

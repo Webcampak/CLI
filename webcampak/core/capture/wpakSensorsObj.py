@@ -48,6 +48,7 @@ class sensorsObj(object):
             , "additionalProperties": False
             , "properties": {
                 "date": {"type": ["string", "null"], "description": "Date of the capture"}
+                , "interval": {"type": ["number", "null"], "description": "Capture interval configured for the source, in seconds"}
                 , "sensors": {
                     "type": ["object", "null"]
                     , "description": "Sensor values captures on a phidget board"
