@@ -226,6 +226,8 @@ class statsRrd(object):
                                 sensorsDay) + "/sensor-" + currentSensor + ".rrd") + ":GRAPHAREA:AVERAGE" \
                             , "AREA:GRAPHAREA" + str(SensorColor) + ":" + str(SensorLegend))
 
+                        self.log.info("statsrrd.run(): " + _("PNG Graph created: %(pnggraph)s") % {'pnggraph': str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".png")})
+
                         if self.configSource.getConfig('cfgftpphidgetserverid') != "":
                             currentTime = self.timeUtils.getCurrentSourceTime(self.configSource)
                             self.transferUtils.transferFile(currentTime, self.dirCurrentSourcePictures + str(
