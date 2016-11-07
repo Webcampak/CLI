@@ -150,6 +150,9 @@ class statsRrd(object):
                 # List all sensors contained in the file
                 sensors = self.getSensorsFromFile(currentCaptureFile)
                 sensorsDay = self.getSensorDayFromFile(currentCaptureFile)
+                captureInterval = self.getCaptureIntervalFromFile(currentCaptureFile)
+                self.log.info("statsrrd.run(): " + _("Capture interval: %(captureInterval)s seconds") % {'captureInterval': captureInterval})
+
                 # {"scriptEndDate": "2016-09-29T04:59:43.956108+02:00", "totalCaptureSize": 10945697, "captureSuccess": true, "scriptRuntime": 2531, "storedRawSize": 0
                 # , "scriptStartDate": "2016-09-29T04:59:41.424850+02:00", "processedPicturesCount": 1, "storedJpgSize": 10945697, "captureDate": "2016-09-29T04:59:41.472365+02:00"
                 # , "sensors": {"789275965fe98d9ad9275648a21b095982d673a189f5cb3fad8155f9": {"type": "Temperature", "legend": "Outside Tempe abcd", "value": 25.8, "valueRaw": 1601}, "574eb9c9ee7e0bbe610a7aab0e359864fdd7810d113edee1da80a5af": {"type": "Temperature", "legend": "Inside Temperature", "value": 25.8, "valueRaw": 1601}, "fbdde0c3fe0b6aecc5f1027262ec79813f2cf77c9361642c4a7d57a3": {"type": "Luminosity", "legend": "Humidity", "value": 460.8, "valueRaw": 1887}}}
@@ -160,15 +163,6 @@ class statsRrd(object):
                             'currentSensor': currentSensor})
 
                         ValueTable = {}
-                        # ValueKeys = []
-                        ValueTableKeys = []
-                        ValueKeysDiff = []
-                        ValueInsertTable = {}
-                        if self.configSource.getConfig('cfgcroncaptureinterval') == "minutes":
-                            DefinedInterval = int(self.configSource.getConfig('cfgcroncapturevalue')) * 60
-                        elif self.configSource.getConfig('cfgcroncaptureinterval') == "seconds":
-                            DefinedInterval = int(self.configSource.getConfig('cfgcroncapturevalue'))
-
                         SensorLegend = "UNAVAILABLE"
                         SensorColor = "#FF0000"
                         for line in open(currentCaptureFile).readlines():
@@ -201,7 +195,7 @@ class statsRrd(object):
                         rrdend = str(max(ValueTableKeys))
                         ret = rrdtool.create(
                             str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".rrd") \
-                            , "--step", str(DefinedInterval) \
+                            , "--step", str(captureInterval) \
                             , "--start" \
                             , rrdstart \
                             , "DS:GRAPHAREA:GAUGE:600:U:U" \
@@ -242,9 +236,6 @@ class statsRrd(object):
                                 sensorsDay) + "/sensor-" + currentSensor + ".png", "sensor-" + currentSensor + ".png",
                                                             self.configSource.getConfig('cfgftpphidgetserverid'),
                                                             self.configSource.getConfig('cfgftpphidgetserverretry'))
-
-
-
 
         else:
             self.log.info(
@@ -297,4 +288,24 @@ class statsRrd(object):
             if 'date' in currentSensorLine:
                 currentSensorDate = dateutil.parser.parse(currentSensorLine['date'])
                 return currentSensorDate.strftime("%Y%m%d")
+        return date
+
+    def getCaptureIntervalFromFile(self, currentCaptureFile):
+        """ Scan a file and returns the capture interval used for the capture
+            Args:
+                None
+
+            Returns:
+                Number: Capture interval in seconds
+        """
+        self.log.debug("statsrrd.getCaptureIntervalFromFile(): " + _("Start"))
+        date = None
+        for line in open(currentCaptureFile).readlines():
+            try:
+                currentSensorLine = json.loads(line)
+            except Exception:
+                self.log.error("statsrrd.getCaptureIntervalFromFile(): Unable to decode JSON line: " + line)
+                break
+            if 'interval' in currentSensorLine:
+                return currentSensorLine['interval']
         return date
