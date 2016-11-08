@@ -86,7 +86,7 @@ class videoEmails(object):
             emailSubject = emailSubject.replace("#VIDEOFILENAME#", videoFilename)
             newEmail = emailObj(self.log, self.dirEmails, self.fileUtils)
             newEmail.setFrom({'email': self.configGeneral.getConfig('cfgemailsendfrom')})
-            db = dbUtils(self.captureClass)
+            db = dbUtils(self.videoClass)
             newEmail.setTo(db.getSourceEmailUsers(self.currentSourceId))
             db.closeDb()
             newEmail.setBody(emailContent)
