@@ -393,7 +393,7 @@ class videoUtils(object):
                                 if self.configSourceVideo.getConfig(
                                         "cfgvidminintervalvalue") != "0":  # check time between two pictures
                                     # self.log.info("videoUtils.run(): " + _("Video: %(VideoType)s: Minimum interval between two pictures: %(cfgvidminintervalvalue)s %(cfgvidmininterval)s ") % {'VideoType': self.videoType, 'cfgvidminintervalvalue': self.configSourceVideo.getConfig("cfgvidminintervalvalue"), 'cfgvidmininterval': self.configSourceVideo.getConfig("cfgvidmininterval") } )
-                                    SecondsBetweenPictures = self.fileUtils.SecondsBetweenPictures(TargetVideoDir,
+                                    SecondsBetweenPictures = self.fileUtils.SecondsBetweenPictures(self.videoClass.getProcessVideoDir(),
                                                                                                    scanPictureFile)
                                     ReferenceInterval = int(self.configSourceVideo.getConfig("cfgvidminintervalvalue"))
                                     if SecondsBetweenPictures != None:
