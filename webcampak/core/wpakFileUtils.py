@@ -159,7 +159,7 @@ class fileUtils:
     ## Directory: Directory where pictures are located 
     ## CurrentFile: Filename to be tested against	
     # Return: seconds
-    def SecondsBetweenPictures(Directory, CurrentFile):
+    def SecondsBetweenPictures(self, Directory, CurrentFile):
         self.log.debug("fileUtils.SecondsBetweenPictures(): " + _("Start"))
         for listpictfiles in sorted(os.listdir(Directory), reverse=False):
             if listpictfiles[:2] == "20" and self.CheckJpegFile(Directory + "/" + listpictfiles) == True:
