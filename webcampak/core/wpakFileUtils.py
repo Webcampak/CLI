@@ -119,7 +119,7 @@ class fileUtils:
                 num /= 1024.0
             return "%.1f%s%s" % (num, 'Yi', suffix)
         else:
-            return num
+            return "n/a"
 
     # Function: SecondsSinceLastCapture
     # Description; This function is used to return the number of seconds since last picture captured from a source
