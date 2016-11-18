@@ -7,5 +7,5 @@ psutil
 Pillow
 jsonschema #https://github.com/Julian/jsonschema
 Phidgets
-rrdtool
+rrdtool=0.1.6
 tabulate
