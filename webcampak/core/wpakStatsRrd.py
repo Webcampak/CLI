@@ -151,93 +151,94 @@ class statsRrd(object):
                 sensors = self.getSensorsFromFile(currentCaptureFile)
                 sensorsDay = self.getSensorDayFromFile(currentCaptureFile)
                 captureInterval = self.getCaptureIntervalFromFile(currentCaptureFile)
-                self.log.info("statsrrd.run(): " + _("Capture interval: %(captureInterval)s seconds") % {'captureInterval': captureInterval})
+                if captureInterval != None:
+                    self.log.info("statsrrd.run(): " + _("Capture interval: %(captureInterval)s seconds") % {'captureInterval': captureInterval})
 
-                # {"scriptEndDate": "2016-09-29T04:59:43.956108+02:00", "totalCaptureSize": 10945697, "captureSuccess": true, "scriptRuntime": 2531, "storedRawSize": 0
-                # , "scriptStartDate": "2016-09-29T04:59:41.424850+02:00", "processedPicturesCount": 1, "storedJpgSize": 10945697, "captureDate": "2016-09-29T04:59:41.472365+02:00"
-                # , "sensors": {"789275965fe98d9ad9275648a21b095982d673a189f5cb3fad8155f9": {"type": "Temperature", "legend": "Outside Tempe abcd", "value": 25.8, "valueRaw": 1601}, "574eb9c9ee7e0bbe610a7aab0e359864fdd7810d113edee1da80a5af": {"type": "Temperature", "legend": "Inside Temperature", "value": 25.8, "valueRaw": 1601}, "fbdde0c3fe0b6aecc5f1027262ec79813f2cf77c9361642c4a7d57a3": {"type": "Luminosity", "legend": "Humidity", "value": 460.8, "valueRaw": 1887}}}
+                    # {"scriptEndDate": "2016-09-29T04:59:43.956108+02:00", "totalCaptureSize": 10945697, "captureSuccess": true, "scriptRuntime": 2531, "storedRawSize": 0
+                    # , "scriptStartDate": "2016-09-29T04:59:41.424850+02:00", "processedPicturesCount": 1, "storedJpgSize": 10945697, "captureDate": "2016-09-29T04:59:41.472365+02:00"
+                    # , "sensors": {"789275965fe98d9ad9275648a21b095982d673a189f5cb3fad8155f9": {"type": "Temperature", "legend": "Outside Tempe abcd", "value": 25.8, "valueRaw": 1601}, "574eb9c9ee7e0bbe610a7aab0e359864fdd7810d113edee1da80a5af": {"type": "Temperature", "legend": "Inside Temperature", "value": 25.8, "valueRaw": 1601}, "fbdde0c3fe0b6aecc5f1027262ec79813f2cf77c9361642c4a7d57a3": {"type": "Luminosity", "legend": "Humidity", "value": 460.8, "valueRaw": 1887}}}
 
-                for currentSensor in sensors:
-                    if os.path.isfile(self.dirCurrentSourcePictures + sensorsDay + "/sensor-" + currentSensor + ".rrd") == False or processedCpt <= 1:
-                        self.log.info("statsrrd.run(): " + _("Currently processing Sensor: %(currentSensor)s") % {
-                            'currentSensor': currentSensor})
+                    for currentSensor in sensors:
+                        if os.path.isfile(self.dirCurrentSourcePictures + sensorsDay + "/sensor-" + currentSensor + ".rrd") == False or processedCpt <= 1:
+                            self.log.info("statsrrd.run(): " + _("Currently processing Sensor: %(currentSensor)s") % {
+                                'currentSensor': currentSensor})
 
-                        ValueTable = {}
-                        SensorLegend = "UNAVAILABLE"
-                        SensorColor = "#FF0000"
-                        for line in open(currentCaptureFile).readlines():
-                            try:
-                                currentCaptureLine = json.loads(line)
-                            except Exception:
-                                self.log.error("statsrrd.run(): Unable to decode JSON line: " + line)
-                                break
-                            sensorDate = dateutil.parser.parse(currentCaptureLine['date'])
-                            currentTimestamp = int(time.mktime(sensorDate.timetuple()))
-                            ValueTable[currentTimestamp] = "NaN"
-                            if 'sensors' in currentCaptureLine:
-                                if currentCaptureLine['sensors'] != None:
-                                    if currentSensor in currentCaptureLine['sensors']:
-                                        ValueTable[currentTimestamp] = currentCaptureLine['sensors'][currentSensor][
-                                            'value']
-                                        SensorLegend = currentCaptureLine['sensors'][currentSensor]['legend']
-                                        if 'color' in currentCaptureLine['sensors'][currentSensor]:
-                                            SensorColor = currentCaptureLine['sensors'][currentSensor]['color']
+                            ValueTable = {}
+                            SensorLegend = "UNAVAILABLE"
+                            SensorColor = "#FF0000"
+                            for line in open(currentCaptureFile).readlines():
+                                try:
+                                    currentCaptureLine = json.loads(line)
+                                except Exception:
+                                    self.log.error("statsrrd.run(): Unable to decode JSON line: " + line)
+                                    break
+                                sensorDate = dateutil.parser.parse(currentCaptureLine['date'])
+                                currentTimestamp = int(time.mktime(sensorDate.timetuple()))
+                                ValueTable[currentTimestamp] = "NaN"
+                                if 'sensors' in currentCaptureLine:
+                                    if currentCaptureLine['sensors'] != None:
+                                        if currentSensor in currentCaptureLine['sensors']:
+                                            ValueTable[currentTimestamp] = currentCaptureLine['sensors'][currentSensor][
+                                                'value']
+                                            SensorLegend = currentCaptureLine['sensors'][currentSensor]['legend']
+                                            if 'color' in currentCaptureLine['sensors'][currentSensor]:
+                                                SensorColor = currentCaptureLine['sensors'][currentSensor]['color']
 
-                        ValueTableKeys = ValueTable.keys()
-                        ValueTableKeys.sort()
+                            ValueTableKeys = ValueTable.keys()
+                            ValueTableKeys.sort()
 
-                        self.log.info("statsrrd.run(): " + _("Preparing the RRD base file: %(SensorRRDFile)s") % {
-                            'SensorRRDFile': str(
-                                self.dirCurrentSourcePictures + sensorsDay + "/sensor-" + currentSensor + ".rrd")})
+                            self.log.info("statsrrd.run(): " + _("Preparing the RRD base file: %(SensorRRDFile)s") % {
+                                'SensorRRDFile': str(
+                                    self.dirCurrentSourcePictures + sensorsDay + "/sensor-" + currentSensor + ".rrd")})
 
-                        rrdstart = str(int(min(ValueTableKeys)))
-                        # rrdstart = str(int(min(ValueTableKeys)))
-                        rrdend = str(max(ValueTableKeys))
-                        ret = rrdtool.create(
-                            str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".rrd") \
-                            , "--step", str(captureInterval) \
-                            , "--start" \
-                            , rrdstart \
-                            , "DS:GRAPHAREA:GAUGE:600:U:U" \
-                            , "RRA:AVERAGE:0.5:1:" + str(len(ValueTable)))
+                            rrdstart = str(int(min(ValueTableKeys)))
+                            # rrdstart = str(int(min(ValueTableKeys)))
+                            rrdend = str(max(ValueTableKeys))
+                            ret = rrdtool.create(
+                                str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".rrd") \
+                                , "--step", str(captureInterval) \
+                                , "--start" \
+                                , rrdstart \
+                                , "DS:GRAPHAREA:GAUGE:600:U:U" \
+                                , "RRA:AVERAGE:0.5:1:" + str(len(ValueTable)))
 
-                        for i in xrange(len(ValueTableKeys)):
-                            self.log.info("statsrrd.run(): " + _(
-                                "Adding Timestamp: %(currentTimestamp)s - Value: %(currentValue)s") % {
-                                              'currentTimestamp': str(ValueTableKeys[i]),
-                                              'currentValue': str(ValueTable[ValueTableKeys[i]]),})
-                            if i == 0:
-                                currentTimestamp = int(ValueTableKeys[i])
-                            else:
-                                currentTimestamp = currentTimestamp + captureInterval
-                                ret = rrdtool.update(str(self.dirCurrentSourcePictures + str(
-                                    sensorsDay) + "/sensor-" + currentSensor + ".rrd"),
-                                                     str(int(currentTimestamp)) + ':' + str(
-                                                         ValueTable[ValueTableKeys[i]]))
+                            for i in xrange(len(ValueTableKeys)):
+                                self.log.info("statsrrd.run(): " + _(
+                                    "Adding Timestamp: %(currentTimestamp)s - Value: %(currentValue)s") % {
+                                                  'currentTimestamp': str(ValueTableKeys[i]),
+                                                  'currentValue': str(ValueTable[ValueTableKeys[i]]),})
+                                if i == 0:
+                                    currentTimestamp = int(ValueTableKeys[i])
+                                else:
+                                    currentTimestamp = currentTimestamp + captureInterval
+                                    ret = rrdtool.update(str(self.dirCurrentSourcePictures + str(
+                                        sensorsDay) + "/sensor-" + currentSensor + ".rrd"),
+                                                         str(int(currentTimestamp)) + ':' + str(
+                                                             ValueTable[ValueTableKeys[i]]))
 
-                        ret = rrdtool.graph(
-                            str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".png") \
-                            , "--start" \
-                            , rrdstart \
-                            , "--end" \
-                            , rrdend \
-                            , "--vertical-label=" + str(SensorLegend) \
-                            , "DEF:GRAPHAREA=" + str(self.dirCurrentSourcePictures + str(
-                                sensorsDay) + "/sensor-" + currentSensor + ".rrd") + ":GRAPHAREA:AVERAGE" \
-                            , "AREA:GRAPHAREA" + str(SensorColor) + ":" + str(SensorLegend))
+                            ret = rrdtool.graph(
+                                str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".png") \
+                                , "--start" \
+                                , rrdstart \
+                                , "--end" \
+                                , rrdend \
+                                , "--vertical-label=" + str(SensorLegend) \
+                                , "DEF:GRAPHAREA=" + str(self.dirCurrentSourcePictures + str(
+                                    sensorsDay) + "/sensor-" + currentSensor + ".rrd") + ":GRAPHAREA:AVERAGE" \
+                                , "AREA:GRAPHAREA" + str(SensorColor) + ":" + str(SensorLegend))
 
-                        self.log.info("statsrrd.run(): " + _("PNG Graph created: %(pnggraph)s") % {'pnggraph': str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".png")})
+                            self.log.info("statsrrd.run(): " + _("PNG Graph created: %(pnggraph)s") % {'pnggraph': str(self.dirCurrentSourcePictures + str(sensorsDay) + "/sensor-" + currentSensor + ".png")})
 
-                        if self.configSource.getConfig('cfgftpphidgetserverid') != "":
-                            currentTime = self.timeUtils.getCurrentSourceTime(self.configSource)
-                            self.transferUtils.transferFile(currentTime, self.dirCurrentSourcePictures + str(
-                                sensorsDay) + "/sensor-" + currentSensor + ".rrd", "sensor-" + currentSensor + ".rrd",
-                                                            self.configSource.getConfig('cfgftpphidgetserverid'),
-                                                            self.configSource.getConfig('cfgftpphidgetserverretry'))
-                            self.transferUtils.transferFile(currentTime, self.dirCurrentSourcePictures + str(
-                                sensorsDay) + "/sensor-" + currentSensor + ".png", "sensor-" + currentSensor + ".png",
-                                                            self.configSource.getConfig('cfgftpphidgetserverid'),
-                                                            self.configSource.getConfig('cfgftpphidgetserverretry'))
+                            if self.configSource.getConfig('cfgftpphidgetserverid') != "":
+                                currentTime = self.timeUtils.getCurrentSourceTime(self.configSource)
+                                self.transferUtils.transferFile(currentTime, self.dirCurrentSourcePictures + str(
+                                    sensorsDay) + "/sensor-" + currentSensor + ".rrd", "sensor-" + currentSensor + ".rrd",
+                                                                self.configSource.getConfig('cfgftpphidgetserverid'),
+                                                                self.configSource.getConfig('cfgftpphidgetserverretry'))
+                                self.transferUtils.transferFile(currentTime, self.dirCurrentSourcePictures + str(
+                                    sensorsDay) + "/sensor-" + currentSensor + ".png", "sensor-" + currentSensor + ".png",
+                                                                self.configSource.getConfig('cfgftpphidgetserverid'),
+                                                                self.configSource.getConfig('cfgftpphidgetserverretry'))
 
         else:
             self.log.info(

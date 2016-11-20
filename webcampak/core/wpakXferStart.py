@@ -39,6 +39,7 @@ class xferStart:
         self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']
         self.dirLocale = self.configPaths.getConfig('parameters')['dir_locale']
         self.dirLocaleMessage = self.configPaths.getConfig('parameters')['dir_locale_message']
+        self.dirSyncReports = self.configPaths.getConfig('parameters')['dir_sync-reports']
 
         self.setupLog()
 
@@ -246,9 +247,8 @@ class xferStart:
             self.log.info("(" + str(
                 os.getpid()) + ")xferStart.moveThreadFileAfterTransfer(): Transfer has been successful, storing completed file")
             if jobJsonContent['job'].has_key('sync-report'):
-                destinationFilePath = self.dirSources + "/source" + str(
-                    jobJsonContent['job']['filesourceid']) + "/resources/sync-reports/" + \
-                                      os.path.splitext(jobJsonContent['job']['sync-report']['filename'])[0] + "/"
+                #destinationFilePath = self.dirSources + "/source" + str(jobJsonContent['job']['filesourceid']) + "/resources/sync-reports/" + os.path.splitext(jobJsonContent['job']['sync-report']['filename'])[0] + "/"
+                destinationFilePath = self.dirSyncReports + "/completed/" + os.path.splitext(jobJsonContent['job']['sync-report']['filename'])[0] + "/"
             else:
                 destinationFilePath = self.dirSources + "/source" + str(
                     jobJsonContent['job']['filesourceid']) + "/resources/xfer/" + os.path.basename(firstThreadFile)[

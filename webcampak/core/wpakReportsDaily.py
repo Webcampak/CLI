@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import division
 import os
 import time
 import gettext
@@ -128,7 +129,7 @@ class reportsDaily(object):
             self.log.info("reportsDaily.run(): " + _("Source disk usage is: %(sourceDiskUsage)s") % {
                 'sourceDiskUsage': str(sourceDiskUsage)})
             if sourceQuota == None or int(sourceQuota) == 0:
-                sourceDiskPercentUsed = None
+                sourceDiskPercentUsed = "n/a"
             else:
                 sourceDiskPercentUsed = int(int(sourceDiskUsage) / int(sourceQuota) * 100)
 
@@ -245,10 +246,10 @@ class reportsDaily(object):
                           'currentSource': str(currentSource), 'currentReportDay': str(currentReportDay)})
         reportDatetime = datetime.strptime(str(currentReportDay) + "120000", "%Y%m%d%H%M%S")
         table = [ \
-            ["Source Name", self.dbUtils.getSourceName(currentSource)] \
-            , ["Source ID", currentSource] \
+            ["Source Name (ID)", self.dbUtils.getSourceName(currentSource) + " (" + str(currentSource) + ")"] \
             , ["Report Day", reportDatetime.strftime("%B %d, %Y")] \
             , ["Report Creation", self.timeUtils.getCurrentDate().strftime("%B %d, %Y")] \
+            , ["Captured JPG | RAW", str(currentSourceReport['capture']['JPG']['count']) + " | " + str(currentSourceReport['capture']['RAW']['count'])] \
             ]
         dailyReportContentSource = tabulate(table, tablefmt="fancy_grid") + "\n"
         if currentSourceReport['source']['quota'] == None:
@@ -264,7 +265,8 @@ class reportsDaily(object):
              currentSourceReport['source']['percentUsed']] \
             , ["Total Disk", fileUtils.sizeof_fmt(currentSourceReport['disk']['used']),
                fileUtils.sizeof_fmt(currentSourceReport['disk']['total']),
-               fileUtils.sizeof_fmt(currentSourceReport['disk']['free']), currentSourceReport['disk']['percentUsed']] \
+               fileUtils.sizeof_fmt(currentSourceReport['disk']['free']),
+               currentSourceReport['disk']['percentUsed']] \
             ]
         dailyReportContentSource = dailyReportContentSource + tabulate(table, headers, tablefmt="fancy_grid") + "\n"
 
@@ -299,13 +301,7 @@ class reportsDaily(object):
                     ] \
                 ]
             dailyReportContentSource = dailyReportContentSource + tabulate(table, headers, tablefmt="fancy_grid") + "\n"
-        else:
-            headers = ["", "Captured"]
-            table = [ \
-                ["JPG", currentSourceReport['capture']['JPG']['count']] \
-                , ["RAW", currentSourceReport['capture']['RAW']['count']] \
-                ]
-            dailyReportContentSource = dailyReportContentSource + tabulate(table, headers, tablefmt="fancy_grid") + "\n"
+
         return dailyReportContentSource
 
     def generateReport(self, currentSource, currentReportDay, sourceSchedule):
