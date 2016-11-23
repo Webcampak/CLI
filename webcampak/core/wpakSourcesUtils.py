@@ -16,7 +16,7 @@
 
 import os
 from wpakConfigObj import Config
-
+from wpakFileUtils import fileUtils
 
 class sourcesUtils:
     def __init__(self, parentClass):
@@ -28,6 +28,7 @@ class sourcesUtils:
         self.dirSources = self.configPaths.getConfig('parameters')['dir_sources']
 
         self.configGeneral = parentClass.configGeneral
+        self.fileUtils = fileUtils(self)
 
     def getSourcesIds(self):
         self.log.info("sourcesUtils.getSources(): " + _("Start"))
@@ -53,3 +54,17 @@ class sourcesUtils:
                     'currentSource': str(currentSource)})
         activeSourcesIds.sort()
         return activeSourcesIds
+
+    def getLatestPicture(self, sourceId):
+        self.log.debug("sourcesUtils.getLatestPicture(): " + _("Start"))
+        self.log.info("sourcesUtils.getLatestPicture(): " + _("Scanning source: %(sourceId)s") % {'sourceId': str(sourceId)})
+
+        dirCurrentSourcePictures = self.dirSources + 'source' + str(sourceId) + '/' + self.configPaths.getConfig('parameters')['dir_source_pictures']
+        for listpictdir in sorted(os.listdir(dirCurrentSourcePictures), reverse=True):
+            if listpictdir[:2] == "20" and os.path.isdir(dirCurrentSourcePictures + listpictdir):
+                for listpictfiles in sorted(os.listdir(dirCurrentSourcePictures + listpictdir), reverse=True):
+                    if listpictfiles[:2] == "20" and self.fileUtils.CheckJpegFile(dirCurrentSourcePictures + listpictdir + "/" + listpictfiles) == True:
+                        self.log.info("fileUtils.getLatestPicture(): " + _("Last Picture: %(lastScannedPicture)s") % {'lastScannedPicture': str(dirCurrentSourcePictures + listpictdir + "/" + listpictfiles)})
+                        return listpictfiles
+                        break;
+                break;

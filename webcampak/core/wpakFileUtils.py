@@ -22,13 +22,11 @@ import datetime
 from dateutil import tz
 import time
 
-
 class fileUtils:
     def __init__(self, parentClass):
         self.log = parentClass.log
         self.config_dir = parentClass.config_dir
         self.configPaths = parentClass.configPaths
-        self.configSource = parentClass.configSource
         self.configGeneral = parentClass.configGeneral
 
         # self.dirEtc = self.configPaths.getConfig('parameters')['dir_etc']
