@@ -21,7 +21,6 @@ import yaml
 
 from configobj import ConfigObj
 
-
 # This class is used to set or get values from configobj functions
 class Config:
     def __init__(self, log, filePath):
@@ -50,7 +49,10 @@ class Config:
     ## key: configuration key
     # Return: configuration value
     def getConfig(self, key):
-        return self.currentConfig[key]
+        if key in self.currentConfig:
+            return self.currentConfig[key]
+        else:
+            return None
 
     # Function: setConfig
     # Description; Function used to set configuration settings

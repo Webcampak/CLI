@@ -166,7 +166,7 @@ class reportsDaily(object):
                                 'jsonReportFile': str(jsonReportFile)})
 
         self.log.info("reportsDaily.run(): " + _("Getting ready to send reports"))
-        for currentUser in self.dbUtils.getUserWithSourceAlerts():
+        for currentUser in self.dbUtils.getUsersWithSourceAlerts():
             self.sendReportEmail(currentUser, emailReports)
 
     def sendReportEmail(self, currentUser, emailReports):

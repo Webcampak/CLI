@@ -60,8 +60,8 @@ class dbUtils:
             users.append({'name': firstname + ' ' + lastname, 'email': email})
         return users
 
-    def getUserWithSourceAlerts(self):
-        self.log.debug("dbUtils.getUserWithSourceAlerts(): " + _("Start"))
+    def getUsersWithSourceAlerts(self):
+        self.log.debug("dbUtils.getUsersWithSourceAlerts(): " + _("Start"))
         if (self.dbConnection == None):
             self.openDb()
 
@@ -90,6 +90,27 @@ class dbUtils:
                 userSources.append({'sourceid': sourceId, 'name': sourceName})
 
             users.append({'useId': useId, 'name': firstname + ' ' + lastname, 'email': email, 'sources': userSources})
+        self.closeDb()
+        return users
+
+    def getUsersAlertsForSource(self, sourceId):
+        self.log.debug("dbUtils.getUsersAlertsForSource(): " + _("Start"))
+        if (self.dbConnection == None):
+            self.openDb()
+
+        dbQuery = "SELECT USE.USE_ID USE_ID, USE.EMAIL EMAIL, USE.FIRSTNAME FIRSTNAME, USE.LASTNAME LASTNAME \
+        FROM USERS USE \
+        LEFT JOIN USERS_SOURCES USESOU ON USE.USE_ID = USESOU.USE_ID \
+        LEFT JOIN SOURCES SOU ON USESOU.SOU_ID = SOU.SOU_ID \
+        WHERE USESOU.ALERTS_FLAG = 'Y' AND SOU.SOU_ID = :souId\
+        GROUP BY USE.USE_ID\
+        ORDER BY USE.USERNAME";
+
+        self.dbCursor.execute(dbQuery, {'souId': sourceId})
+        users = []
+        for row in self.dbCursor.fetchall():
+            useId, email, firstname, lastname = row
+            users.append({'useId': useId, 'name': firstname + ' ' + lastname, 'email': email})
         self.closeDb()
         return users
 

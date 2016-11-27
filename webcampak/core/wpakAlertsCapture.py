@@ -21,6 +21,7 @@ import json
 from datetime import tzinfo, timedelta, datetime
 import pytz
 from dateutil import tz
+import dateutil.parser
 from tabulate import tabulate
 import socket
 
@@ -127,90 +128,191 @@ class alertsCapture(object):
             sourceAlerts = self.sourcesUtils.getActiveSourcesIds()
 
         for currentSource in sourceAlerts:
-            self.log.info("alertsCapture.run(): " + _("Processing source: %(currentSource)s") % {'currentSource': str(currentSource)})
+            self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Processing source: %(currentSource)s") % {'currentSource': str(currentSource)})
             configSource = Config(self.log, self.dirEtc + 'config-source' + str(currentSource) + '.cfg')
-            cfgemailschedulealert = configSource.getConfig('cfgemailschedulealert')
+            if configSource.getConfig('cfgemailerroractivate') == "yes" and (configSource.getConfig('cfgemailalerttime') == "yes" or configSource.getConfig('cfgemailalertscheduleslot') == "yes"  or configSource.getConfig('cfgemailalertscheduledelay') == "yes"):
+                self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Email alerts are enabled for this source") % {'currentSource': str(currentSource)})
 
-            if cfgemailschedulealert == "yes":
-                sourceSchedule = self.getSourceSchedule(currentSource)
-                if sourceSchedule != {}:
-                    self.log.info("alertsCapture.run(): " + _("The Alert Schedule is available for the source"))
-                    cfgemailalertfailure = configSource.getConfig('cfgemailalertfailure')
-                    cfgemailalertreminder = configSource.getConfig('cfgemailalertreminder')
-                    self.log.info("alertsCapture.run(): " + _("Send an email after %(cfgemailalertfailure)s capture failures") % {'cfgemailalertfailure': str(cfgemailalertfailure)})
-                    self.log.info("alertsCapture.run(): " + _("Send a reminder every %(cfgemailalertreminder)s capture failures") % {'cfgemailalertreminder': str(cfgemailalertreminder)})
+                currentTime = self.timeUtils.getCurrentSourceTime(configSource)
+                latestPicture = self.sourcesUtils.getLatestPicture(currentSource)
+                lastCaptureTime = self.timeUtils.getTimeFromFilename(latestPicture, configSource)
+                secondsDiff = int((currentTime-lastCaptureTime).total_seconds())
 
-                    latestPicture = self.sourcesUtils.getLatestPicture(currentSource)
-                    self.log.info("alertsCapture.run(): " + _("Last picture: %(latestPicture)s") % {'latestPicture': str(latestPicture)})
+                self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Last picture: %(latestPicture)s") % {'currentSource': str(currentSource), 'latestPicture': str(latestPicture)})
+                self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Current Source Time: %(currentTime)s") % {'currentSource': str(currentSource), 'currentTime': str(currentTime.isoformat())})
+                self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Last Capture Time: %(lastCaptureTime)s") % {'currentSource': str(currentSource), 'lastCaptureTime': str(lastCaptureTime.isoformat())})
+                self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Seconds since last capture: %(secondsDiff)s") % {'currentSource': str(currentSource), 'secondsDiff': str(secondsDiff)})
 
-                    currentSourceTime = self.timeUtils.getCurrentSourceTime(configSource)
-                    lastCaptureTime = self.timeUtils.getTimeFromFilename(latestPicture, configSource)
+                alertsFile = self.dirSources + "source" + str(currentSource) + "/resources/alerts/" + currentTime.strftime("%Y%m%d") + ".jsonl";
+                lastAlertFile = self.dirSources + "source" + str(currentSource) + "/resources/alerts/last-alert.json";
+                lastEmailFile = self.dirSources + "source" + str(currentSource) + "/resources/alerts/last-email.json";
+                self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Alerts Log file: %(alertsFile)s") % {'currentSource': str(currentSource), 'alertsFile': alertsFile})
+                self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Last Alert file: %(alertsFile)s") % {'currentSource': str(currentSource), 'alertsFile': lastAlertFile})
+                self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Last Email file: %(alertsFile)s") % {'currentSource': str(currentSource), 'alertsFile': lastEmailFile})
 
-                    self.log.info("alertsCapture.run(): " + _("Current Source Time: %(currentSourceTime)s") % {'currentSourceTime': str(currentSourceTime.isoformat())})
-                    self.log.info("alertsCapture.run(): " + _("Last Capture Time: %(lastCaptureTime)s") % {'lastCaptureTime': str(lastCaptureTime.isoformat())})
+                lastAlert = alertObj(self.log, lastAlertFile)
+                lastAlert.loadAlertFile()
 
-                    secondsDiff = int((currentSourceTime-lastCaptureTime).total_seconds())
-                    self.log.info("alertsCapture.run(): " + _("Seconds since last capture: %(secondsDiff)s") % {'secondsDiff': str(secondsDiff)})
+                lastEmail = alertObj(self.log, lastEmailFile)
+                lastEmail.loadAlertFile()
 
-                    missedCapture = self.getCountMissedSlots(currentSourceTime, lastCaptureTime, sourceSchedule)
-                    self.log.info("alertsCapture.run(): " + _("Total Missed Captures: %(missedCapture)s") % {'missedCapture': missedCapture})
-
-                    nextCaptureTime = self.getNextCaptureSlot(currentSourceTime, sourceSchedule, configSource)
-                    self.log.info("alertsCapture.run(): " + _("Next Planned Capture Time: %(nextCaptureTime)s") % {'nextCaptureTime': str(nextCaptureTime.isoformat())})
-
-                    incidentFile = None
-                    if missedCapture == 0:
-                        alertStatus = "GOOD"
-                    elif missedCapture > 0 and int(cfgemailalertfailure) > missedCapture:
-                        alertStatus = "LATE"
-                    elif missedCapture >= int(cfgemailalertfailure):
-                        alertStatus = "ERROR"
-                        incidentFile = latestPicture[0:14] + ".jsonl"
-                    self.log.info("alertsCapture.run(): " + _("Current Alert Status: %(alertStatus)s") % {'alertStatus': str(alertStatus)})
-
-                    alertsFile = self.dirSources + "source" + str(currentSource) + "/resources/alerts/" + latestPicture[0:8] + ".jsonl";
-                    self.log.info("alertsCapture.run(): " + _("Saving to Alerts file: %(alertsFile)s") % {'alertsFile': str(alertsFile)})
-
-                    alertObject = alertObj(self.log, alertsFile)
-                    alertObject.setAlertValue("sourceid", currentSource)
-                    alertObject.setAlertValue("currentSourceTime", currentSourceTime.isoformat())
-                    alertObject.setAlertValue("lastCaptureTime", lastCaptureTime.isoformat())
-                    alertObject.setAlertValue("nextCaptureTime", nextCaptureTime.isoformat())
-                    alertObject.setAlertValue("secondsSinceLastCapture", secondsDiff)
-                    alertObject.setAlertValue("missedCapture", missedCapture)
-                    alertObject.setAlertValue("status", alertStatus)
-                    alertObject.setAlertValue("incidentFile", incidentFile)
-                    alertObject.archiveAlertFile()
-
-                    currentAlerts[currentSource] = alertObject.getAlert()
-
+                if lastEmail.getAlert() != {}:
+                    lastEmailTime = dateutil.parser.parse(lastEmail.getAlertValue("currentTime"))
+                    secondsSinceLastEmail = int((currentTime-lastEmailTime).total_seconds())
+                    self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Seconds since last email: %(secondsSinceLastEmail)s") % {'currentSource': str(currentSource), 'secondsSinceLastEmail': str(secondsSinceLastEmail)})
                 else:
-                    self.log.info("alertsCapture.run(): " + _("Alert Schedule is empty for the source"))
+                    secondsSinceLastEmail = None
+
+                if configSource.getConfig('cfgemailalerttime') == "yes":
+                    self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Time based alert enabled") % {'currentSource': str(currentSource)})
+                    self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Time based: cfgemailalerttime: %(cfgemailalerttime)s") % {'currentSource': str(currentSource), 'cfgemailalerttime': str(configSource.getConfig('cfgemailalerttime'))})
+                    self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Time based: cfgemailalerttimefailure: %(cfgemailalerttimefailure)s") % {'currentSource': str(currentSource), 'cfgemailalerttimefailure': str(configSource.getConfig('cfgemailalerttimefailure'))})
+                    self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Time based: cfgemailalerttimereminder: %(cfgemailalerttimereminder)s") % {'currentSource': str(currentSource), 'cfgemailalerttimereminder': str(configSource.getConfig('cfgemailalerttimereminder'))})
+
+                    # Determine if source id in an error state
+                    minutesDiff = int(secondsDiff / 60)
+                    self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Time based: Minutes since last capture: %(minutesDiff)s") % {'currentSource': str(currentSource), 'minutesDiff': str(minutesDiff)})
+                    if minutesDiff >= int(configSource.getConfig('cfgemailalerttimefailure')):
+                        alertStatus = "ERROR"
+                    else:
+                        alertStatus = "GOOD"
+                    self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Time based alert Status: %(alertStatus)s") % {'currentSource': str(currentSource), 'alertStatus': alertStatus})
+
+                if configSource.getConfig('cfgemailalertscheduleslot') == "yes" or configSource.getConfig('cfgemailalertscheduledelay') == "yes":
+
+                    sourceSchedule = self.getSourceSchedule(currentSource)
+                    if sourceSchedule != {}:
+                        self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - An alert schedule is available for the source") % {'currentSource': str(currentSource)})
+
+                        missedCapture = self.getCountMissedSlots(currentTime, lastCaptureTime, sourceSchedule)
+                        nextCaptureTime = self.getNextCaptureSlot(currentTime, sourceSchedule, configSource)
+
+                        self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Total Missed Captures: %(missedCapture)s") % {'currentSource': str(currentSource), 'missedCapture': missedCapture})
+                        self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Next Planned Capture Time: %(nextCaptureTime)s") % {'currentSource': str(currentSource), 'nextCaptureTime': str(nextCaptureTime.isoformat())})
+
+                        if configSource.getConfig('cfgemailalertscheduleslot') == "yes":
+                            self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Schedule slot based alert enabled") % {'currentSource': str(currentSource)})
+                            self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Schedule slot based: cfgemailalertscheduleslot: %(cfgemailalertscheduleslot)s") % {'currentSource': str(currentSource), 'cfgemailalertscheduleslot': str(configSource.getConfig('cfgemailalertscheduleslot'))})
+                            self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Schedule slot based: cfgemailalertscheduleslotfailure: %(cfgemailalertscheduleslotfailure)s") % {'currentSource': str(currentSource), 'cfgemailalertscheduleslotfailure': str(configSource.getConfig('cfgemailalertscheduleslotfailure'))})
+                            self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Schedule slot based: cfgemailalertscheduleslotreminder: %(cfgemailalertscheduleslotreminder)s") % {'currentSource': str(currentSource), 'cfgemailalertscheduleslotreminder': str(configSource.getConfig('cfgemailalertscheduleslotreminder'))})
+
+                            cfgemailalertscheduleslotfailure = int(configSource.getConfig('cfgemailalertscheduleslotfailure'))
+                            if missedCapture == 0:
+                                alertStatus = "GOOD"
+                            elif missedCapture > 0 and int(cfgemailalertscheduleslotfailure) > missedCapture:
+                                alertStatus = "LATE"
+                            elif missedCapture >= int(cfgemailalertscheduleslotfailure):
+                                alertStatus = "ERROR"
+                            self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Schedule slot Alert Status: %(alertStatus)s") % {'currentSource': str(currentSource), 'alertStatus': str(alertStatus)})
+
+
+                        cfgemailschedulealert = configSource.getConfig('cfgemailschedulealert')
+                        cfgemailalertfailure = configSource.getConfig('cfgemailalertfailure')
+                        cfgemailalertreminder = configSource.getConfig('cfgemailalertreminder')
+                        self.log.info("alertsCapture.run(): " + _("Send an email after %(cfgemailalertfailure)s capture failures") % {'cfgemailalertfailure': str(cfgemailalertfailure)})
+                        self.log.info("alertsCapture.run(): " + _("Send a reminder every %(cfgemailalertreminder)s capture failures") % {'cfgemailalertreminder': str(cfgemailalertreminder)})
+
+
+                        if missedCapture == 0:
+                            alertStatus = "GOOD"
+                        elif missedCapture > 0 and int(cfgemailalertfailure) > missedCapture:
+                            alertStatus = "LATE"
+                        elif missedCapture >= int(cfgemailalertfailure):
+                            alertStatus = "ERROR"
+                        self.log.info("alertsCapture.run(): " + _("Current Alert Status: %(alertStatus)s") % {'alertStatus': str(alertStatus)})
+
+                        currentAlert = alertObj(self.log, alertsFile)
+                        currentAlert.setAlertValue("sourceid", currentSource)
+                        currentAlert.setAlertValue("currentTime", currentTime.isoformat())
+                        currentAlert.setAlertValue("lastCaptureTime", lastCaptureTime.isoformat())
+                        currentAlert.setAlertValue("nextCaptureTime", nextCaptureTime.isoformat())
+                        currentAlert.setAlertValue("missedCapture", missedCapture)
+                        currentAlert.setAlertValue("secondsSinceLastCapture", secondsDiff)
+                        currentAlert.setAlertValue("secondsSinceLastEmail", None)
+                        currentAlert.setAlertValue("missedCapturesSinceLastEmail", None)
+                        currentAlert.setAlertValue("status", alertStatus)
+
+                        # This section is used to determine if an alert or a reminder should be sent
+                        # Is the source currently considered to be failing to capture pictures based on configured threshold
+                        if int(missedCapture) >= int(cfgemailalertfailure) and int(cfgemailalertfailure) != 0:
+                            self.log.info("alertsCapture.run(): " + _("Missed captures above configured threshold: %(missedCapture)s/%(cfgemailalertfailure)s") % {'missedCapture': str(missedCapture), 'cfgemailalertfailure': str(cfgemailalertfailure)})
+                            if lastEmail.getAlert() == {}:
+                                # There was no email sent before for this particular source, sending a new email
+                                self.log.info("alertsCapture.run(): " + _("There was not email sent previously, requesting a new email to be sent"))
+                                currentAlert.setAlertValue("email", True)
+                                currentAlert.setAlertValue("emailType", "NEW")
+                                currentAlert.setAlertValue("missedCapturesSinceLastEmail", 0)
+                                currentAlert.setAlertValue("secondsSinceLastEmail", 0)
+                            elif lastEmail.getAlertValue("lastCaptureTime") != lastCaptureTime.isoformat():
+                                # The last email sent was for a different picture
+                                self.log.info("alertsCapture.run(): " + _("Last captured pictures in last sent email is different, requesting a new email to be sent"))
+                                currentAlert.setAlertValue("email", True)
+                                currentAlert.setAlertValue("emailType", "NEW")
+                                currentAlert.setAlertValue("missedCapturesSinceLastEmail", 0)
+                                currentAlert.setAlertValue("secondsSinceLastEmail", 0)
+                            else:
+                                # There was an email sent before for the source, analyzing previous email to determine action
+                                lastEmailMissedCaptures = lastEmail.getAlertValue("missedCapture")
+                                self.log.info("alertsCapture.run(): " + _("Last Email Missed Captures: %(lastEmailMissedCaptures)s") % {'lastEmailMissedCaptures': str(lastEmailMissedCaptures)})
+
+                                missedCaptureSinceLastEmail = missedCapture - lastEmailMissedCaptures
+                                currentAlert.setAlertValue("missedCapturesSinceLastEmail", missedCaptureSinceLastEmail)
+                                self.log.info("alertsCapture.run(): " + _("Missed Capture since last email: %(missedCaptureSinceLastEmail)s") % {'missedCaptureSinceLastEmail': str(missedCaptureSinceLastEmail)})
+
+
+                                if missedCaptureSinceLastEmail >= int(cfgemailalertreminder):
+                                    # Number of failed captures since last email is above threshold, sending a reminder email
+                                    self.log.info("alertsCapture.run(): " + _("Missed captures above configured threshold: %(missedCaptureSinceLastEmail)s/%(cfgemailalertreminder)s") % {'missedCaptureSinceLastEmail': str(missedCaptureSinceLastEmail), 'cfgemailalertreminder': str(cfgemailalertreminder)})
+                                    self.log.info("alertsCapture.run(): " + _("Requesting a reminder to be email to be sent"))
+                                    currentAlert.setAlertValue("email", True)
+                                    currentAlert.setAlertValue("emailType", "REMINDER")
+                                    currentAlert.setAlertValue("missedCapturesSinceLastEmail", 0)
+                                    currentAlert.setAlertValue("secondsSinceLastEmail", 0)
+                                else:
+                                    # Number of failed captures is not sufficient to trigger email to be sent, but numbers are recorded
+                                    self.log.info("alertsCapture.run(): " + _("Missed captures below configured threshold: %(missedCaptureSinceLastEmail)s/%(cfgemailalertreminder)s") % {'missedCaptureSinceLastEmail': str(missedCaptureSinceLastEmail), 'cfgemailalertreminder': str(cfgemailalertreminder)})
+                                    self.log.info("alertsCapture.run(): " + _("There has not been sufficient failure since last email, no email will be sent"))
+                                    currentAlert.setAlertValue("email", False)
+                                    currentAlert.setAlertValue("missedCapturesSinceLastEmail", missedCaptureSinceLastEmail)
+                                    currentAlert.setAlertValue("secondsSinceLastEmail", secondsSinceLastEmail)
+
+                        if currentAlert.getAlertValue("email") == True:
+                            currentAlert.writeAlertFile(lastEmailFile)
+
+                        currentAlert.archiveAlertFile()
+                        currentAlert.writeAlertFile(lastAlertFile)
+
+                        currentAlerts[currentSource] = currentAlert.getAlert()
+                    else:
+                        self.log.info("alertsCapture.run(): " + _("Alert Schedule is empty for the source"))
             else:
                 self.log.info("alertsCapture.run(): " + _("Schedule based email alerts disabled for the source"))
 
             self.log.info("alertsCapture.run(): " + _("---------"))
 
-        self.processUserAlerts(currentAlerts)
+        #self.processUserAlerts(currentAlerts)
 
     def processUserAlerts(self, currentAlerts):
         """ Analyze current errors and process """
         self.log.debug("alertsCapture.processUserAlerts(): " + _("Start"))
-        for currentUser in self.dbUtils.getUserWithSourceAlerts():
-            self.log.info("alertsCapture.processUserAlerts(): " + _("Processing user %(name)s - email: %(email)s") % {'name': currentUser['name'], 'email': currentUser['email']})
+        for currentAlert in currentAlerts:
+            curAlert = currentAlerts[currentAlert]
+            self.log.info("alertsCapture.processUserAlerts(): " + _("Processing Alert for source %(currentSource)s") % {'currentSource': curAlert["sourceid"]})
+            curUsers = self.dbUtils.getUsersAlertsForSource(curAlert["sourceid"])
+            incidentsFile = self.dirSources + "source" + str(curAlert["sourceid"]) + "/resources/alerts/incidents/" + curAlert["incidentFile"];
+            self.log.info("alertsCapture.run(): " + _("Saving to Alerts file: %(incidentsFile)s") % {'incidentsFile': incidentsFile})
 
-
-    def getNextCaptureSlot(self, currentSourceTime, sourceSchedule, configSource):
+    def getNextCaptureSlot(self, currentTime, sourceSchedule, configSource):
         """ Calculates the next expected capture slot based on calendar """
         self.log.debug("alertsCapture.getNextCaptureSlot(): " + _("Start"))
 
-        sourceTimeDayOfWeek = currentSourceTime.strftime("%w")
+        sourceTimeDayOfWeek = currentTime.strftime("%w")
         if sourceTimeDayOfWeek == 0: # Sunday is 7, not 0
             sourceTimeDayOfWeek = 7
-        sourceTimeHour = currentSourceTime.strftime("%H")
-        sourceTimeMinute = currentSourceTime.strftime("%M")
-        sourceTimeWeek = currentSourceTime.strftime("%W")
-        sourceTimeYear = currentSourceTime.strftime("%Y")
+        sourceTimeHour = currentTime.strftime("%H")
+        sourceTimeMinute = currentTime.strftime("%M")
+        sourceTimeWeek = currentTime.strftime("%W")
+        sourceTimeYear = currentTime.strftime("%Y")
         sourceTargetWeek = sourceTimeWeek
         sourceTime = int(str(sourceTimeDayOfWeek) + str(sourceTimeHour) + str(sourceTimeMinute))
 
@@ -234,10 +336,10 @@ class alertsCapture(object):
         # Build next capture date
         targetDayOfWeek = int(str(scanTime)[0])
         if (targetDayOfWeek == 7):
-            sourceTargetWeek = sourceTargetWeek + 1
+            sourceTargetWeek = int(sourceTargetWeek) + 1
             targetDayOfWeek = 0
         if sourceTargetWeek == 53:
-            sourceTimeYear = sourceTimeYear + 1
+            sourceTimeYear = int(sourceTimeYear) + 1
             sourceTargetWeek = 0
 
         nextCaptureTime = datetime.strptime(str(sourceTimeYear) + "-" + str(sourceTargetWeek) + "-" + str(targetDayOfWeek) + "-" + str(nextScanTime)[1:3] + "-" + str(nextScanTime)[3:6], "%Y-%W-%w-%H-%M")
@@ -250,17 +352,17 @@ class alertsCapture(object):
         return nextCaptureTime
 
 
-    def getCountMissedSlots(self, currentSourceTime, lastCaptureTime, sourceSchedule):
+    def getCountMissedSlots(self, currentTime, lastCaptureTime, sourceSchedule):
         """ Calculate the number of missed slots between last captured picture and current date using capture schedule """
         self.log.debug("alertsCapture.getCountMissedSlots(): " + _("Start"))
 
-        sourceTimeDayOfWeek = currentSourceTime.strftime("%w")
+        sourceTimeDayOfWeek = currentTime.strftime("%w")
         if sourceTimeDayOfWeek == 0: # Sunday is 7, not 0
             sourceTimeDayOfWeek = 7
-        sourceTimeHour = currentSourceTime.strftime("%H")
-        sourceTimeMinute = currentSourceTime.strftime("%M")
-        sourceTimeWeek = currentSourceTime.strftime("%W")
-        sourceTimeYear = currentSourceTime.strftime("%Y")
+        sourceTimeHour = currentTime.strftime("%H")
+        sourceTimeMinute = currentTime.strftime("%M")
+        sourceTimeWeek = currentTime.strftime("%W")
+        sourceTimeYear = currentTime.strftime("%Y")
         sourceTime = int(str(sourceTimeDayOfWeek) + str(sourceTimeHour) + str(sourceTimeMinute))
 
         captureTimeDayOfWeek = lastCaptureTime.strftime("%w")

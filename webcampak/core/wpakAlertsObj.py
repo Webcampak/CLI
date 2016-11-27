@@ -18,6 +18,7 @@ import os
 import json
 import dateutil.parser
 import jsonschema
+import subprocess
 
 from wpakFileUtils import fileUtils
 
@@ -27,17 +28,17 @@ class alertObj(object):
     
     Args:
         log: A class, the logging interface
-        fileAlertsLog: A string, path to a jsonl file containing an archive of all capture objects for a specific day
+        alertFile: A string, path to a jsonl file containing an archive of all capture objects for a specific day
     	
     Attributes:
         log: A class, the logging interface
-        fileAlertsLog: A string, path to a jsonl file containing an archive of all capture objects for a specific day
+        alertFile: A string, path to a jsonl file containing an archive of all capture objects for a specific day
         lastAlert: A dictionary, containing all values of the capture object
     """
 
-    def __init__(self, log, fileAlertsLog=None):
+    def __init__(self, log, alertFile=None):
         self.log = log
-        self.fileAlertsLog = fileAlertsLog
+        self.alertFile = alertFile
 
         # Declare the schema used   
         # The schema is validate each time single values are set or the entire dictionary is loaded or set
@@ -50,12 +51,16 @@ class alertObj(object):
             , "properties": {
                 "sourceid": {"type": ["number", "null"], "description": "ID of the source"}
                 , "status": {"type": ["string", "null"], "description": "Status of the alert (GOOD, ERROR, LATE)"}
-                , "currentSourceTime": {"type": ["string", "null"], "description": "Current time for the source"}
+                , "email": {"type": ["boolean", "null"], "description": "Record if an email will be sent"}
+                , "emailType": {"type": ["string", "null"], "description": "Type of the email (NEW, REMINDER)"}
+                , "currentTime": {"type": ["string", "null"], "description": "Current time for the source"}
                 , "lastCaptureTime": {"type": ["string", "null"], "description": "Last time capture was done according to schedule"}
                 , "nextCaptureTime": {"type": ["string", "null"], "description": "Next time a capture is scheduled"}
                 , "secondsSinceLastCapture": {"type": ["number", "null"], "description": "Number of seconds between current source time and last schedule-based capture"}
                 , "missedCapture": {"type": ["number", "null"], "description": "Number of missed captures as per the calendar"}
                 , "incidentFile": {"type": ["string", "null"], "description": "Filename used to record the incident"}
+                , "missedCapturesSinceLastEmail": {"type": ["number", "null"], "description": "Number of missed captures since last email"}
+                , "secondsSinceLastEmail": {"type": ["number", "null"], "description": "Number of seconds since last email"}
             }
         }
         self.initAlert()
@@ -79,13 +84,12 @@ class alertObj(object):
         jsonschema.validate(self.lastAlert, self.schema)
         return self.lastAlert
 
-    def setAlertFile(self, captureFile):
-        self.log.info(
-            "alertObj.setAlertFile(): " + _("Alert file set to: %(captureFile)s") % {'captureFile': captureFile})
-        self.captureFile = captureFile
+    def setAlertFile(self, alertFile):
+        self.log.info("alertObj.setAlertFile(): " + _("Alert file set to: %(alertFile)s") % {'alertFile': alertFile})
+        self.alertFile = alertFile
 
     def getAlertFile(self):
-        return self.captureFile
+        return self.alertFile
 
     def initAlert(self):
         """Initialize the object values to 0 or None"""
@@ -112,13 +116,14 @@ class alertObj(object):
         else:
             self.initAlert()
 
-    def writeAlertFile(self):
+    def writeAlertFile(self, alertFile = None):
         """Write the content of the object into a capture file"""
         self.log.debug("alertObj.writeAlertFile(): " + _("Start"))
-        if self.writeJsonFile(self.captureFile, self.getAlert()) == True:
-            self.log.info(
-                "alertObj.writeAlertFile(): " + _("Successfully saved last capture file to: %(captureFile)s") % {
-                    'captureFile': str(self.captureFile)})
+        if alertFile == None:
+            alertFile = self.alertFile
+        self.log.info("alertObj.writeAlertFile(): " + _("Preparing to write to: %(alertFile)s") % {'alertFile': str(alertFile)})
+        if self.writeJsonFile(alertFile, self.getAlert()) == True:
+            self.log.info("alertObj.writeAlertFile(): " + _("Successfully saved last capture file to: %(alertFile)s") % {'alertFile': str(alertFile)})
             return True
         else:
             self.log.error("alertObj.writeAlertFile(): " + _("Error saving last capture file"))
@@ -127,21 +132,27 @@ class alertObj(object):
     def archiveAlertFile(self):
         """Append the content of the object into a log file containing previous captures"""
         self.log.debug("alertObj.archiveAlertFile(): " + _("Start"))
-        if self.archiveJsonFile(self.fileAlertsLog, self.getAlert()) == True:
-            self.log.info(
-                "alertObj.archiveAlertFile(): " + _("Successfully archived capture file to: %(captureFile)s") % {
-                    'captureFile': str(self.fileAlertsLog)})
+        if self.archiveJsonFile(self.alertFile, self.getAlert()) == True:
+            self.log.info("alertObj.archiveAlertFile(): " + _("Successfully archived capture file to: %(alertFile)s") % {'alertFile': str(self.alertFile)})
             return True
         else:
             self.log.error("alertObj.archiveAlertFile(): " + _("Error saving last capture file"))
             return False
 
+    def loadLastAlert(self):
+        """Load the last alert into the object"""
+        self.log.debug("alertObj.loadLastAlert(): " + _("Start"))
+        if os.path.isfile(self.alertFile):
+            alertJson = self.getLastLine(self.alertFile)
+            self.lastAlert = json.loads(alertJson)
+        else:
+            self.initAlert()
+
     def loadJsonFile(self, jsonFile):
         """Loads the content of a JSON file"""
         self.log.debug("alertObj.loadJsonFile(): " + _("Start"))
         if os.path.isfile(jsonFile):
-            self.log.info(
-                "alertObj.loadJsonFile(): " + _("Load JSON file into memory: %(jsonFile)s") % {'jsonFile': jsonFile})
+            self.log.info("alertObj.loadJsonFile(): " + _("Load JSON file into memory: %(jsonFile)s") % {'jsonFile': jsonFile})
             with open(jsonFile) as threadJsonFile:
                 threadJson = json.load(threadJsonFile)
                 return threadJson
@@ -164,3 +175,8 @@ class alertObj(object):
                 threadJsonFile.write(json.dumps(jsonContent) + '\n')
             return True
         return False
+
+    def getLastLine(self, jsonFile):
+        """Append the content of a dictionary to a JSONL file"""
+        self.log.info("alertObj.getLastLine(): " + _("Get last alert line of file: %(jsonFile)s") % {'jsonFile': jsonFile})
+        return subprocess.check_output(['tail', '-1', jsonFile])[0:-1]
