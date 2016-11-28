@@ -322,6 +322,7 @@ class Capture(object):
                     processedPicturesCount = processedPicturesCount + 1
 
                     # We check if the previous capture was failing, if yes, send a capture success email
+                    """
                     if os.path.isfile(self.dirCache + "source" + self.currentSourceId + "-errorcount"):
                         currentErrorCount = self.captureUtils.getCustomCounter('errorcount')
                         self.log.info("capture.run(): " + _(
@@ -350,13 +351,14 @@ class Capture(object):
                         os.remove(self.dirCache + "source" + self.currentSourceId + "-errorcountemail")
                     if os.path.isfile(self.dirCache + "source" + self.currentSourceId + "-errorcountphidget"):
                         os.remove(self.dirCache + "source" + self.currentSourceId + "-errorcountphidget")
-
+                    """
                 self.log.info("capture.run(): " + _("Capture process completed"))
                 self.currentCaptureDetails.setCaptureValue('captureSuccess', True)
             else:
                 self.log.info("capture.run(): " + _("Unable to capture picture"))
                 self.captureUtils.generateFailedCaptureHotlink()
                 self.currentCaptureDetails.setCaptureValue('captureSuccess', False)
+                """
                 previousErrorCount = self.captureUtils.getCustomCounter('errorcount')
                 self.log.info("capture.run(): " + _("Previous Error Count was: %(previousErrorCount)s") % {
                     'previousErrorCount': previousErrorCount})
@@ -394,6 +396,7 @@ class Capture(object):
                             self.captureEmails.sendCaptureError(currentErrorCount,
                                                                 self.lastCaptureDetails.getLastCaptureTime())
                             self.captureUtils.setCustomCounter("errorcountemail", "1")
+                """
 
             if self.configSource.getConfig('cfgcapturedeleteafterdays') != "0":
                 # Purge old pictures (by day)

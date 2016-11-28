@@ -54,6 +54,7 @@ class alertObj(object):
                 , "email": {"type": ["boolean", "null"], "description": "Record if an email will be sent"}
                 , "emailType": {"type": ["string", "null"], "description": "Type of the email (NEW, REMINDER)"}
                 , "currentTime": {"type": ["string", "null"], "description": "Current time for the source"}
+                , "lastPicture": {"type": ["string", "null"], "description": "Filename of the last picture captured"}
                 , "lastCaptureTime": {"type": ["string", "null"], "description": "Last time capture was done according to schedule"}
                 , "nextCaptureTime": {"type": ["string", "null"], "description": "Next time a capture is scheduled"}
                 , "secondsSinceLastCapture": {"type": ["number", "null"], "description": "Number of seconds between current source time and last schedule-based capture"}
