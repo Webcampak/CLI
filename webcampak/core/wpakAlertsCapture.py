@@ -244,7 +244,6 @@ class alertsCapture(object):
                     else:
                         self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Alert Schedule is empty for the source") % {'currentSource': str(currentSource)})
 
-                # Build Alert Object
                 # Determine overall Alert Status
                 if (timeAlertStatus == "ERROR" or scheduleAlertStatus == "ERROR"):
                     alertStatus = "ERROR"
@@ -259,18 +258,29 @@ class alertsCapture(object):
                 currentAlert.setAlertValue("status", alertStatus)
                 self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Overeall alert status: %(alertStatus)s") % {'currentSource': str(currentSource), 'alertStatus': str(alertStatus)})
 
+                lastAlertMissedCapture = lastAlert.getAlertValue("missedCapture")
+                lastAlertMinutesDiff = lastAlert.getAlertValue("minutesDiff")
+                self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Validator for email alerts: cfgemailalwaysnotify: %(cfgemailalwaysnotify)s") % {'currentSource': str(currentSource), 'cfgemailalwaysnotify': configSource.getConfig('cfgemailalwaysnotify')})
+                self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Validator for email alerts: cfgemailalerttime: %(cfgemailalerttime)s") % {'currentSource': str(currentSource), 'cfgemailalerttime': configSource.getConfig('cfgemailalwaysnotify')})
+                self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Validator for email alerts: lastAlertMinutesDiff: %(lastAlertMinutesDiff)s") % {'currentSource': str(currentSource), 'lastAlertMinutesDiff': str(lastAlertMinutesDiff)})
+                self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Validator for email alerts: cfgemailalerttimefailure: %(cfgemailalerttimefailure)s") % {'currentSource': str(currentSource), 'cfgemailalerttimefailure': configSource.getConfig('cfgemailalerttimefailure')})
+                self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Validator for email alerts: cfgemailalertscheduleslot: %(cfgemailalertscheduleslot)s") % {'currentSource': str(currentSource), 'cfgemailalertscheduleslot': configSource.getConfig('cfgemailalertscheduleslot')})
+                self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Validator for email alerts: lastAlertMissedCapture: %(lastAlertMissedCapture)s") % {'currentSource': str(currentSource), 'lastAlertMissedCapture': str(lastAlertMissedCapture)})
+                self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Validator for email alerts: cfgemailalertscheduleslotfailure: %(cfgemailalertscheduleslotfailure)s") % {'currentSource': str(currentSource), 'cfgemailalertscheduleslotfailure': configSource.getConfig('cfgemailalertscheduleslotfailure')})
+                self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Validator for email alerts: lastAlert Status: %(lastAlertStatus)s") % {'currentSource': str(currentSource), 'lastAlertStatus': lastAlert.getAlertValue("status")})
+
                 # This section is used to determine if an email alert or a reminder should be sent
                 if alertStatus == "RECOVER":
                     if configSource.getConfig('cfgemailalwaysnotify') == "yes":
                         currentAlert.setAlertValue("email", True)
                         currentAlert.setAlertValue("emailType", "RECOVER")
-                    elif configSource.getConfig('cfgemailalwaysnotify') == "no" and configSource.getConfig('cfgemailalerttime') == "yes" and minutesDiff >= int(configSource.getConfig('cfgemailalerttimefailure')):
+                    elif configSource.getConfig('cfgemailalwaysnotify') == "no" and configSource.getConfig('cfgemailalerttime') == "yes" and (lastAlertMinutesDiff == None or int(lastAlertMinutesDiff) >= int(configSource.getConfig('cfgemailalerttimefailure'))):
                         currentAlert.setAlertValue("email", True)
                         currentAlert.setAlertValue("emailType", "RECOVER")
-                    elif configSource.getConfig('cfgemailalwaysnotify') == "no" and configSource.getConfig('cfgemailalertscheduleslot') == "yes" and missedCapture >= int(cfgemailalertscheduleslotfailure):
+                    elif configSource.getConfig('cfgemailalwaysnotify') == "no" and configSource.getConfig('cfgemailalertscheduleslot') == "yes" and (lastAlertMissedCapture == None or int(lastAlertMissedCapture) >= int(cfgemailalertscheduleslotfailure)):
                         currentAlert.setAlertValue("email", True)
                         currentAlert.setAlertValue("emailType", "RECOVER")
-                elif alertStatus == "ERROR" and (lastAlert.getAlertValue("status") == "GOOD" or lastAlert.getAlertValue("status") == "LATE" or lastEmail.getAlert() == {}):
+                elif alertStatus == "ERROR" and (lastAlert.getAlertValue("status") == "GOOD" or lastAlert.getAlertValue("status") == "LATE" or lastAlert.getAlertValue("status") == "RECOVER" or lastEmail.getAlert() == {}):
                     currentAlert.setAlertValue("email", True)
                     currentAlert.setAlertValue("emailType", "NEW")
 
