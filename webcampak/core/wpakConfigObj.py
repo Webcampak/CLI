@@ -52,6 +52,7 @@ class Config:
         if key in self.currentConfig:
             return self.currentConfig[key]
         else:
+            self.log.error("Config.getConfig(): Unable to find config key: " + str(key))
             return None
 
     # Function: setConfig
