@@ -210,6 +210,18 @@ class alertsCapture(object):
                         self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Schedule slot based: cfgemailalertscheduleslotfailure: %(cfgemailalertscheduleslotfailure)s") % {'currentSource': str(currentSource), 'cfgemailalertscheduleslotfailure': str(configSource.getConfig('cfgemailalertscheduleslotfailure'))})
                         self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Schedule slot based: cfgemailalertscheduleslotreminder: %(cfgemailalertscheduleslotreminder)s") % {'currentSource': str(currentSource), 'cfgemailalertscheduleslotreminder': str(configSource.getConfig('cfgemailalertscheduleslotreminder'))})
 
+                        if configSource.getConfig('cfgemailalertscheduleslotgrace') != "" and int(configSource.getConfig('cfgemailalertscheduleslotgrace')) > 0:
+                            #Offset current date by the grace period, this offset is used to include the time taken by the picture to arrive into the source (for example if uploaded from a remote webcampak)
+                            self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Grace Period: Substracting a grace period of %(gracePeriod)s minutes from current date") % {'currentSource': str(currentSource), 'gracePeriod': configSource.getConfig('cfgemailalertscheduleslotgrace')})
+                            self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Grace Period: Orignial Time %(currentTime)s") % {'currentSource': str(currentSource), 'currentTime': currentTime.isoformat()})
+                            currentTime = currentTime - timedelta(minutes=int(configSource.getConfig('cfgemailalertscheduleslotgrace')))
+                            self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Grace Period: Updated Time %(currentTime)s") % {'currentSource': str(currentSource), 'currentTime': currentTime.isoformat()})
+                            # If the latest picture has been captured after current time, look for an older picture as later captured pictures should be taken in consideration in subsequent script execution
+                            if int(lastCaptureTime.strftime("%Y%m%d%H%M%S")) > int(currentTime.strftime("%Y%m%d%H%M%S")):
+                                self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Latest picture captured after the updated time with grace period. Looking for an older picture") % {'currentSource': str(currentSource)})
+                                latestPicture = self.sourcesUtils.getLatestPicture(currentSource, currentTime)
+                                lastCaptureTime = self.timeUtils.getTimeFromFilename(latestPicture, configSource)
+
                         missedCapture = self.getCountMissedSlots(currentTime, lastCaptureTime, sourceSchedule)
                         nextCaptureTime = self.getNextCaptureSlot(currentTime, sourceSchedule, configSource)
                         currentAlert.setAlertValue("missedCapture", missedCapture)
