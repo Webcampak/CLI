@@ -321,79 +321,12 @@ class Capture(object):
                                                                    storedJpgSize + storedRawSize))
                     processedPicturesCount = processedPicturesCount + 1
 
-                    # We check if the previous capture was failing, if yes, send a capture success email
-                    if os.path.isfile(self.dirCache + "source" + self.currentSourceId + "-errorcount"):
-                        currentErrorCount = self.captureUtils.getCustomCounter('errorcount')
-                        self.log.info("capture.run(): " + _(
-                            "Process found that previous capture(s) failed, error count: %(currentErrorCount)s") % {
-                                          'currentErrorCount': str(currentErrorCount)})
-                        if (currentErrorCount >= int(
-                                self.configSource.getConfig('cfgemailalertfailure')) or self.configSource.getConfig(
-                                'cfgemailalwaysnotify') == "yes") and self.configSource.getConfig(
-                                'cfgemailerroractivate') == "yes":
-                            self.log.info(
-                                "capture.run(): " + _("Preparation of an email to inform that the system is back"))
-                            self.captureEmails.sendCaptureSuccess(self.captureFilename)
-                        else:
-                            self.log.info("capture.run(): " + _(
-                                "Not enough capture errors to trigger an action. Threshold: %(currentErrorThreshold)s errors") % {
-                                              'currentErrorThreshold': str(
-                                                  self.configSource.getConfig('cfgemailalertfailure'))})
-                        self.log.info(
-                            "capture.run(): " + _("Deleting 'errorcount' file for source (to reset error counter)"))
-                        os.remove(self.dirCache + "source" + self.currentSourceId + "-errorcount")
-
-                        # At this point the file is deemed valid, we can therefore delete any possible error count
-                    if os.path.isfile(self.dirCache + "source" + self.currentSourceId + "-errorcount"):
-                        os.remove(self.dirCache + "source" + self.currentSourceId + "-errorcount")
-                    if os.path.isfile(self.dirCache + "source" + self.currentSourceId + "-errorcountemail"):
-                        os.remove(self.dirCache + "source" + self.currentSourceId + "-errorcountemail")
-                    if os.path.isfile(self.dirCache + "source" + self.currentSourceId + "-errorcountphidget"):
-                        os.remove(self.dirCache + "source" + self.currentSourceId + "-errorcountphidget")
-
                 self.log.info("capture.run(): " + _("Capture process completed"))
                 self.currentCaptureDetails.setCaptureValue('captureSuccess', True)
             else:
                 self.log.info("capture.run(): " + _("Unable to capture picture"))
                 self.captureUtils.generateFailedCaptureHotlink()
                 self.currentCaptureDetails.setCaptureValue('captureSuccess', False)
-                previousErrorCount = self.captureUtils.getCustomCounter('errorcount')
-                self.log.info("capture.run(): " + _("Previous Error Count was: %(previousErrorCount)s") % {
-                    'previousErrorCount': previousErrorCount})
-                currentErrorCount = previousErrorCount + 1
-                self.captureUtils.setCustomCounter('errorcount', currentErrorCount)
-
-                # If the system is configured to send an email in case of capture error
-                # It stores a counter of the number of failure since last email
-                # If over the reminder, will reset this counter and resend the email
-                if int(currentErrorCount) >= int(
-                        self.configSource.getConfig('cfgemailalertfailure')) and self.configSource.getConfig(
-                        'cfgemailerroractivate') == "yes" and self.lastCaptureDetails.getLastCaptureTime() != None:
-                    self.log.info(
-                        "capture.run(): " + _("Last Successful capture took place at: %(lastSuccessCapture)s") % {
-                            'lastSuccessCapture': str(self.lastCaptureDetails.getLastCaptureTime().isoformat())})
-                    if os.path.isfile(self.dirCache + "source" + self.currentSourceId + "-errorcountemail"):
-                        currentEmailCounter = self.captureUtils.getCustomCounter("errorcountemail") + 1
-                        self.captureUtils.setCustomCounter("errorcountemail", currentEmailCounter)
-                        if int(self.configSource.getConfig('cfgemailalertreminder')) == int(currentEmailCounter):
-                            self.log.info("capture.run(): " + _(
-                                "Error counter is: %(currentEmailCounter)s (Total: %(currentErrorCount)s), sending a reminder (= %(cfgemailalertreminder)s)") % {
-                                              'currentEmailCounter': str(currentEmailCounter),
-                                              'currentErrorCount': str(currentErrorCount),
-                                              'cfgemailalertreminder': self.configSource.getConfig(
-                                                  'cfgemailalertreminder')})
-                            self.captureUtils.setCustomCounter("errorcountemail", 0)
-                    if self.captureUtils.getCustomCounter("errorcountemail") >= 1:
-                        self.log.info("capture.run(): " + _(
-                            "Error email already sent, error counter since last email: %(currentEmailCounter)s, next email at: %(cfgemailalertreminder)s") % {
-                                          'currentEmailCounter': str(currentEmailCounter),
-                                          'cfgemailalertreminder': self.configSource.getConfig(
-                                              'cfgemailalertreminder')})
-                    else:
-                        if self.configSource.getConfig('cfgemaildirectalert') == "yes":
-                            self.captureEmails.sendCaptureError(currentErrorCount,
-                                                                self.lastCaptureDetails.getLastCaptureTime())
-                            self.captureUtils.setCustomCounter("errorcountemail", "1")
 
             if self.configSource.getConfig('cfgcapturedeleteafterdays') != "0":
                 # Purge old pictures (by day)

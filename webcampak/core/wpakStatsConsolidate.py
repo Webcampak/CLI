@@ -40,6 +40,7 @@ class statsConsolidate:
         self.dirSources = self.configPaths.getConfig('parameters')['dir_sources']
         self.dirLogs = self.configPaths.getConfig('parameters')['dir_logs']
         self.dirStats = self.configPaths.getConfig('parameters')['dir_stats']
+        self.dirStatsConsolidated = self.dirStats + "consolidated/"
 
         self.setupLog()
 
@@ -65,8 +66,10 @@ class statsConsolidate:
     # Description: Start the threads processing process
     # Each thread will get started in its own thread.
     # Return: Nothing           
-    def run(self):
+    def run(self, fullPass):
         self.log.info("statsConsolidate.run(): Running Stats Collection")
+        # fullPass indicates the system should clear previous consolidated files and run on the entire history
+        self.log.info("statsConsolidate.run(): fullPass: " + str(fullPass))
 
         # The following call will convert all .txt to .jsonl files
         # convertTxtArchive(g, self.dirStats)
@@ -74,55 +77,56 @@ class statsConsolidate:
 
         # Remove and recreate consolidated stats directory
         self.log.info("statsConsolidate.run(): Step 0: Deleting consolidated/ directory")
-        shutil.rmtree(self.dirStats + "consolidated/")
-        os.makedirs(self.dirStats + "consolidated/")
+        if os.path.exists(self.dirStatsConsolidated) and fullPass == True:
+            shutil.rmtree(self.dirStatsConsolidated)
+        if not os.path.exists(self.dirStatsConsolidated):
+            os.makedirs(self.dirStatsConsolidated)
 
         # 1- Convert start - with days (contains hours), month (contains days), and year (contains months)
         self.log.info("statsConsolidate.run(): Step 1: Crunching hours")
         skipCount = 0
         for scanFile in sorted(os.listdir(self.dirStats), reverse=True):
-            if os.path.splitext(scanFile)[1].lower() == '.jsonl' and len(
-                    os.path.splitext(scanFile)[0]) == 8 and skipCount < 2:
+            if os.path.splitext(scanFile)[1].lower() == '.jsonl' and len(os.path.splitext(scanFile)[0]) == 8 and skipCount < 2:
                 self.log.info("statsConsolidate.run(): Step 1: Source File: " + self.dirStats + scanFile)
-                self.log.info(
-                    "statsConsolidate.run(): Step 1: Destination File: " + self.dirStats + "consolidated/" + scanFile)
-                skipCount = self.checkProcessFile(scanFile, "consolidated/" + scanFile, skipCount, '23:55', 11, 16)
+                self.log.info("statsConsolidate.run(): Step 1: Destination File: " + self.dirStatsConsolidated + scanFile)
                 dayStats = self.parseSourceHoursFile(scanFile)
                 dayStats = self.crunchHourFile(dayStats)
                 self.saveHourFile(dayStats, scanFile)
+                if fullPass == False:
+                    skipCount = self.checkProcessFile(self.dirStats + scanFile, self.dirStatsConsolidated + scanFile, skipCount, '23:55', 11, 16)
+                self.log.info("statsConsolidate.run(): Step 1: skipCount: " + str(skipCount))
+
 
         # 2- Convert Months, using days previously converted
         self.log.info("statsConsolidate.run(): Step 2: Crunching days")
         skipCount = 0
-        for scanFile in sorted(os.listdir(self.dirStats + "/consolidated"), reverse=True):
+        for scanFile in sorted(os.listdir(self.dirStatsConsolidated), reverse=True):
             # 201601.jsonl
             monthFile = scanFile[0:6] + '.jsonl'
             self.log.info("statsConsolidate.run(): Step 2: Saving to month File: " + monthFile)
-            if os.path.splitext(scanFile)[1].lower() == '.jsonl' and len(
-                    os.path.splitext(scanFile)[0]) == 8 and skipCount < 2:
-                self.log.info(
-                    "statsConsolidate.run(): Step 2: Source File: " + self.dirStats + "consolidated/" + scanFile)
-                self.log.info(
-                    "statsConsolidate.run(): Step 2: Destination File: " + self.dirStats + "consolidated/" + monthFile)
-                skipCount = self.checkProcessFile("consolidated/" + scanFile, "consolidated/" + monthFile, skipCount,
-                                                  '31', 8, 10)
+            if os.path.splitext(scanFile)[1].lower() == '.jsonl' and len(os.path.splitext(scanFile)[0]) == 8 and skipCount < 1:
+                self.log.info("statsConsolidate.run(): Step 2: Source File: " + self.dirStatsConsolidated + scanFile)
+                self.log.info("statsConsolidate.run(): Step 2: Destination File: " + self.dirStatsConsolidated + monthFile)
                 dayStats = self.parseSourceDaysFile(scanFile)
                 dayStats = self.crunchDayFile(dayStats)
                 self.saveDayFile(dayStats, monthFile)
+                if fullPass == False:
+                    skipCount = self.checkProcessFile(self.dirStatsConsolidated + scanFile, self.dirStatsConsolidated + monthFile, skipCount,'31', 8, 10)
+                self.log.info("statsConsolidate.run(): Step 2: skipCount: " + str(skipCount))
+
 
         # 3- Convert Years
         self.log.info("statsConsolidate.run(): Step 2: Crunching years")
-        for scanFile in sorted(os.listdir(self.dirStats + "/consolidated"), reverse=True):
+        for scanFile in sorted(os.listdir(self.dirStatsConsolidated), reverse=True):
             if len(os.path.splitext(scanFile)[0]) == 4:
-                os.remove(self.dirStats + "consolidated/" + scanFile)
+                os.remove(self.dirStatsConsolidated + scanFile)
 
         skipCount = 0
-        for scanFile in sorted(os.listdir(self.dirStats + "/consolidated"), reverse=True):
+        for scanFile in sorted(os.listdir(self.dirStatsConsolidated), reverse=True):
             # 201601.jsonl
             yearFile = scanFile[0:4] + '.jsonl'
-            if os.path.splitext(scanFile)[1].lower() == '.jsonl' and len(
-                    os.path.splitext(scanFile)[0]) == 6 and skipCount < 3:
-                # skipCount = self.checkProcessFile(g, self.dirStats + "consolidated/" + scanFile, self.dirStats + "consolidated/" + yearFile,  skipCount, '31', 8, 10)
+            if os.path.splitext(scanFile)[1].lower() == '.jsonl' and len(os.path.splitext(scanFile)[0]) == 6 and skipCount < 3:
+                # skipCount = self.checkProcessFile(g, self.dirStatsConsolidated + scanFile, self.dirStatsConsolidated + yearFile,  skipCount, '31', 8, 10)
                 # print 'COUNT: ' + str(skipCount)
                 dayStats = self.parseSourceMonthsFile(scanFile)
                 dayStats = self.crunchDayFile(dayStats)
@@ -204,7 +208,7 @@ class statsConsolidate:
         self.log.info("statsConsolidate.parseSourceDaysFile() - Processing Days file: " + scanFile)
         dayStats = OrderedDict()
         # Start with days
-        for line in reversed(open(self.dirStats + "consolidated/" + scanFile).readlines()):
+        for line in reversed(open(self.dirStatsConsolidated + scanFile).readlines()):
             try:
                 currentStatsLine = json.loads(line, object_pairs_hook=OrderedDict)
             except Exception:
@@ -232,7 +236,7 @@ class statsConsolidate:
         self.log.info("statsConsolidate.parseSourceMonthsFile() - Processing Months file: " + scanFile)
         dayStats = OrderedDict()
         # Start with days
-        for line in reversed(open(self.dirStats + "consolidated/" + scanFile).readlines()):
+        for line in reversed(open(self.dirStatsConsolidated + scanFile).readlines()):
             try:
                 currentStatsLine = json.loads(line, object_pairs_hook=OrderedDict)
             except Exception:
@@ -294,12 +298,12 @@ class statsConsolidate:
 
     def saveHourFile(self, dayStats, scanFile):
         self.log.info("statsConsolidate.saveHourFile() - Start")
-        if os.path.isfile(self.dirStats + "consolidated/" + scanFile):
+        if os.path.isfile(self.dirStatsConsolidated + scanFile):
             self.log.info(
-                "statsConsolidate.saveHourFile() - Json file:  exists, deleting... " + self.dirStats + "consolidated/" + scanFile)
-            os.remove(self.dirStats + "consolidated/" + scanFile)
+                "statsConsolidate.saveHourFile() - Json file:  exists, deleting... " + self.dirStatsConsolidated + scanFile)
+            os.remove(self.dirStatsConsolidated + scanFile)
         for dayHour in reversed(dayStats.keys()):
-            with open(self.dirStats + "consolidated/" + scanFile, "a") as consolidatedStatFile:
+            with open(self.dirStatsConsolidated + scanFile, "a") as consolidatedStatFile:
                 consolidatedStatFile.write(json.dumps(dayStats[dayHour]) + "\n")
 
     def prependLine(self, filename, line):
@@ -311,28 +315,33 @@ class statsConsolidate:
     # Save crunched numbers to file
     def saveDayFile(self, dayStats, scanFile):
         self.log.info("statsConsolidate.saveHourFile() - Start")
-        if os.path.isfile(self.dirStats + "consolidated/" + scanFile):
+        if os.path.isfile(self.dirStatsConsolidated + scanFile):
             for dayHour in reversed(dayStats.keys()):
-                self.prependLine(self.dirStats + "consolidated/" + scanFile, json.dumps(dayStats[dayHour]) + "\n")
+                self.prependLine(self.dirStatsConsolidated + scanFile, json.dumps(dayStats[dayHour]) + "\n")
         else:
             for dayHour in reversed(dayStats.keys()):
-                with open(self.dirStats + "consolidated/" + scanFile, "a") as consolidatedStatFile:
+                with open(self.dirStatsConsolidated + scanFile, "a") as consolidatedStatFile:
                     consolidatedStatFile.write(json.dumps(dayStats[dayHour]) + "\n")
 
 
                     # Identify if we want to process this file
 
-    # If scanned date is 23:55 and target file  exists then increase count
+    # The system is configured to collect system stats at 5mn interval, so last recorded date of a single day should be 23:55
+    # If last line of the file corresponds to the end of a day or to the end of a month and target file exists then increase count
     def checkProcessFile(self, sourceFile, targetFile, skipCount, searchTime, searchStart, searchEnd):
         # self.log.info("statsConsolidate.checkProcessFile() - Source File: " + sourceFile)
         # self.log.info("statsConsolidate.checkProcessFile() - Target File: " + targetFile)
-        for line in reversed(open(self.dirStats + sourceFile).readlines()):
+        for line in reversed(open(sourceFile).readlines()):
             try:
                 currentStatsLine = json.loads(line, object_pairs_hook=OrderedDict)
             except Exception:
                 self.log.error("statsConsolidate.checkProcessFile(): Unable to decode JSON line: " + line)
                 break
             # if currentStatsLine['date'][11:16] == searchTime and os.path.isfile(targetFile):
+            self.log.debug("statsConsolidate.checkProcessFile(): CurrentStatsLine: " + currentStatsLine['date'][searchStart:searchEnd])
+            self.log.debug("statsConsolidate.checkProcessFile(): searchTime: " + searchTime)
+            self.log.debug("statsConsolidate.checkProcessFile(): isfile: " + targetFile)
+            self.log.debug("statsConsolidate.checkProcessFile(): isfile: " + str(os.path.isfile(targetFile)))
             if currentStatsLine['date'][searchStart:searchEnd] == searchTime and os.path.isfile(targetFile):
                 return skipCount + 1
             else:
