@@ -35,6 +35,13 @@ class ExamplePluginController(CementBaseController):
                     action='store',
                 )
             )
+            , (
+                ['--full'],
+                dict(
+                    help='Run consolidation on all system logs',
+                    action='store_true',
+                )
+            )
         ]
 
     @expose(hide=True)
@@ -65,7 +72,7 @@ class ExamplePluginController(CementBaseController):
 
         try:
             consolidate = statsConsolidate(self.app.log, self.app.config, config_dir)
-            consolidate.run()
+            consolidate.run(self.app.pargs.full)
         except Exception:
             self.app.log.fatal("Ooops! Something went terribly wrong, stack trace below:", exc_info=True)
             raise
