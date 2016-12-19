@@ -141,7 +141,7 @@ class systemFtpAccounts:
                     p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     output, errors = p.communicate()
                     self.log.info(output)
-                    self.log.error(errors)
+                    self.log.info(errors)
         f.write(" " + "\n")
         f.close()
 
@@ -167,4 +167,4 @@ class systemFtpAccounts:
         p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, errors = p.communicate()
         self.log.info(output)
-        self.log.error(errors)
+        self.log.info(errors)
