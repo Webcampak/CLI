@@ -674,7 +674,7 @@ class captureUtils(object):
             "Current pictures directory disk size %(picturesDirSize)s MB, max allowed size is %(maxSize)s MB") % {
                           'picturesDirSize': picturesDirSize,
                           'maxSize': str(self.configSource.getConfig('cfgcapturemaxdirsize'))})
-        if picturesDirSize > int(self.configSource.getConfig('cfgcapturemaxdirsize')):
+        if self.configSource.getConfig('cfgcapturemaxdirsize') != "" and picturesDirSize > int(self.configSource.getConfig('cfgcapturemaxdirsize')):
             for currentScanFile in sorted(os.listdir(self.dirCurrentSourcePictures)):
                 if os.path.isdir(os.path.join(self.dirCurrentSourcePictures, currentScanFile)) and len(
                         currentScanFile) == 8:
