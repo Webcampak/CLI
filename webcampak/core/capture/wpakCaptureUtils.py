@@ -238,14 +238,17 @@ class captureUtils(object):
             self.log.info("captureUtils.modifyPictures(): " + _("Watermark disabled"))
 
         if self.configSource.getConfig('cfgimagemagicktxt') == "yes":
+            fileName = os.path.basename(self.pictureTransformations.getFilesourcePath())
+            captureTime = self.timeUtils.getTimeFromFilename(fileName, self.configSource, "YYYYMMDDHHMMSS")
+            if captureTime == False:
+                captureTime = self.captureClass.getCaptureTime()
             self.pictureTransformations.Text(self.configSource.getConfig('cfgimgtextfont'),
                                              self.configSource.getConfig('cfgimgtextsize'),
                                              self.configSource.getConfig('cfgimgtextgravity'),
                                              self.configSource.getConfig('cfgimgtextbasecolor'),
                                              self.configSource.getConfig('cfgimgtextbaseposition'),
                                              self.configSource.getConfig('cfgimgtext'),
-                                             self.formatDateLegend(self.captureClass.getCaptureTime(),
-                                                                   self.configSource.getConfig('cfgimgdateformat')),
+                                             self.formatDateLegend(captureTime, self.configSource.getConfig('cfgimgdateformat')),
                                              self.configSource.getConfig('cfgimgtextovercolor'),
                                              self.configSource.getConfig('cfgimgtextoverposition'))
         else:
