@@ -104,8 +104,7 @@ class phidgets(object):
 
     def setOutputValue(self, outputPort, outputValue):
         """Documentation To be completed"""
-        self.log.info("phidgets.setOutputValue(): " + _("Set Output Port: %(outputPort)i To: %(outputValue)i ") % {
-            'outputPort': outputPort, 'outputValue': outputValue})
+        self.log.info("phidgets.setOutputValue(): " + _("Set Output Port: %(outputPort)i To: %(outputValue)i ") % {'outputPort': outputPort, 'outputValue': outputValue})
         self.createInterfaceKit()
         self.openPhidget()
         self.attachPhidgetKit()
@@ -121,6 +120,5 @@ class phidgets(object):
             self.log.error("phidgets.setOutputValue(): " + _("Unable to get value from output port"))
 
         self.closePhidget()
-        self.log.error("phidgets.setOutputValue(): " + _("Sensor Value: %(currentOutputPort)s)") % {
-            'currentOutputPort': str(currentOutputPort)})
+        self.log.info("phidgets.setOutputValue(): " + _("Sensor Value: %(currentOutputPort)s") % {'currentOutputPort': str(currentOutputPort)})
         return currentOutputPort
