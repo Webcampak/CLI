@@ -56,6 +56,7 @@ class capturePhidget(object):
         self.log.info("capturePhidget.capture(): " + _("Start capturing sensor values"))
         # Get a list of all sensors for the source
         allSensors = self.getConfigSensors()
+        self.log.info("capturePhidget.capture(): " + _("Start %(allSensors)s") % {'allSensors': str(allSensors)})
         capturedSensors = {}
         if len(allSensors) > 0:
             phidgetsClass = phidgets(self)
@@ -101,6 +102,7 @@ class capturePhidget(object):
     # Description; This function find all sensors in the config file
     # Return: An array containing all sensors
     def getConfigSensors(self):
+        self.log.info("capturePhidget.getConfigSensors(): " + _("Start"))
         fullSourceConfig = self.configSource.getFullConfig()
         sensorsCfg = []
         for configIdx in fullSourceConfig:
