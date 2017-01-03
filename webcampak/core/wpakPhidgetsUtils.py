@@ -34,7 +34,9 @@ class phidgetsUtils(object):
         """Restart a gphoto camera based on configured ports"""
         self.log.debug("phidgetsUtils.restartCamera(): " + _("Start"))
         if self.configGeneral.getConfig('cfgphidgetactivate') == "yes":
-            phidgetPort = int(self.configSource.getConfig('cfgphidgetcameraport'))
+            phidgetPort = self.configSource.getConfig('cfgphidgetcameraport')
+            if phidgetPort == "":
+                phidgetPort = 0
             phidgetsClass = phidgets(self)
             outputValue = phidgetsClass.setOutputValue(phidgetPort, 0)
             self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to:  %(outputValue)s)") % {
