@@ -38,10 +38,8 @@ class phidgetsUtils(object):
             if phidgetPort == "":
                 phidgetPort = 0
             phidgetsClass = phidgets(self)
-            outputValue = phidgetsClass.setOutputValue(phidgetPort, False)
-            self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to: %(outputValue)s") % {'outputValue': str(outputValue)})
-            if outputValue != 0:
-                self.log.error("phidgetsUtils.restartCamera(): " + _("Error Unable to set port to 0"))
-            time.sleep(5)
             outputValue = phidgetsClass.setOutputValue(phidgetPort, True)
+            self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to: %(outputValue)s") % {'outputValue': str(outputValue)})
+            time.sleep(5)
+            outputValue = phidgetsClass.setOutputValue(phidgetPort, False)
             self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to: %(outputValue)s") % {'outputValue': str(outputValue)})
