@@ -40,6 +40,9 @@ class phidgetsUtils(object):
             phidgetsClass = phidgets(self)
             outputValue = phidgetsClass.setOutputValue(phidgetPort, False)
             self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to: %(outputValue)s") % {'outputValue': str(outputValue)})
+            self.log.info("phidgetsUtils.restartCamera(): " + _("Pausing fot 5 seconds to let the camera drain all power"))
             time.sleep(5)
             outputValue = phidgetsClass.setOutputValue(phidgetPort, True)
             self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to: %(outputValue)s") % {'outputValue': str(outputValue)})
+        else:
+            self.log.info("phidgetsUtils.restartCamera(): " + _("Phidgets board not enabled"))
