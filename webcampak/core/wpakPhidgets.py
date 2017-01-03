@@ -70,7 +70,7 @@ class phidgets(object):
             return True
         except PhidgetException as e:
             self.log.error("phidgets.attachPhidgetKit(): " + _(
-                "Unable to connect to InterfaceKit (code %(Code)i, %(Details)s)") % {'Code': e.code,
+                "Unable to connect to InterfaceKit (code %(Code)i, %(Details)s") % {'Code': e.code,
                                                                                      'Details': e.details})
             self.closePhidget()
             return False
@@ -81,7 +81,7 @@ class phidgets(object):
             inputlevel = self.interfaceKit.getSensorRawValue(input)
         except PhidgetException as e:
             self.log.error("phidgets.getSensorValue(): " + _(
-                "Unable to connect to obtain sensor value (code %(Code)i, %(Details)s)") % {'Code': e.code,
+                "Unable to connect to obtain sensor value (code %(Code)i, %(Details)s") % {'Code': e.code,
                                                                                             'Details': e.details})
         return inputlevel
 
@@ -94,11 +94,11 @@ class phidgets(object):
             inputlevel = self.interfaceKit.getSensorRawValue(input)
         except PhidgetException as e:
             self.log.error("phidgets.getSensorValue(): " + _(
-                "Unable to connect to obtain sensor value (code %(Code)i, %(Details)s)") % {'Code': e.code,
+                "Unable to connect to obtain sensor value (code %(Code)i, %(Details)s") % {'Code': e.code,
                                                                                             'Details': e.details})
 
         self.closePhidget()
-        self.log.error("phidgets.getSensorValue(): " + _("Sensor Value: %(inputlevel)d)") % {'inputlevel': inputlevel})
+        self.log.error("phidgets.getSensorValue(): " + _("Sensor Value: %(inputlevel)d") % {'inputlevel': inputlevel})
 
         return inputlevel
 
@@ -121,6 +121,6 @@ class phidgets(object):
             self.log.error("phidgets.setOutputValue(): " + _("Unable to get value from output port"))
 
         self.closePhidget()
-        self.log.error("phidgets.getSensorValue(): " + _("Sensor Value: %(currentOutputPort)s)") % {
+        self.log.error("phidgets.setOutputValue(): " + _("Sensor Value: %(currentOutputPort)s)") % {
             'currentOutputPort': str(currentOutputPort)})
         return currentOutputPort
