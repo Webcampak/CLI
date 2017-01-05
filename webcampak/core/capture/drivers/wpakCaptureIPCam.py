@@ -18,6 +18,7 @@ import os
 from datetime import tzinfo, timedelta, datetime
 import shutil
 import time
+import re
 from PIL import Image
 from PIL.ExifTags import TAGS
 
@@ -99,13 +100,18 @@ class captureIPCam(object):
             elif self.configSource.getConfig('cfgsourcecamiptemplate') == "harbortronics":
                 self.log.info("captureIPCam.processFile(): " + _("Determining picture date based on harbortonics naming convention"))
                 currentFileTime = self.timeUtils.getTimeFromFilename(fileName, self.configSource, "YYYYMMDD_HHMMSS")
+            elif self.configSource.getConfig('cfgsourcecamiptemplate') == "tplink":
+                # 192.168.0.18_01_20170103153300_TIMING - Regex: ([0-9]{14})+
+                self.log.info("captureIPCam.processFile(): " + _("Determining picture date based on TPLINK naming convention"))
+                regex = r"([0-9]{14})+"
+                extractedDatetime = re.findall(regex, fileName)
+                currentFileTime = self.timeUtils.getTimeFromFilename(extractedDatetime[0], self.configSource, "YYYYMMDDHHMMSS")
             elif self.configSource.getConfig('cfgsourcecamiptemplate') == "exif":
                 self.log.info("captureIPCam.processFile(): " + _("Determining picture date based on EXIF details"))
                 currentFileTime = self.timeUtils.getTimeFromExif(filePath, self.configSource)
             elif self.configSource.getConfig('cfgsourcecamiptemplate') == "filedate":
                 self.log.info("captureIPCam.processFile(): " + _("Determining picture date based on filesystem date"))
                 currentFileTime = self.timeUtils.getTimeFromFiledate(filePath, self.configSource)
-
             if currentFileTime == False:
                 self.log.info("captureIPCam.processFile(): " + _(
                     "Unable to get date based on configured method , looking into EXIF details"))
