@@ -98,6 +98,7 @@ class sensorsObj(object):
     def archiveSensorsFile(self):
         """Append the content of the object into a log file containing previous captures"""
         self.log.debug("sensorsObj.archiveSensorsFile(): " + _("Start"))
+        print self.getSensors()
         if self.archiveJsonFile(self.fileSensorsLog, self.getSensors()) == True:
             self.log.info(
                 "sensorsObj.archiveSensorsFile(): " + _("Successfully archived sensor file to: %(captureFile)s") % {
