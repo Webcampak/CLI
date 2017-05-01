@@ -70,7 +70,8 @@ class captureWpak(object):
                                self.configPaths.getConfig('parameters')['dir_source_live']
             if os.path.isfile(dstSourceLiveDir + "last-capture.jpg"):
                 # Get last capture date
-                self.lastCaptureDetails = captureObj(self.captureClass, getFromSourceID)
+                self.lastCaptureDetails = captureObj(self.log)
+                self.lastCaptureDetails.setCaptureFile(dstSourceLiveDir + "last-capture.json")
                 self.lastCaptureDetails.loadCaptureFile()
                 remotePictureDate = self.lastCaptureDetails.getLastCaptureTime()
                 self.captureClass.setCaptureTime(remotePictureDate)
