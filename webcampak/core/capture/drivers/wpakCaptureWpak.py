@@ -97,7 +97,7 @@ class captureWpak(object):
                                     self.dirCurrentSourceTmp + self.captureFilename + ".raw")
                     else:
                         self.log.info("captureWpak.capture(): " + _(
-                            "Raw processing is either disabled or last-capture.raw to not exist in %(sourceLiveDirectory)s live directory") % {
+                            "Raw processing is either disabled or last-capture.raw do not exist in %(sourceLiveDirectory)s live directory") % {
                                           'sourceLiveDirectory': dstSourceLiveDir})
 
                     if self.captureUtils.verifyCapturedFile(self.dirCurrentSourceTmp + self.captureFilename + ".jpg"):
