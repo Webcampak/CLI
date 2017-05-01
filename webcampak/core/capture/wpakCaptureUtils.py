@@ -328,12 +328,19 @@ class captureUtils(object):
         self.fileUtils.CheckFilepath(captureJpgFile)
         shutil.copy(self.dirCurrentSourceTmp + captureFilename + ".jpg", captureJpgFile)
         os.chmod(captureJpgFile, 0775)
+        if os.path.isfile(self.dirCurrentSourceTmp + captureFilename + ".raw"):
+            self.log.info("captureUtils.archivePicture(): " + _("Copying RAW picture from: %(sourceRawFile)s to: %(captureRawFile)s") % {
+                'sourceRawFile': self.dirCurrentSourceTmp + captureFilename + ".raw", 'captureRawFile': captureRawFile})
+            self.fileUtils.CheckFilepath(captureRawFile)
+            shutil.copyfile(self.dirCurrentSourceTmp + captureFilename + ".raw", captureRawFile)
+            os.chmod(captureRawFile, 0775)        
         if os.path.isfile(self.dirCurrentSourceTmp + "raw/" + captureDirectory + "/" + captureFilename + ".raw"):
-            self.log.info("captureUtils.archivePicture(): " + _("Saving RAW picture to: %(captureRawFile)s") % {
-                'captureRawFile': captureRawFile})
+            self.log.info("captureUtils.archivePicture(): " + _("Copying RAW picture from: %(sourceRawFile)s to: %(captureRawFile)s") % {
+                'sourceRawFile': self.dirCurrentSourceTmp + "raw/" + captureDirectory + "/" + captureFilename + ".raw", 'captureRawFile': captureRawFile})
             self.fileUtils.CheckFilepath(captureRawFile)
             shutil.copyfile(self.dirCurrentSourceTmp + "raw/" + captureDirectory + "/" + captureFilename + ".raw", captureRawFile)
             os.chmod(captureRawFile, 0775)
+            
 
     def getArchivedSize(self, captureFilename, fileType):
         """ Return the size of the captured file
