@@ -104,7 +104,7 @@ class phidgets(object):
 
     def setOutputValue(self, outputPort, outputValue):
         """Documentation To be completed"""
-        self.log.info("phidgets.setOutputValue(): " + _("Set Output Port: %(outputPort)i To: %(outputValue)i ") % {'outputPort': outputPort, 'outputValue': outputValue})
+        self.log.info("phidgets.setOutputValue(): " + _("Set Output Port: %(outputPort)s To: %(outputValue)s ") % {'outputPort': str(outputPort), 'outputValue': str(outputValue)})
         self.createInterfaceKit()
         self.openPhidget()
         self.attachPhidgetKit()
