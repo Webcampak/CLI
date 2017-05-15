@@ -39,11 +39,11 @@ class phidgetsUtils(object):
                 phidgetPort = 0
             phidgetsClass = phidgets(self)
             #Note: Phidgets relays are installed in NC (Normally Closed) position, therefore we need to set output value to True to turn off the camera (Open circuit)
-            outputValue = phidgetsClass.setOutputValue(phidgetPort, True)
+            outputValue = phidgetsClass.setOutputValue(int(phidgetPort), True)
             self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to: %(outputValue)s") % {'outputValue': str(outputValue)})
             self.log.info("phidgetsUtils.restartCamera(): " + _("Pausing fot 5 seconds to let the camera drain all power"))
             time.sleep(10)
-            outputValue = phidgetsClass.setOutputValue(phidgetPort, False)
+            outputValue = phidgetsClass.setOutputValue(int(phidgetPort), False)
             self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to: %(outputValue)s") % {'outputValue': str(outputValue)})
         else:
             self.log.info("phidgetsUtils.restartCamera(): " + _("Phidgets board not enabled"))
