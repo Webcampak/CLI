@@ -123,7 +123,8 @@ class phidgetsUtils(object):
         self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget Camera Sensor Port: %(phidget_camera_sensorport)s") % {'phidget_camera_sensorport': str(phidget_camera_sensorport)})
         self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget Camera Pause: %(phidget_camera_pause)s seconds") % {'phidget_camera_pause': str(phidget_camera_pause)})
 
-        for camera in Gphoto(self.log).get_cameras():
+        before_restart = Gphoto(self.log).get_cameras()
+        for camera in before_restart:
             self.log.info("phidgetsUtils.restartCamera(): " + _("Camera: %(camera_model)s connected to USB: %(usb_port)s") % {'usb_port': camera['usb_port'], 'camera_model': camera['camera_model']})
 
         if phidget_activated == "yes":
@@ -144,7 +145,7 @@ class phidgetsUtils(object):
 
             self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget Relay Sensor value: %(relay_state)s") % {'relay_state': str(relay_state)})
             before_restart = Gphoto(self.log).get_cameras()
-            for camera in before_restart:
+            for camera in Gphoto(self.log).get_cameras():
                 self.log.info("phidgetsUtils.restartCamera(): " + _("Camera: %(camera_model)s connected to USB: %(usb_port)s") % {'usb_port': camera['usb_port'], 'camera_model': camera['camera_model']})
 
             self.log.info("phidgetsUtils.restartCamera(): " + _("Pausing fot %(phidget_camera_pause)s seconds to let the camera drain all power") % {'phidget_camera_pause': str(phidget_camera_pause)})
