@@ -77,6 +77,7 @@ class phidgets(object):
 
     def getSensorRawValue(self, input):
         """Documentation To be completed"""
+        inputlevel = None
         try:
             inputlevel = self.interfaceKit.getSensorRawValue(input)
         except PhidgetException as e:
@@ -91,7 +92,7 @@ class phidgets(object):
         self.openPhidget()
         self.attachPhidgetKit()
         try:
-            inputlevel = self.interfaceKit.getSensorRawValue(input)
+            inputlevel = self.interfaceKit.getSensorRawValue(sensor)
         except PhidgetException as e:
             self.log.error("phidgets.getSensorValue(): " + _(
                 "Unable to connect to obtain sensor value (code %(Code)i, %(Details)s") % {'Code': e.code,
@@ -122,3 +123,11 @@ class phidgets(object):
         self.closePhidget()
         self.log.info("phidgets.setOutputValue(): " + _("Sensor Value: %(currentOutputPort)s") % {'currentOutputPort': str(currentOutputPort)})
         return currentOutputPort
+
+    def setOutputRawValue(self, outputPort, outputValue):
+        """Documentation To be completed"""
+        self.log.info("phidgets.setOutputValue(): " + _("Set Output Port: %(outputPort)s To: %(outputValue)s ") % {'outputPort': str(outputPort), 'outputValue': str(outputValue)})
+        try:
+            self.interfaceKit.setOutputState(outputPort, outputValue)
+        except PhidgetException as e:
+            self.log.error("phidgets.setOutputValue(): " + _("Unable to connect to set output value"))

@@ -15,6 +15,8 @@
 # If not, see http://www.gnu.org/licenses/
 
 import os
+import shlex
+import subprocess
 
 
 class captureGphoto(object):
@@ -48,6 +50,7 @@ class captureGphoto(object):
     # Return: Console output or null in case of error
     def scanPorts(self):
         self.log.debug(_("captureGphoto.scanPorts(): Start"))
+        gphotoScanPortsCommand = self.configGeneral.getConfig('cfggphotodir') + "gphoto2 --auto-detect | grep usb: > " + self.dirCache + "gphotoports.cur"
         try:
             args = shlex.split(gphotoScanPortsCommand)
             p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -277,7 +280,7 @@ class captureGphoto(object):
             self.log.info("captureGphoto.capture(): " + _("Capture successful"))
             return capturedPicture
         self.log.info("captureGphoto.capture(): " + _("Capture failed"))
-        if self.configSource.getConfig('cfgphidgeterroractivate') == "yes" and self.captureUtils.getCustomCounter(
+        if self.configSource.getConfig('cfgphidgetcameraactivate') == "yes" and self.captureUtils.getCustomCounter(
                 'errorcount') < 5:
             # The camera is only rebooted at each failed capture until we get to 5 failed capture, after that the system will not try to restart.
             # Objective is to avoid powercycling the camera indefinitively

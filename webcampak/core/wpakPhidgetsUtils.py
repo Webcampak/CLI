@@ -17,7 +17,7 @@
 import time
 
 from wpakPhidgets import phidgets
-
+from webcampak.core.gphoto.wpakGphoto import Gphoto
 
 class phidgetsUtils(object):
     def __init__(self, parentClass):
@@ -33,17 +33,50 @@ class phidgetsUtils(object):
     def restartCamera(self):
         """Restart a gphoto camera based on configured ports"""
         self.log.debug("phidgetsUtils.restartCamera(): " + _("Start"))
-        if self.configGeneral.getConfig('cfgphidgetactivate') == "yes":
-            phidgetPort = self.configSource.getConfig('cfgphidgetcameraport')
-            if phidgetPort == "":
-                phidgetPort = 0
+        phidget_activated = self.configGeneral.getConfig('cfgphidgetactivate')
+        phidget_camera_relayport = self.configSource.getConfig('cfgphidgetcamerarelayport')
+        if phidget_camera_relayport == "":
+            phidget_camera_relayport = 0
+        phidget_camera_sensorport = self.configSource.getConfig('cfgphidgetcamerasensorport')
+        phidget_camera_pause = self.configSource.getConfig('cfgphidgetcamerapause')
+        self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget Enabled: %(phidgetEnabled)s") % {'phidgetEnabled': str(phidget_activated)})
+        self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget Camera Relay Port: %(phidget_camera_relayport)s") % {'phidget_camera_relayport': str(phidget_camera_relayport)})
+        self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget Camera Sensor Port: %(phidget_camera_sensorport)s") % {'phidget_camera_sensorport': str(phidget_camera_sensorport)})
+        self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget Camera Pause: %(phidget_camera_pause)s seconds") % {'phidget_camera_pause': str(phidget_camera_pause)})
+
+        for camera in Gphoto(self.log).get_cameras():
+            self.log.info("phidgetsUtils.restartCamera(): " + _("Camera: %(camera_model)s connected to USB: %(usb_port)s") % {'usb_port': camera['usb_port'], 'camera_model': camera['camera_model']})
+
+        if phidget_activated == "yes":
             phidgetsClass = phidgets(self)
             #Note: Phidgets relays are installed in NC (Normally Closed) position, therefore we need to set output value to True to turn off the camera (Open circuit)
-            outputValue = phidgetsClass.setOutputValue(int(phidgetPort), True)
-            self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to: %(outputValue)s") % {'outputValue': str(outputValue)})
-            self.log.info("phidgetsUtils.restartCamera(): " + _("Pausing fot 5 seconds to let the camera drain all power"))
-            time.sleep(10)
-            outputValue = phidgetsClass.setOutputValue(int(phidgetPort), False)
-            self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to: %(outputValue)s") % {'outputValue': str(outputValue)})
+
+            phidgetsClass.createInterfaceKit()
+            phidgetsClass.openPhidget()
+            phidgetsClass.attachPhidgetKit()
+
+            relay_state = phidgetsClass.getSensorRawValue(int(phidget_camera_sensorport))
+            self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget Relay Sensor value: %(relay_state)s") % {'relay_state': str(relay_state)})
+
+            phidgetsClass.setOutputRawValue(int(phidget_camera_relayport), True)
+            self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to True"))
+            relay_state = phidgetsClass.getSensorRawValue(int(phidget_camera_sensorport))
+            self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget Relay Sensor value: %(relay_state)s") % {'relay_state': str(relay_state)})
+            for camera in Gphoto(self.log).get_cameras():
+                self.log.info("phidgetsUtils.restartCamera(): " + _("Camera: %(camera_model)s connected to USB: %(usb_port)s") % {'usb_port': camera['usb_port'], 'camera_model': camera['camera_model']})
+
+            self.log.info("phidgetsUtils.restartCamera(): " + _("Pausing fot %(phidget_camera_pause)s seconds to let the camera drain all power") % {'phidget_camera_pause': str(phidget_camera_pause)})
+            time.sleep(int(phidget_camera_pause))
+
+            phidgetsClass.setOutputRawValue(int(phidget_camera_relayport), False)
+            self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to False"))
+
+            for camera in Gphoto(self.log).get_cameras():
+                self.log.info("phidgetsUtils.restartCamera(): " + _("Camera: %(camera_model)s connected to USB: %(usb_port)s") % {'usb_port': camera['usb_port'], 'camera_model': camera['camera_model']})
+
+            relay_state = phidgetsClass.getSensorRawValue(int(phidget_camera_sensorport))
+            self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget Relay Sensor value: %(relay_state)s") % {'relay_state': str(relay_state)})
+
+            phidgetsClass.closePhidget()
         else:
             self.log.info("phidgetsUtils.restartCamera(): " + _("Phidgets board not enabled"))
