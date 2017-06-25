@@ -144,7 +144,6 @@ class phidgetsUtils(object):
             relay_state = phidgetsClass.getSensorRawValue(int(phidget_camera_sensorport))
 
             self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget Relay Sensor value: %(relay_state)s") % {'relay_state': str(relay_state)})
-            before_restart = Gphoto(self.log).get_cameras()
             for camera in Gphoto(self.log).get_cameras():
                 self.log.info("phidgetsUtils.restartCamera(): " + _("Camera: %(camera_model)s connected to USB: %(usb_port)s") % {'usb_port': camera['usb_port'], 'camera_model': camera['camera_model']})
 
