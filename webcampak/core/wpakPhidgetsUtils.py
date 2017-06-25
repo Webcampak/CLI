@@ -76,7 +76,11 @@ class phidgetsUtils(object):
         self.log.info("phidgetsUtils.email_user_restart(): " + _("Using message content file: %(email_content)s") % {
             'email_content': email_content})
 
-        if os.path.isfile(email_content) and os.path.isfile(email_subject):
+        db = dbUtils(self.captureClass)
+        email_field_to = db.getSourceEmailUsers(self.currentSourceId)
+        db.closeDb()
+
+        if os.path.isfile(email_content) and os.path.isfile(email_subject) and len(email_field_to) > 0:
             emailContentFile = open(email_content, 'r')
             emailContent = emailContentFile.read()
             before_cameras_email = ''
@@ -99,9 +103,7 @@ class phidgetsUtils(object):
             emailSubject = emailSubject.replace("#CURRENTSOURCE#", self.currentSourceId)
             newEmail = emailObj(self.log, self.dirEmails, self.fileUtils)
             newEmail.setFrom({'email': self.configGeneral.getConfig('cfgemailsendfrom')})
-            db = dbUtils(self.captureClass)
-            newEmail.setTo(db.getSourceEmailUsers(self.currentSourceId))
-            db.closeDb()
+            newEmail.setTo(email_field_to)
             newEmail.setBody(emailContent)
             newEmail.setSubject(emailSubject)
             newEmail.writeEmailObjectFile()
