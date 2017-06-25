@@ -45,10 +45,10 @@ class phidgetsUtils(object):
                 sensor_luminosity = (sensor_value/4.095)
                 sensor_pressure = ((sensor_value / 4.095)/4) + 10
                 sensor_humidity = ((sensor_value / 4.095) * 0.1906) - 40.2
-                self.log.info("phidgetsUtils.scan_ports(): " + _("Temperature: %(sensor_temperature)s") % {'sensor_temperature': str(sensor_temperature)})
-                self.log.info("phidgetsUtils.scan_ports(): " + _("Luminosity: %(sensor_luminosity)s") % {'sensor_luminosity': str(sensor_luminosity)})
-                self.log.info("phidgetsUtils.scan_ports(): " + _("Pressure: %(sensor_pressure)s") % {'sensor_pressure': str(sensor_pressure)})
-                self.log.info("phidgetsUtils.scan_ports(): " + _("Humidity: %(sensor_humidity)s") % {'sensor_humidity': str(sensor_humidity)})
+                self.log.info("phidgetsUtils.scan_ports(): " + _("Scanning port: %(current_port)s, Temperature value: %(sensor_temperature)s") % {'current_port': str(current_port), 'sensor_temperature': str(sensor_temperature)})
+                self.log.info("phidgetsUtils.scan_ports(): " + _("Scanning port: %(current_port)s, Luminosity value: %(sensor_luminosity)s") % {'current_port': str(current_port), 'sensor_luminosity': str(sensor_luminosity)})
+                self.log.info("phidgetsUtils.scan_ports(): " + _("Scanning port: %(current_port)s, Pressure value: %(sensor_pressure)s") % {'current_port': str(current_port), 'sensor_pressure': str(sensor_pressure)})
+                self.log.info("phidgetsUtils.scan_ports(): " + _("Scanning port: %(current_port)s, Humidity value: %(sensor_humidity)s") % {'current_port': str(current_port), 'sensor_humidity': str(sensor_humidity)})
         phidgetsClass.closePhidget()
 
     def restartCamera(self):
