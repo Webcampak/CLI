@@ -61,6 +61,8 @@ class phidgetsUtils(object):
             phidgetsClass.setOutputRawValue(int(phidget_camera_relayport), True)
             self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to True"))
             relay_state = phidgetsClass.getSensorRawValue(int(phidget_camera_sensorport))
+            time.sleep(2)
+
             self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget Relay Sensor value: %(relay_state)s") % {'relay_state': str(relay_state)})
             for camera in Gphoto(self.log).get_cameras():
                 self.log.info("phidgetsUtils.restartCamera(): " + _("Camera: %(camera_model)s connected to USB: %(usb_port)s") % {'usb_port': camera['usb_port'], 'camera_model': camera['camera_model']})
@@ -71,6 +73,7 @@ class phidgetsUtils(object):
             phidgetsClass.setOutputRawValue(int(phidget_camera_relayport), False)
             self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to False"))
 
+            time.sleep(2)
             for camera in Gphoto(self.log).get_cameras():
                 self.log.info("phidgetsUtils.restartCamera(): " + _("Camera: %(camera_model)s connected to USB: %(usb_port)s") % {'usb_port': camera['usb_port'], 'camera_model': camera['camera_model']})
 

@@ -63,5 +63,7 @@ class Gphoto():
                     'usb_port': result.group(0)
                     , 'camera_model': camera_model
                 })
+        if len(list_cameras) == 0:
+            self.log.info('No Camera detected')
         return list_cameras
 
