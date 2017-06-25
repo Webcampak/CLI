@@ -9,3 +9,4 @@ jsonschema #https://github.com/Julian/jsonschema
 Phidgets
 rrdtool==0.1.6
 tabulate
+nose
