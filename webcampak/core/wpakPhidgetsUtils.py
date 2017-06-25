@@ -66,11 +66,11 @@ class phidgetsUtils(object):
 
     def email_user_restart(self, before_cameras, after_cameras):
         """Send an email to source users to inform them about camera restart"""
-        email_content = self.dirCurrentLocaleMessages + "emailOnlineContent.txt"
-        email_subject = self.dirCurrentLocaleMessages + "emailOnlineSubject.txt"
+        email_content = self.dirCurrentLocaleMessages + "camera_restart_content.txt"
+        email_subject = self.dirCurrentLocaleMessages + "camera_restart_subject.txt"
         if os.path.isfile(email_content) == False:
-            email_content = self.dirLocale + "en_US.utf8/" + self.dirLocaleMessage + "emailOnlineContent.txt"
-            email_subject = self.dirLocale + "en_US.utf8/" + self.dirLocaleMessage + "emailOnlineSubject.txt"
+            email_content = self.dirLocale + "en_US.utf8/" + self.dirLocaleMessage + "camera_restart_content.txt"
+            email_subject = self.dirLocale + "en_US.utf8/" + self.dirLocaleMessage + "camera_restart_subject.txt"
         self.log.info("phidgetsUtils.email_user_restart(): " + _("Using message subject file: %(email_subject)s") % {
             'email_subject': email_subject})
         self.log.info("phidgetsUtils.email_user_restart(): " + _("Using message content file: %(email_content)s") % {
