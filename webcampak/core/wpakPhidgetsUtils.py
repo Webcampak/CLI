@@ -81,14 +81,14 @@ class phidgetsUtils(object):
             emailContent = emailContentFile.read()
             before_cameras_email = ''
             for camera in before_cameras:
-                before_cameras_email = before_cameras_email + camera['usb_port'] + ' - ' + camera['camera_model'] + '/n'
+                before_cameras_email = before_cameras_email + camera['usb_port'] + ' - ' + camera['camera_model'] + '\n'
             if before_cameras_email == '':
                 before_cameras_email = 'N/A'
             emailContent = emailContent.replace("#CAMERASBEFORE#", before_cameras_email)
             after_cameras_email = ''
             for camera in after_cameras:
-                after_cameras_email = before_cameras_email + camera['usb_port'] + ' - ' + camera['camera_model'] + '/n'
-            if before_cameras_email == '':
+                after_cameras_email = after_cameras_email + camera['usb_port'] + ' - ' + camera['camera_model'] + '\n'
+            if after_cameras_email == '':
                 after_cameras_email = 'N/A'
             emailContent = emailContent.replace("#CAMERASAFTER#", after_cameras_email)
             emailContentFile.close()
