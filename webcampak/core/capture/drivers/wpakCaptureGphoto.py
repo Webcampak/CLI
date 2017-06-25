@@ -18,6 +18,8 @@ import os
 import shlex
 import subprocess
 
+from ...gphoto.wpakGphoto import Gphoto
+
 
 class captureGphoto(object):
     def __init__(self, parentClass):
@@ -287,4 +289,5 @@ class captureGphoto(object):
             self.log.info(
                 "captureGphoto.capture(): " + _("Proceeding with a Phidget restart of the camera (powercycle)"))
             self.phidgetsUtils.restartCamera()
+
         return capturedPicture

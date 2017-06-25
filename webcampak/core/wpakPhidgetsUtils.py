@@ -15,9 +15,13 @@
 # If not, see http://www.gnu.org/licenses/
 
 import time
+import os
+import socket
 
 from wpakPhidgets import phidgets
 from webcampak.core.gphoto.wpakGphoto import Gphoto
+from wpakEmailObj import emailObj
+from wpakDbUtils import dbUtils
 
 class phidgetsUtils(object):
     def __init__(self, parentClass):
@@ -26,6 +30,15 @@ class phidgetsUtils(object):
 
         self.configGeneral = parentClass.configGeneral
         self.configSource = parentClass.configSource
+
+        self.captureClass = parentClass
+        self.dirLocale = parentClass.dirLocale
+        self.dirLocaleMessage = parentClass.dirLocaleMessage
+        self.dirCurrentLocaleMessages = parentClass.dirCurrentLocaleMessages
+        self.dirEmails = parentClass.dirEmails
+        self.fileUtils = parentClass.fileUtils
+
+        self.currentSourceId = parentClass.currentSourceId
 
         self.dirBin = parentClass.dirBin
         self.binPhidgets = self.dirBin + self.configGeneral.getConfig('cfgphidgetbin')
@@ -50,6 +63,51 @@ class phidgetsUtils(object):
                 self.log.info("phidgetsUtils.scan_ports(): " + _("Scanning port: %(current_port)s, Pressure value: %(sensor_pressure)s") % {'current_port': str(current_port), 'sensor_pressure': str(sensor_pressure)})
                 self.log.info("phidgetsUtils.scan_ports(): " + _("Scanning port: %(current_port)s, Humidity value: %(sensor_humidity)s") % {'current_port': str(current_port), 'sensor_humidity': str(sensor_humidity)})
         phidgetsClass.closePhidget()
+
+    def email_user_restart(self, before_cameras, after_cameras):
+        """Send an email to source users to inform them about camera restart"""
+        email_content = self.dirCurrentLocaleMessages + "emailOnlineContent.txt"
+        email_subject = self.dirCurrentLocaleMessages + "emailOnlineSubject.txt"
+        if os.path.isfile(email_content) == False:
+            email_content = self.dirLocale + "en_US.utf8/" + self.dirLocaleMessage + "emailOnlineContent.txt"
+            email_subject = self.dirLocale + "en_US.utf8/" + self.dirLocaleMessage + "emailOnlineSubject.txt"
+        self.log.info("phidgetsUtils.email_user_restart(): " + _("Using message subject file: %(email_subject)s") % {
+            'email_subject': email_subject})
+        self.log.info("phidgetsUtils.email_user_restart(): " + _("Using message content file: %(email_content)s") % {
+            'email_content': email_content})
+
+        if os.path.isfile(email_content) and os.path.isfile(email_subject):
+            emailContentFile = open(email_content, 'r')
+            emailContent = emailContentFile.read()
+            before_cameras_email = ''
+            for camera in before_cameras:
+                before_cameras_email = before_cameras_email + camera['usb_port'] + ' - ' + camera['camera_model'] + '/n'
+            if before_cameras_email == '':
+                before_cameras_email = 'N/A'
+            emailContent = emailContent.replace("#CAMERASBEFORE#", before_cameras_email)
+            after_cameras_email = ''
+            for camera in after_cameras:
+                after_cameras_email = before_cameras_email + camera['usb_port'] + ' - ' + camera['camera_model'] + '/n'
+            if before_cameras_email == '':
+                after_cameras_email = 'N/A'
+            emailContent = emailContent.replace("#CAMERASAFTER#", after_cameras_email)
+            emailContentFile.close()
+            emailSubjectFile = open(email_subject, 'r')
+            emailSubject = emailSubjectFile.read()
+            emailSubjectFile.close()
+            emailSubject = emailSubject.replace("#CURRENTHOSTNAME#", socket.gethostname())
+            emailSubject = emailSubject.replace("#CURRENTSOURCE#", self.currentSourceId)
+            newEmail = emailObj(self.log, self.dirEmails, self.fileUtils)
+            newEmail.setFrom({'email': self.configGeneral.getConfig('cfgemailsendfrom')})
+            db = dbUtils(self.captureClass)
+            newEmail.setTo(db.getSourceEmailUsers(self.currentSourceId))
+            db.closeDb()
+            newEmail.setBody(emailContent)
+            newEmail.setSubject(emailSubject)
+            newEmail.writeEmailObjectFile()
+        else:
+            self.log.debug(
+                "captureEmails.sendCaptureSuccess(): " + _("Unable to find default translation files to be used"))
 
     def restartCamera(self):
         """Restart a gphoto camera based on configured ports"""
@@ -85,7 +143,8 @@ class phidgetsUtils(object):
             relay_state = phidgetsClass.getSensorRawValue(int(phidget_camera_sensorport))
 
             self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget Relay Sensor value: %(relay_state)s") % {'relay_state': str(relay_state)})
-            for camera in Gphoto(self.log).get_cameras():
+            before_restart = Gphoto(self.log).get_cameras()
+            for camera in before_restart:
                 self.log.info("phidgetsUtils.restartCamera(): " + _("Camera: %(camera_model)s connected to USB: %(usb_port)s") % {'usb_port': camera['usb_port'], 'camera_model': camera['camera_model']})
 
             self.log.info("phidgetsUtils.restartCamera(): " + _("Pausing fot %(phidget_camera_pause)s seconds to let the camera drain all power") % {'phidget_camera_pause': str(phidget_camera_pause)})
@@ -95,12 +154,15 @@ class phidgetsUtils(object):
             self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to False"))
             time.sleep(2)
 
-            for camera in Gphoto(self.log).get_cameras():
+            after_restart = Gphoto(self.log).get_cameras()
+            for camera in after_restart:
                 self.log.info("phidgetsUtils.restartCamera(): " + _("Camera: %(camera_model)s connected to USB: %(usb_port)s") % {'usb_port': camera['usb_port'], 'camera_model': camera['camera_model']})
 
             relay_state = phidgetsClass.getSensorRawValue(int(phidget_camera_sensorport))
             self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget Relay Sensor value: %(relay_state)s") % {'relay_state': str(relay_state)})
 
             phidgetsClass.closePhidget()
+            self.email_user_restart(before_restart, after_restart)
+
         else:
             self.log.info("phidgetsUtils.restartCamera(): " + _("Phidgets board not enabled"))
