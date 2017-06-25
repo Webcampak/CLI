@@ -30,6 +30,27 @@ class phidgetsUtils(object):
         self.dirBin = parentClass.dirBin
         self.binPhidgets = self.dirBin + self.configGeneral.getConfig('cfgphidgetbin')
 
+    def scan_ports(self):
+        """Scan all ports one by one to get their possible values"""
+        self.log.debug("phidgetsUtils.scan_ports(): " + _("Start"))
+        phidgetsClass = phidgets(self)
+        phidgetsClass.createInterfaceKit()
+        phidgetsClass.openPhidget()
+        phidgetsClass.attachPhidgetKit()
+        for current_port in range(0, 8):
+            sensor_value = phidgetsClass.getSensorRawValue(current_port)
+            self.log.info("phidgetsUtils.scan_ports(): " + _("Scanning port: %(current_port)s, RAW value: %(sensor_value)s") % {'current_port': str(current_port), 'sensor_value': str(sensor_value)})
+            if sensor_value is not None:
+                sensor_temperature = (sensor_value/4.095) * 0.22222 - 61.111
+                sensor_luminosity = (sensor_value/4.095)
+                sensor_pressure = ((sensor_value / 4.095)/4) + 10
+                sensor_humidity = ((sensor_value / 4.095) * 0.1906) - 40.2
+                self.log.info("phidgetsUtils.scan_ports(): " + _("Temperature: %(sensor_temperature)s") % {'sensor_temperature': str(sensor_temperature)})
+                self.log.info("phidgetsUtils.scan_ports(): " + _("Luminosity: %(sensor_luminosity)s") % {'sensor_luminosity': str(sensor_luminosity)})
+                self.log.info("phidgetsUtils.scan_ports(): " + _("Pressure: %(sensor_pressure)s") % {'sensor_pressure': str(sensor_pressure)})
+                self.log.info("phidgetsUtils.scan_ports(): " + _("Humidity: %(sensor_humidity)s") % {'sensor_humidity': str(sensor_humidity)})
+        phidgetsClass.closePhidget()
+
     def restartCamera(self):
         """Restart a gphoto camera based on configured ports"""
         self.log.debug("phidgetsUtils.restartCamera(): " + _("Start"))
