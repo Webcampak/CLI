@@ -90,12 +90,12 @@ class Email(object):
         self.__email['status'] = status
 
     @property
-    def hash(self):
+    def email_hash(self):
         return self.__email['hash']
 
-    @hash.setter
-    def hash(self, hash):
-        self.__email['hash'] = hash
+    @email_hash.setter
+    def email_hash(self, email_hash):
+        self.__email['hash'] = email_hash
 
     @property
     def field_from(self):
