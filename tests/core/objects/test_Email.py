@@ -22,7 +22,7 @@ class TestEmail(TestCase):
 
     @mock.patch('webcampak.core.wpakConfigObj')
     def test_email(self, mock_config):
-        """Verify that the email class is properly initialized"""
+        """Initialize email class and update some content"""
         # App init, necessary to get to the logging service
         self.set_gettext()
         app = self.get_app()
@@ -30,4 +30,11 @@ class TestEmail(TestCase):
         email = Email(app.log, mock_config)
         email_empty = {'status': 'queued', 'content': {'BODY': None, 'FROM': [], 'ATTACHMENTS': [], 'CC': [], 'TO': [], 'SUBJECT': None}, 'hash': None, 'logs': []}
         self.assertEqual(email.email, email_empty)
+
+        email_updated = {'status': 'queued', 'content': {'BODY': 'A body', 'FROM': [], 'ATTACHMENTS': [], 'CC': [], 'TO': [{'name': 'TO NAME', 'email': 'TO@EMAIL.COM'}], 'SUBJECT': 'A subject'}, 'hash': None, 'logs': []}
+        email.subject = 'A subject'
+        email.body = 'A body'
+        email.field_to.append({'name': 'TO NAME', 'email': 'TO@EMAIL.COM'})
+        self.assertEqual(email.email, email_updated)
+
 
