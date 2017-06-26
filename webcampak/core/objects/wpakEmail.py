@@ -24,7 +24,7 @@ class Email(object):
 
     Args:
         log: A class, the logging interface
-    	
+    
     Attributes:
         log: A class, the logging interface
     """

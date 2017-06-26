@@ -10,3 +10,4 @@ Phidgets
 rrdtool==0.1.6
 tabulate
 nose
+mock
