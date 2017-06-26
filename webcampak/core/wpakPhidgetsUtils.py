@@ -20,7 +20,7 @@ import socket
 
 from wpakPhidgets import phidgets
 from webcampak.core.gphoto.wpakGphoto import Gphoto
-from wpakEmailObj import emailObj
+from objects.wpakEmail import Email
 from wpakDbUtils import dbUtils
 
 class phidgetsUtils(object):
@@ -30,6 +30,8 @@ class phidgetsUtils(object):
 
         self.configGeneral = parentClass.configGeneral
         self.configSource = parentClass.configSource
+
+        self.config_paths = parentClass.configPaths
 
         self.captureClass = parentClass
         self.dirLocale = parentClass.dirLocale
@@ -66,47 +68,48 @@ class phidgetsUtils(object):
 
     def email_user_restart(self, before_cameras, after_cameras):
         """Send an email to source users to inform them about camera restart"""
-        email_content = self.dirCurrentLocaleMessages + "camera_restart_content.txt"
-        email_subject = self.dirCurrentLocaleMessages + "camera_restart_subject.txt"
-        if os.path.isfile(email_content) == False:
-            email_content = self.dirLocale + "en_US.utf8/" + self.dirLocaleMessage + "camera_restart_content.txt"
-            email_subject = self.dirLocale + "en_US.utf8/" + self.dirLocaleMessage + "camera_restart_subject.txt"
-        self.log.info("phidgetsUtils.email_user_restart(): " + _("Using message subject file: %(email_subject)s") % {
-            'email_subject': email_subject})
-        self.log.info("phidgetsUtils.email_user_restart(): " + _("Using message content file: %(email_content)s") % {
-            'email_content': email_content})
+        email_content_filepath = self.dirCurrentLocaleMessages + "camera_restart_content.txt"
+        email_subject_filepath = self.dirCurrentLocaleMessages + "camera_restart_subject.txt"
+        if os.path.isfile(email_content_filepath) == False:
+            email_content_filepath = self.dirLocale + "en_US.utf8/" + self.dirLocaleMessage + "camera_restart_content.txt"
+            email_subject_filepath = self.dirLocale + "en_US.utf8/" + self.dirLocaleMessage + "camera_restart_subject.txt"
+        self.log.info("phidgetsUtils.email_user_restart(): " + _("Using message subject file: %(email_subject_filepath)s") % {
+            'email_subject_filepath': email_subject_filepath})
+        self.log.info("phidgetsUtils.email_user_restart(): " + _("Using message content file: %(email_content_filepath)s") % {
+            'email_content_filepath': email_content_filepath})
 
         db = dbUtils(self.captureClass)
         email_field_to = db.getSourceEmailUsers(self.currentSourceId)
         db.closeDb()
 
-        if os.path.isfile(email_content) and os.path.isfile(email_subject) and len(email_field_to) > 0:
-            emailContentFile = open(email_content, 'r')
-            emailContent = emailContentFile.read()
+        if os.path.isfile(email_content_filepath) and os.path.isfile(email_subject_filepath) and len(email_field_to) > 0:
+            email_content_fileobj = open(email_content_filepath, 'r')
+            email_content = email_content_fileobj.read()
             before_cameras_email = ''
             for camera in before_cameras:
                 before_cameras_email = before_cameras_email + camera['usb_port'] + ' - ' + camera['camera_model'] + '\n'
             if before_cameras_email == '':
                 before_cameras_email = 'N/A'
-            emailContent = emailContent.replace("#CAMERASBEFORE#", before_cameras_email)
+            email_content = email_content.replace("#CAMERASBEFORE#", before_cameras_email)
             after_cameras_email = ''
             for camera in after_cameras:
                 after_cameras_email = after_cameras_email + camera['usb_port'] + ' - ' + camera['camera_model'] + '\n'
             if after_cameras_email == '':
                 after_cameras_email = 'N/A'
-            emailContent = emailContent.replace("#CAMERASAFTER#", after_cameras_email)
-            emailContentFile.close()
-            emailSubjectFile = open(email_subject, 'r')
-            emailSubject = emailSubjectFile.read()
-            emailSubjectFile.close()
-            emailSubject = emailSubject.replace("#CURRENTHOSTNAME#", socket.gethostname())
-            emailSubject = emailSubject.replace("#CURRENTSOURCE#", self.currentSourceId)
-            newEmail = emailObj(self.log, self.dirEmails, self.fileUtils)
-            newEmail.setFrom({'email': self.configGeneral.getConfig('cfgemailsendfrom')})
-            newEmail.setTo(email_field_to)
-            newEmail.setBody(emailContent)
-            newEmail.setSubject(emailSubject)
-            newEmail.writeEmailObjectFile()
+            email_content = email_content.replace("#CAMERASAFTER#", after_cameras_email)
+            email_content_fileobj.close()
+            email_subject_fileobj = open(email_subject_filepath, 'r')
+            email_subject = email_subject_fileobj.read()
+            email_subject_fileobj.close()
+            email_subject = email_subject.replace("#CURRENTHOSTNAME#", socket.gethostname())
+            email_subject = email_subject.replace("#CURRENTSOURCE#", self.currentSourceId)
+
+            newEmail = Email(self.log, self.config_paths)
+            newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
+            newEmail.field_to = email_field_to
+            newEmail.body = email_content
+            newEmail.subject = email_subject
+            newEmail.send()
         else:
             self.log.debug(
                 "captureEmails.sendCaptureSuccess(): " + _("Unable to find default translation files to be used"))

@@ -15,23 +15,14 @@
 # If not, see http://www.gnu.org/licenses/
 
 import os
-import time
 import gettext
 import json
-from datetime import tzinfo, timedelta, datetime
-import pytz
-from dateutil import tz
 import dateutil.parser
-from tabulate import tabulate
 import socket
 
-from wpakConfigObj import Config
-from wpakConfigCache import configCache
-from wpakTimeUtils import timeUtils
 from wpakSourcesUtils import sourcesUtils
-from wpakFileUtils import fileUtils
 from wpakDbUtils import dbUtils
-from wpakEmailObj import emailObj
+from objects.wpakEmail import Email
 from wpakFTPUtils import FTPUtils
 from wpakAlertsObj import alertObj
 
@@ -104,12 +95,12 @@ class alertsEmails(object):
             emailSubject = emailSubject.replace("#LASTCAPTURETIME#", lastCatpureTime.strftime("%c"))
             emailContent = emailContent.replace("#CURRENTSOURCETIME#", currentSourceTime.strftime("%c"))
             emailContent = emailContent.replace("#LASTCAPTURETIME#", lastCatpureTime.strftime("%c"))
-            newEmail = emailObj(self.log, self.dirEmails, self.fileUtils)
-            newEmail.setFrom({'email': self.configGeneral.getConfig('cfgemailsendfrom')})
-            newEmail.setTo(self.dbUtils.getSourceEmailUsers(currentAlert.getAlertValue("sourceid")))
-            newEmail.setBody(emailContent)
-            newEmail.setSubject(emailSubject)
-            newEmail.writeEmailObjectFile()
+            newEmail = Email(self.log, self.configPaths)
+            newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
+            newEmail.field_to = self.dbUtils.getSourceEmailUsers(currentAlert.getAlertValue("sourceid"))
+            newEmail.body = emailContent
+            newEmail.subject = emailSubject
+            newEmail.send()
         else:
             self.log.info("alertsEmails.sendCaptureSuccess(): " + _("Unable to find default translation files to be used"))
 
@@ -138,20 +129,20 @@ class alertsEmails(object):
             lastCatpureTime = dateutil.parser.parse( currentAlert.getAlertValue("lastCaptureTime"))
             emailContent = emailContent.replace("#CURRENTSOURCETIME#", currentSourceTime.strftime("%c"))
             emailContent = emailContent.replace("#LASTCAPTURETIME#", lastCatpureTime.strftime("%c"))
-            newEmail = emailObj(self.log, self.dirEmails, self.fileUtils)
-            newEmail.setFrom({'email': self.configGeneral.getConfig('cfgemailsendfrom')})
-            newEmail.setTo(self.dbUtils.getSourceEmailUsers(currentAlert.getAlertValue("sourceid")))
-            newEmail.setBody(emailContent)
-            newEmail.setSubject(emailSubject)
+            newEmail = Email(self.log, self.configPaths)
+            newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
+            newEmail.field_to = self.dbUtils.getSourceEmailUsers(currentAlert.getAlertValue("sourceid"))
+            newEmail.body = emailContent
+            newEmail.subject = emailSubject
             if currentAlert.getAlertValue("lastPicture") != None and int(configSource.getConfig('cfgemailsuccesspicturewidth')) > 0:
                 captureDirectory = currentAlert.getAlertValue("lastPicture")[:8]
                 dirCurrentSourcePictures = self.dirSources + 'source' + str(currentAlert.getAlertValue("sourceid")) + '/' + self.configPaths.getConfig('parameters')['dir_source_pictures']
                 if os.path.isfile(dirCurrentSourcePictures + captureDirectory + "/" + currentAlert.getAlertValue("lastPicture")):
                     captureFilename = dirCurrentSourcePictures + captureDirectory + "/" + currentAlert.getAlertValue("lastPicture")
-                    newEmail.addAttachment({'PATH': captureFilename,
+                    newEmail.attachments.append({'PATH': captureFilename,
                                             'WIDTH': int(configSource.getConfig('cfgemailsuccesspicturewidth')),
                                             'NAME': 'last-capture.jpg'})
-            newEmail.writeEmailObjectFile()
+            newEmail.send()
         else:
             self.log.info("alertsEmails.sendCaptureSuccess(): " + _("Unable to find default translation files to be used"))
 

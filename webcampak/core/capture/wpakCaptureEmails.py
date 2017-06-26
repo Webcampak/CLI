@@ -18,7 +18,7 @@ import os
 import socket
 
 from ..wpakConfigObj import Config
-from ..wpakEmailObj import emailObj
+from ..objects.wpakEmail import Email
 from ..wpakDbUtils import dbUtils
 
 
@@ -51,6 +51,8 @@ class captureEmails(object):
 
         self.captureUtils = self.captureClass.captureUtils
         self.fileUtils = self.captureClass.fileUtils
+
+        self.configPaths = self.captureClass.configPaths
 
     def sendCaptureSuccess(self, captureFilename=None):
         """ This function queue an email to inform the user that the capture is successful.
@@ -85,21 +87,21 @@ class captureEmails(object):
             emailSubject = emailSubject.replace("#CURRENTHOSTNAME#", socket.gethostname())
             emailSubject = emailSubject.replace("#CURRENTSOURCE#", self.currentSourceId)
             emailSubject = emailSubject.replace("#NBFAILURES#", str(self.captureUtils.getCustomCounter('errorcount')))
-            newEmail = emailObj(self.log, self.dirEmails, self.fileUtils)
-            newEmail.setFrom({'email': self.configGeneral.getConfig('cfgemailsendfrom')})
+            newEmail = Email(self.log, self.configPaths)
+            newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
             db = dbUtils(self.captureClass)
-            newEmail.setTo(db.getSourceEmailUsers(self.currentSourceId))
+            newEmail.field_to = db.getSourceEmailUsers(self.currentSourceId)
             db.closeDb()
-            newEmail.setBody(emailContent)
-            newEmail.setSubject(emailSubject)
+            newEmail.body = emailContent
+            newEmail.subject = emailSubject
             if captureFilename != None and int(self.configSource.getConfig('cfgemailsuccesspicturewidth')) > 0:
                 captureDirectory = captureFilename[:8]
                 if os.path.isfile(self.dirCurrentSourcePictures + captureDirectory + "/" + captureFilename + ".jpg"):
                     captureFilename = self.dirCurrentSourcePictures + captureDirectory + "/" + captureFilename + ".jpg"
-                    newEmail.addAttachment({'PATH': captureFilename,
+                    newEmail.attachments.append({'PATH': captureFilename,
                                             'WIDTH': int(self.configSource.getConfig('cfgemailsuccesspicturewidth')),
                                             'NAME': 'last-capture.jpg'})
-            newEmail.writeEmailObjectFile()
+            newEmail.send()
         else:
             self.log.debug(
                 "captureEmails.sendCaptureSuccess(): " + _("Unable to find default translation files to be used"))
@@ -143,14 +145,14 @@ class captureEmails(object):
                                                                                    self.configSource.getConfig(
                                                                                        'cfgimgdateformat')))
 
-            newEmail = emailObj(self.log, self.dirEmails, self.fileUtils)
-            newEmail.setFrom({'email': self.configGeneral.getConfig('cfgemailsendfrom')})
+            newEmail = Email(self.log, self.configPaths)
+            newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
             db = dbUtils(self.captureClass)
-            newEmail.setTo(db.getSourceEmailUsers(self.currentSourceId))
+            newEmail.field_to = db.getSourceEmailUsers(self.currentSourceId)
             db.closeDb()
-            newEmail.setBody(emailContent)
-            newEmail.setSubject(emailSubject)
-            newEmail.writeEmailObjectFile()
+            newEmail.body = emailContent
+            newEmail.subject = emailSubject
+            newEmail.send()
 
     def sendCaptureStats(self):
         """ Once a day, send stats of the previous day by email"""
@@ -219,14 +221,14 @@ class captureEmails(object):
                         emailContent = emailContent.replace("#LASTCAPTURE#",
                                                             str(captureStatsFile.getStat('LatestCapture')))
 
-                        newEmail = emailObj(self.log, self.dirEmails, self.fileUtils)
-                        newEmail.setFrom({'email': self.configGeneral.getConfig('cfgemailsendfrom')})
+                        newEmail = Email(self.log, self.configPaths)
+                        newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
                         db = dbUtils(self.captureClass)
-                        newEmail.setTo(db.getSourceEmailUsers(self.currentSourceId))
+                        newEmail.field_to = db.getSourceEmailUsers(self.currentSourceId)
                         db.closeDb()
-                        newEmail.setBody(emailContent)
-                        newEmail.setSubject(emailSubject)
-                        newEmail.writeEmailObjectFile()
+                        newEmail.body = emailContent
+                        newEmail.subject = emailSubject
+                        newEmail.send()
 
                         f = open(
                             self.dirCache + "source" + self.currentSourceId + "-" + liststatsfile[8:16] + "-statsemail",

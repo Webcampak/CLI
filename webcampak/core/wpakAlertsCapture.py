@@ -31,7 +31,7 @@ from wpakTimeUtils import timeUtils
 from wpakSourcesUtils import sourcesUtils
 from wpakFileUtils import fileUtils
 from wpakDbUtils import dbUtils
-from wpakEmailObj import emailObj
+from objects.wpakEmail import Email
 from wpakAlertsObj import alertObj
 from wpakAlertsEmails import alertsEmails
 

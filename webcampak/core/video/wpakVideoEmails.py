@@ -18,7 +18,7 @@ import os
 import socket
 
 from ..wpakConfigObj import Config
-from ..wpakEmailObj import emailObj
+from ..objects.wpakEmail import Email
 from ..wpakDbUtils import dbUtils
 
 
@@ -84,15 +84,15 @@ class videoEmails(object):
             emailSubject = emailSubject.replace("#CURRENTHOSTNAME#", socket.gethostname())
             emailSubject = emailSubject.replace("#CURRENTSOURCE#", self.currentSourceId)
             emailSubject = emailSubject.replace("#VIDEOFILENAME#", videoFilename)
-            newEmail = emailObj(self.log, self.dirEmails, self.fileUtils)
-            newEmail.setFrom({'email': self.configGeneral.getConfig('cfgemailsendfrom')})
+            newEmail = Email(self.log, self.configPaths)
+            newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
             db = dbUtils(self.videoClass)
-            newEmail.setTo(db.getSourceEmailUsers(self.currentSourceId))
+            newEmail.field_to = db.getSourceEmailUsers(self.currentSourceId)
             db.closeDb()
-            newEmail.setBody(emailContent)
-            newEmail.setSubject(emailSubject)
+            newEmail.body = emailContent
+            newEmail.subject = emailSubject
             # Note: Add log file along with the email            
-            newEmail.writeEmailObjectFile()
+            newEmail.send()
         else:
             self.log.debug(
                 "videoEmails.sendVideoSuccess(): " + _("Unable to find default translation files to be used"))

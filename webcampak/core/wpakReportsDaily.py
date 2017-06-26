@@ -28,7 +28,7 @@ from wpakTimeUtils import timeUtils
 from wpakSourcesUtils import sourcesUtils
 from wpakFileUtils import fileUtils
 from wpakDbUtils import dbUtils
-from wpakEmailObj import emailObj
+from objects.wpakEmail import Email
 from wpakFTPUtils import FTPUtils
 
 
@@ -232,12 +232,12 @@ class reportsDaily(object):
 
             self.configSource = configSource
             self.fileUtils = fileUtils(self)
-            newEmail = emailObj(self.log, self.dirEmails, self.fileUtils)
-            newEmail.setFrom({'email': self.configGeneral.getConfig('cfgemailsendfrom')})
-            newEmail.setTo([{'name': currentUser['name'], 'email': currentUser['email']}])
-            newEmail.setBody(emailReportContent)
-            newEmail.setSubject(emailReportSubject)
-            newEmail.writeEmailObjectFile()
+            newEmail = Email(self.log, self.configPaths)
+            newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
+            newEmail.field_to = [{'name': currentUser['name'], 'email': currentUser['email']}]
+            newEmail.body = emailReportContent
+            newEmail.subject = emailReportSubject
+            newEmail.send()
 
     def prepareEmailReportContent(self, currentSource, currentReportDay, currentSourceReport):
         self.log.debug("reportsDaily.prepareEmailReportContent(): " + _("Start"))
