@@ -26,7 +26,11 @@ class TestEmail(TestCase):
         # App init, necessary to get to the logging service
         self.set_gettext()
         app = self.get_app()
-        mock_config.getConfig = mock.MagicMock(return_value={'dir_emails': '/tmp/email_dir/', 'dir_schemas': '/tmp/schema_dir'})
+        mock_config.getConfig = mock.MagicMock(return_value={
+            'dir_emails': '/tmp/email_dir/'
+            , 'dir_schemas': '/tmp/schema_dir'
+        })
+
         email = Email(app.log, mock_config)
         email_empty = {'status': 'queued', 'content': {'BODY': None, 'FROM': [], 'ATTACHMENTS': [], 'CC': [], 'TO': [], 'SUBJECT': None}, 'hash': None, 'logs': []}
         self.assertEqual(email.email, email_empty)

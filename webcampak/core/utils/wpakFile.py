@@ -47,8 +47,8 @@ class File:
         """Write the content of a dictionary to a JSON file"""
         if File.check_filepath(filepath) != "":
             try:
-                with open(filepath, "w") as threadJsonFile:
-                    threadJsonFile.write(json.dumps(content))
+                with open(filepath, "w") as file_obj:
+                    file_obj.write(json.dumps(content))
                 return True
             except Exception as ex:
                 template = "An exception of type {0} occurred. Arguments:\n{1!r}"
@@ -65,3 +65,21 @@ class File:
             with open(filepath) as json_file:
                 json_obj = json.load(json_file)
                 return json_obj
+        else:
+            return None
+
+    @staticmethod
+    def write_jsonl(filepath, content):
+        """Write the content of a dictionary to a JSON file"""
+        if File.check_filepath(filepath) != "":
+            try:
+                with open(filepath, "a+") as file_obj:
+                    file_obj.write(json.dumps(content) + '\n')
+                return True
+            except Exception as ex:
+                template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+                message = template.format(type(ex).__name__, ex.args)
+                print(message)
+                print('File.write_json() - Unable to write to file: ' + filepath)
+                print(content)
+                exit()
