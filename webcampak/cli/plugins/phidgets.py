@@ -121,7 +121,8 @@ class ExamplePluginController(CementBaseController):
         except:
             self.log.error("No translation file available")
 
-
+        self.fileUtils = fileUtils(self)
+        
         self.phidgetsUtils = phidgetsUtils(self)
         self.phidgetsUtils.scan_ports()
 
