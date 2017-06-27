@@ -109,7 +109,7 @@ class ExamplePluginController(CementBaseController):
 
         self.configGeneral = Config(self.log, self.dirConfig + 'config-general.cfg')
         self.configSource = Config(self.log, self.dirEtc + 'config-source' + str(self.app.pargs.sourceid) + '.cfg')
-
+        self.currentSourceId = None
         try:
             t = gettext.translation(self.configGeneral.getConfig('cfggettextdomain'), self.dirLocale, [self.configGeneral.getConfig('cfgsystemlang')], fallback=True)
             _ = t.ugettext
