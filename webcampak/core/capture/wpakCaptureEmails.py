@@ -88,7 +88,7 @@ class captureEmails(object):
             emailSubject = emailSubject.replace("#CURRENTSOURCE#", self.currentSourceId)
             emailSubject = emailSubject.replace("#NBFAILURES#", str(self.captureUtils.getCustomCounter('errorcount')))
             newEmail = Email(self.log
-                             , dir_email=self.configPaths.getConfig('parameters')['dir_emails']
+                             , dir_emails=self.configPaths.getConfig('parameters')['dir_emails']
                              , dir_schemas=self.configPaths.getConfig('parameters')['dir_schemas'])
             newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
             db = dbUtils(self.captureClass)
@@ -148,7 +148,7 @@ class captureEmails(object):
                                                                                        'cfgimgdateformat')))
 
             newEmail = Email(self.log
-                             , dir_email=self.configPaths.getConfig('parameters')['dir_emails']
+                             , dir_emails=self.configPaths.getConfig('parameters')['dir_emails']
                              , dir_schemas=self.configPaths.getConfig('parameters')['dir_schemas'])
             newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
             db = dbUtils(self.captureClass)
@@ -226,7 +226,7 @@ class captureEmails(object):
                                                             str(captureStatsFile.getStat('LatestCapture')))
 
                         newEmail = Email(self.log
-                                         , dir_email=self.configPaths.getConfig('parameters')['dir_emails']
+                                         , dir_emails=self.configPaths.getConfig('parameters')['dir_emails']
                                          , dir_schemas=self.configPaths.getConfig('parameters')['dir_schemas'])
                         newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
                         db = dbUtils(self.captureClass)
