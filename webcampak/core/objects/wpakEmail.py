@@ -61,7 +61,7 @@ class Email(object):
         return self.__dir_schemas
 
     @dir_schemas.setter
-    def dir_emails(self, dir_schemas):
+    def dir_schemas(self, dir_schemas):
         self.__dir_schemas = dir_schemas
 
     @property
