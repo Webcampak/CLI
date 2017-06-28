@@ -327,6 +327,7 @@ class Capture(object):
                 self.log.info("capture.run(): " + _("Unable to capture picture"))
                 self.captureUtils.generateFailedCaptureHotlink()
                 self.currentCaptureDetails.setCaptureValue('captureSuccess', False)
+                self.captureUtils.setCustomCounter('errorcount', int(self.captureUtils.getCustomCounter('errorcount')) + 1)
 
             if self.configSource.getConfig('cfgcapturedeleteafterdays') != "0":
                 # Purge old pictures (by day)
