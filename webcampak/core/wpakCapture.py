@@ -323,6 +323,8 @@ class Capture(object):
 
                 self.log.info("capture.run(): " + _("Capture process completed"))
                 self.currentCaptureDetails.setCaptureValue('captureSuccess', True)
+                if os.path.isfile(self.dirCache + "source" + self.currentSourceId + "-errorcount"):
+                    os.remove(self.dirCache + "source" + self.currentSourceId + "-errorcount")
             else:
                 self.log.info("capture.run(): " + _("Unable to capture picture"))
                 self.captureUtils.generateFailedCaptureHotlink()
