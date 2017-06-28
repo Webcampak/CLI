@@ -159,7 +159,7 @@ class phidgetsUtils(object):
 
             phidgetsClass.setOutputRawValue(int(phidget_camera_relayport), False)
             self.log.info("phidgetsUtils.restartCamera(): " + _("Phidget port set to False"))
-            time.sleep(2)
+            time.sleep(int(phidget_camera_pause))
 
             after_restart = Gphoto(self.log).get_cameras()
             for camera in after_restart:
