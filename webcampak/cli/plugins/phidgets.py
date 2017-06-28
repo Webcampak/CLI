@@ -104,10 +104,12 @@ class ExamplePluginController(CementBaseController):
         self.dirBin = self.configPaths.getConfig('parameters')['dir_bin']
         self.dirLocale = self.configPaths.getConfig('parameters')['dir_locale']
         self.dirLocaleMessage = self.configPaths.getConfig('parameters')['dir_locale_message']
+        self.dirCurrentLocaleMessages = ""
+        self.dirEmails = ""
 
         self.configGeneral = Config(self.log, self.dirConfig + 'config-general.cfg')
         self.configSource = Config(self.log, self.dirEtc + 'config-source' + str(self.app.pargs.sourceid) + '.cfg')
-
+        self.currentSourceId = None
         try:
             t = gettext.translation(self.configGeneral.getConfig('cfggettextdomain'), self.dirLocale, [self.configGeneral.getConfig('cfgsystemlang')], fallback=True)
             _ = t.ugettext
@@ -119,7 +121,8 @@ class ExamplePluginController(CementBaseController):
         except:
             self.log.error("No translation file available")
 
-
+        self.fileUtils = fileUtils(self)
+        
         self.phidgetsUtils = phidgetsUtils(self)
         self.phidgetsUtils.scan_ports()
 
