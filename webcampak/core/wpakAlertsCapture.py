@@ -436,8 +436,8 @@ class alertsCapture(object):
 
     def getSourceSchedule(self, sourceId):
         """ Verify if schedule exists for the source """
-        self.log.debug("alertsCapture.checkScheduleActive(): " + _("Start"))
         sourceScheduleFile = self.dirEtc + 'config-source' + str(sourceId) + '-schedule.json'
+        self.log.debug("alertsCapture.getSourceSchedule(): " + _("Check if file exists: %(sourceScheduleFile)s ") % {'sourceScheduleFile': sourceScheduleFile})
         if os.path.isfile(sourceScheduleFile):
             try:
                 with open(sourceScheduleFile) as sourceSchedule:
