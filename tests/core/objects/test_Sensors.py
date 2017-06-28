@@ -1,10 +1,10 @@
 from unittest import TestCase
-from webcampak.core.objects.wpakCapture import Capture
+from webcampak.core.objects.wpakSensors import Sensors
 import mock
 from cement.core import foundation
 import gettext
 
-class TestCapture(TestCase):
+class TestSensors(TestCase):
 
     @classmethod
     def set_gettext(self):
@@ -20,15 +20,14 @@ class TestCapture(TestCase):
         app.run()
         return app
 
-    def test_capture(self):
+    def test_sensors(self):
         """Initialize capture class and update some content"""
         # App init, necessary to get to the logging service
         self.set_gettext()
         app = self.get_app()
 
-        capture_empty = {'scriptStartDate': None, 'scriptEndDate': None, 'totalCaptureSize': 0, 'processedPicturesCount': 0, 'captureDate': None, 'storedJpgSize': 0, 'captureSuccess': None, 'scriptRuntime': None, 'storedRawSize': 0}
+        sensors_empty = {'date': None, 'sensors': {}}
 
-        capture = Capture(app.log, dir_schemas = '/tmp/')
-        self.assertEqual(capture.capture, capture_empty)
-
+        sensors = Sensors(app.log, dir_schemas = '/tmp/')
+        self.assertEqual(sensors.sensors, sensors_empty)
 

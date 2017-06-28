@@ -20,14 +20,7 @@ from ..utils.wpakFile import File
 
 
 class Email(object):
-    """ Builds an object used to send emails
-
-    Args:
-        log: A class, the logging interface
-
-    Attributes:
-        log: A class, the logging interface
-    """
+    """ Builds an object used to send emails"""
 
     def __init__(self, log, dir_emails = None, dir_schemas = None):
         self.log = log

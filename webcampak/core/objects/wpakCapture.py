@@ -20,14 +20,7 @@ from ..utils.wpakFile import File
 
 
 class Capture(object):
-    """ Builds an object used to record capture details
-
-    Args:
-        log: A class, the logging interface
-
-    Attributes:
-        log: A class, the logging interface
-    """
+    """ Builds an object used to record capture details"""
 
     def __init__(self, log, dir_schemas = None, capture_filepath = None, archive_filepath = None):
         self.log = log
