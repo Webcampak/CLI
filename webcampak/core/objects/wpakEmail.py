@@ -29,12 +29,14 @@ class Email(object):
         log: A class, the logging interface
     """
 
-    def __init__(self, log, config_paths):
+    def __init__(self, log, dir_emails = None, dir_schemas = None):
         self.log = log
         self.paths = config_paths
 
-        self.dir_emails = self.paths.getConfig('parameters')['dir_emails']
-        self.dir_schemas = self.paths.getConfig('parameters')['dir_schemas']
+        # self.__dir_emails = self.paths.getConfig('parameters')['dir_emails']
+        # self.__dir_schemas = self.paths.getConfig('parameters')['dir_schemas']
+        self.__dir_emails = dir_emails
+        self.__dir_schemas = dir_schemas
 
         self.__email_filepath = self.dir_emails + "queued/" + datetime.utcnow().strftime("%Y-%m-%d_%H%M%S_%f") + ".json"
         self.log.info("emailObj(): " + _("Setting default filename to: %(em_fp)s") % {'em_fp': self.__email_filepath})
@@ -56,6 +58,22 @@ class Email(object):
             }
             , 'logs': []
         }
+
+    @property
+    def dir_emails(self):
+        return self.__dir_emails
+
+    @dir_emails.setter
+    def dir_emails(self, dir_emails):
+        self.__dir_emails = dir_emails
+
+    @property
+    def dir_schemas(self):
+        return self.__dir_schemas
+
+    @dir_schemas.setter
+    def dir_emails(self, dir_schemas):
+        self.__dir_schemas = dir_schemas
 
     @property
     def schema(self):

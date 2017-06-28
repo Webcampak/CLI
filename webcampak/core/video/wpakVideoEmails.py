@@ -84,7 +84,9 @@ class videoEmails(object):
             emailSubject = emailSubject.replace("#CURRENTHOSTNAME#", socket.gethostname())
             emailSubject = emailSubject.replace("#CURRENTSOURCE#", self.currentSourceId)
             emailSubject = emailSubject.replace("#VIDEOFILENAME#", videoFilename)
-            newEmail = Email(self.log, self.configPaths)
+            newEmail = Email(self.log
+                             , dir_email=self.configPaths.getConfig('parameters')['dir_emails']
+                             , dir_schemas=self.configPaths.getConfig('parameters')['dir_schemas'])
             newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
             db = dbUtils(self.videoClass)
             newEmail.field_to = db.getSourceEmailUsers(self.currentSourceId)

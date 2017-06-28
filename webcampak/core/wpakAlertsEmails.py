@@ -95,7 +95,9 @@ class alertsEmails(object):
             emailSubject = emailSubject.replace("#LASTCAPTURETIME#", lastCatpureTime.strftime("%c"))
             emailContent = emailContent.replace("#CURRENTSOURCETIME#", currentSourceTime.strftime("%c"))
             emailContent = emailContent.replace("#LASTCAPTURETIME#", lastCatpureTime.strftime("%c"))
-            newEmail = Email(self.log, self.configPaths)
+            newEmail = Email(self.log
+                             , dir_email=self.configPaths.getConfig('parameters')['dir_emails']
+                             , dir_schemas=self.configPaths.getConfig('parameters')['dir_schemas'])
             newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
             newEmail.field_to = self.dbUtils.getSourceEmailUsers(currentAlert.getAlertValue("sourceid"))
             newEmail.body = emailContent
@@ -129,7 +131,9 @@ class alertsEmails(object):
             lastCatpureTime = dateutil.parser.parse( currentAlert.getAlertValue("lastCaptureTime"))
             emailContent = emailContent.replace("#CURRENTSOURCETIME#", currentSourceTime.strftime("%c"))
             emailContent = emailContent.replace("#LASTCAPTURETIME#", lastCatpureTime.strftime("%c"))
-            newEmail = Email(self.log, self.configPaths)
+            newEmail = Email(self.log
+                             , dir_email=self.configPaths.getConfig('parameters')['dir_emails']
+                             , dir_schemas=self.configPaths.getConfig('parameters')['dir_schemas'])
             newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
             newEmail.field_to = self.dbUtils.getSourceEmailUsers(currentAlert.getAlertValue("sourceid"))
             newEmail.body = emailContent

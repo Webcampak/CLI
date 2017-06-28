@@ -232,7 +232,9 @@ class reportsDaily(object):
 
             self.configSource = configSource
             self.fileUtils = fileUtils(self)
-            newEmail = Email(self.log, self.configPaths)
+            newEmail = Email(self.log
+                             , dir_email=self.configPaths.getConfig('parameters')['dir_emails']
+                             , dir_schemas=self.configPaths.getConfig('parameters')['dir_schemas'])
             newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
             newEmail.field_to = [{'name': currentUser['name'], 'email': currentUser['email']}]
             newEmail.body = emailReportContent

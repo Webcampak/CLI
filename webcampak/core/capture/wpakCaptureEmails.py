@@ -87,7 +87,9 @@ class captureEmails(object):
             emailSubject = emailSubject.replace("#CURRENTHOSTNAME#", socket.gethostname())
             emailSubject = emailSubject.replace("#CURRENTSOURCE#", self.currentSourceId)
             emailSubject = emailSubject.replace("#NBFAILURES#", str(self.captureUtils.getCustomCounter('errorcount')))
-            newEmail = Email(self.log, self.configPaths)
+            newEmail = Email(self.log
+                             , dir_email=self.configPaths.getConfig('parameters')['dir_emails']
+                             , dir_schemas=self.configPaths.getConfig('parameters')['dir_schemas'])
             newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
             db = dbUtils(self.captureClass)
             newEmail.field_to = db.getSourceEmailUsers(self.currentSourceId)
@@ -145,7 +147,9 @@ class captureEmails(object):
                                                                                    self.configSource.getConfig(
                                                                                        'cfgimgdateformat')))
 
-            newEmail = Email(self.log, self.configPaths)
+            newEmail = Email(self.log
+                             , dir_email=self.configPaths.getConfig('parameters')['dir_emails']
+                             , dir_schemas=self.configPaths.getConfig('parameters')['dir_schemas'])
             newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
             db = dbUtils(self.captureClass)
             newEmail.field_to = db.getSourceEmailUsers(self.currentSourceId)
@@ -221,7 +225,9 @@ class captureEmails(object):
                         emailContent = emailContent.replace("#LASTCAPTURE#",
                                                             str(captureStatsFile.getStat('LatestCapture')))
 
-                        newEmail = Email(self.log, self.configPaths)
+                        newEmail = Email(self.log
+                                         , dir_email=self.configPaths.getConfig('parameters')['dir_emails']
+                                         , dir_schemas=self.configPaths.getConfig('parameters')['dir_schemas'])
                         newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
                         db = dbUtils(self.captureClass)
                         newEmail.field_to = db.getSourceEmailUsers(self.currentSourceId)

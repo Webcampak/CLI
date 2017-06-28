@@ -281,7 +281,7 @@ class captureGphoto(object):
         if capturedPicture != False:
             self.log.info("captureGphoto.capture(): " + _("Capture successful"))
             return capturedPicture
-        self.log.info("captureGphoto.capture(): " + _("Capture failed, total number of consecutive failures:  %(error_count)s") % {'error_count': str(self.captureUtils.getCustomCounter('errorcount'))})
+        self.log.info("captureGphoto.capture(): " + _("Capture failed, total number of consecutive failures: %(error_count)s") % {'error_count': str(self.captureUtils.getCustomCounter('errorcount'))})
         if self.configSource.getConfig('cfgphidgetcameraactivate') == "yes" and self.captureUtils.getCustomCounter(
                 'errorcount') < 5:
             # The camera is only rebooted at each failed capture until we get to 5 failed capture, after that the system will not try to restart.
