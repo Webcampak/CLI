@@ -105,7 +105,7 @@ class phidgetsUtils(object):
             email_subject = email_subject.replace("#CURRENTSOURCE#", self.currentSourceId)
 
             newEmail = Email(self.log
-                             , dir_email=self.config_paths.getConfig('parameters')['dir_emails']
+                             , dir_emails=self.config_paths.getConfig('parameters')['dir_emails']
                              , dir_schemas=self.config_paths.getConfig('parameters')['dir_schemas'])
             newEmail.field_from = {'email': self.configGeneral.getConfig('cfgemailsendfrom')}
             newEmail.field_to = email_field_to
