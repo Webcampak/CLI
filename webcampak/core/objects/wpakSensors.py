@@ -30,7 +30,7 @@ class Sensors(object):
         # Load schema into memory
         self.__schema = File.read_json(self.dir_schemas + 'sensors.json')
 
-        # Init default email object
+        # Init default sensors object
         self.__init_sensors = {
             'date': None
             , 'sensors': {}
@@ -76,7 +76,7 @@ class Sensors(object):
 
     @sensors_filepath.setter
     def sensors_filepath(self, sensors_filepath):
-        self.log.info("sensors.archive_filepath(): " + _("Setting sensors filename to: %(filepath)s") % {'filepath': sensors_filepath})
+        self.log.info("sensors.archive_filepath(): " + _("Setting Sensors filename to: %(filepath)s") % {'filepath': sensors_filepath})
         self.__sensors_filepath = sensors_filepath
 
     def open(self, filepath):

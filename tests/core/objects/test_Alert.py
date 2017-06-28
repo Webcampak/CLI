@@ -1,9 +1,9 @@
 from unittest import TestCase
-from webcampak.core.objects.wpakSensors import Sensors
+from webcampak.core.objects.wpakAlert import Alert
 from cement.core import foundation
 import gettext
 
-class TestSensors(TestCase):
+class TestAlert(TestCase):
 
     @classmethod
     def set_gettext(self):
@@ -19,14 +19,15 @@ class TestSensors(TestCase):
         app.run()
         return app
 
-    def test_sensors(self):
-        """Initialize capture class and update some content"""
+    def test_alert(self):
+        """Initialize alert class and update some content"""
         # App init, necessary to get to the logging service
         self.set_gettext()
         app = self.get_app()
 
-        sensors_empty = {'date': None, 'sensors': {}}
+        alert_empty = {}
 
-        sensors = Sensors(app.log, dir_schemas = '/tmp/')
-        self.assertEqual(sensors.sensors, sensors_empty)
+        alert = Alert(app.log, dir_schemas = '/tmp/')
+        self.assertEqual(alert.alert, alert_empty)
+
 

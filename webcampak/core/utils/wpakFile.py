@@ -16,6 +16,7 @@
 
 import os
 import json
+import subprocess
 
 class File:
     @staticmethod
@@ -83,3 +84,8 @@ class File:
                 print('File.write_json() - Unable to write to file: ' + filepath)
                 print(content)
                 exit()
+
+    @staticmethod
+    def get_jsonl_lastline(filepath):
+        """Load the last line of a jsonl file into an object"""
+        return  json.loads(subprocess.check_output(['tail', '-1', filepath])[0:-1])

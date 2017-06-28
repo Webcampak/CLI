@@ -31,7 +31,7 @@ class Capture(object):
         # Load schema into memory
         self.__schema = File.read_json(self.dir_schemas + 'capture.json')
 
-        # Init default email object
+        # Init default capture object
         self.__init_capture = {
             'storedJpgSize': 0
             , 'storedRawSize': 0

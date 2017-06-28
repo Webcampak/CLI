@@ -1,6 +1,5 @@
 from unittest import TestCase
 from webcampak.core.objects.wpakEmail import Email
-import mock
 from cement.core import foundation
 import gettext
 

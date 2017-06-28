@@ -1,6 +1,5 @@
 from unittest import TestCase
 from webcampak.core.objects.wpakCapture import Capture
-import mock
 from cement.core import foundation
 import gettext
 
