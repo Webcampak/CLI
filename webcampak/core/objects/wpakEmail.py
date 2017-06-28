@@ -31,9 +31,6 @@ class Email(object):
 
     def __init__(self, log, dir_emails = None, dir_schemas = None):
         self.log = log
-
-        # self.__dir_emails = self.paths.getConfig('parameters')['dir_emails']
-        # self.__dir_schemas = self.paths.getConfig('parameters')['dir_schemas']
         self.__dir_emails = dir_emails
         self.__dir_schemas = dir_schemas
 

@@ -29,13 +29,11 @@ class Capture(object):
         log: A class, the logging interface
     """
 
-    def __init__(self, log, config_paths, archive_filepath = None):
+    def __init__(self, log, dir_schemas = None, capture_filepath = None, archive_filepath = None):
         self.log = log
         self.__archive_filepath = archive_filepath
-        self.__capture_filepath = None
-        self.paths = config_paths
-
-        self.dir_schemas = self.paths.getConfig('parameters')['dir_schemas']
+        self.__capture_filepath = capture_filepath
+        self.__dir_schemas = dir_schemas
 
         # Load schema into memory
         self.__schema = File.read_json(self.dir_schemas + 'capture.json')
@@ -55,7 +53,6 @@ class Capture(object):
         }
         self.__capture = self.__init_capture
 
-
     @property
     def schema(self):
         return self.__schema
@@ -63,6 +60,14 @@ class Capture(object):
     @schema.setter
     def schema(self, schema):
         self.__schema = schema
+
+    @property
+    def dir_schemas(self):
+        return self.__dir_schemas
+
+    @dir_schemas.setter
+    def dir_schemas(self, dir_schemas):
+        self.__dir_schemas = dir_schemas
 
     @property
     def capture(self):

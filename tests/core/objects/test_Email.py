@@ -20,18 +20,12 @@ class TestEmail(TestCase):
         app.run()
         return app
 
-    @mock.patch('webcampak.core.wpakConfigObj')
-    def test_email(self, mock_config):
+    def test_email(self):
         """Initialize email class and update some content"""
         # App init, necessary to get to the logging service
         self.set_gettext()
         app = self.get_app()
-        mock_config.getConfig = mock.MagicMock(return_value={
-            'dir_emails': '/tmp/email_dir/'
-            , 'dir_schemas': '/tmp/schema_dir'
-        })
-
-        email = Email(app.log, mock_config)
+        email = Email(app.log, dir_emails='/tmp/', dir_schemas='/tmp/')
         email_empty = {'status': 'queued', 'content': {'BODY': None, 'FROM': [], 'ATTACHMENTS': [], 'CC': [], 'TO': [], 'SUBJECT': None}, 'hash': None, 'logs': []}
         self.assertEqual(email.email, email_empty)
 
