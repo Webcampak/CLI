@@ -15,9 +15,7 @@
 # If not, see http://www.gnu.org/licenses/
 
 from datetime import datetime
-import jsonschema
-from ..utils.wpakFile import File
-
+from wpakDefault import Default
 
 class Email(object):
     """ Builds an object used to send emails"""
@@ -27,11 +25,13 @@ class Email(object):
         self.__dir_emails = dir_emails
         self.__dir_schemas = dir_schemas
 
-        self.__email_filepath = self.dir_emails + "queued/" + datetime.utcnow().strftime("%Y-%m-%d_%H%M%S_%f") + ".json"
+        self.__email_filepath = self.__dir_emails + "queued/" + datetime.utcnow().strftime("%Y-%m-%d_%H%M%S_%f") + ".json"
         self.log.info("emailObj(): " + _("Setting default filename to: %(em_fp)s") % {'em_fp': self.__email_filepath})
 
         # Load schema into memory
-        self.__schema = File.read_json(self.dir_schemas + 'emails.json')
+        # self.__schema = File.read_json(self.dir_schemas + 'emails.json')
+
+        self.default = Default(self.log, schema_filepath = self.__dir_schemas + 'emails.json', object_filepath = self.__email_filepath)
 
         # Init default email object
         self.__email = {
@@ -47,30 +47,6 @@ class Email(object):
             }
             , 'logs': []
         }
-
-    @property
-    def dir_emails(self):
-        return self.__dir_emails
-
-    @dir_emails.setter
-    def dir_emails(self, dir_emails):
-        self.__dir_emails = dir_emails
-
-    @property
-    def dir_schemas(self):
-        return self.__dir_schemas
-
-    @dir_schemas.setter
-    def dir_schemas(self, dir_schemas):
-        self.__dir_schemas = dir_schemas
-
-    @property
-    def schema(self):
-        return self.__schema
-
-    @schema.setter
-    def schema(self, schema):
-        self.__schema = schema
 
     @property
     def email(self):
@@ -162,8 +138,5 @@ class Email(object):
 
     def send(self):
         """Send an email object, effectively taking an object and writing it to a file in the queue directory"""
-        jsonschema.validate(self.email, self.schema)
-        if File.write_json(self.email_filepath, self.email) is True:
-            self.log.info(
-                "emailObj.send(): " + _("Successfully added email to queue, file: %(em_fp)s") % {
-                    'em_fp': self.email_filepath})
+        self.default.save(self.email)
+

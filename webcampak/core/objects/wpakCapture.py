@@ -15,8 +15,7 @@
 # If not, see http://www.gnu.org/licenses/
 
 import dateutil.parser
-import jsonschema
-from ..utils.wpakFile import File
+from wpakDefault import Default
 
 
 class Capture(object):
@@ -28,8 +27,7 @@ class Capture(object):
         self.__capture_filepath = capture_filepath
         self.__dir_schemas = dir_schemas
 
-        # Load schema into memory
-        self.__schema = File.read_json(self.dir_schemas + 'capture.json')
+        self.default = Default(self.log, schema_filepath = self.__dir_schemas + 'capture.json', object_filepath = self.__capture_filepath, archive_filepath = self.__archive_filepath)
 
         # Init default capture object
         self.__init_capture = {
@@ -47,46 +45,12 @@ class Capture(object):
         self.__capture = self.__init_capture
 
     @property
-    def schema(self):
-        return self.__schema
-
-    @schema.setter
-    def schema(self, schema):
-        self.__schema = schema
-
-    @property
-    def dir_schemas(self):
-        return self.__dir_schemas
-
-    @dir_schemas.setter
-    def dir_schemas(self, dir_schemas):
-        self.__dir_schemas = dir_schemas
-
-    @property
     def capture(self):
         return self.__capture
 
     @capture.setter
     def capture(self, capture):
         self.__capture = capture
-
-    @property
-    def archive_filepath(self):
-        return self.__archive_filepath
-
-    @archive_filepath.setter
-    def archive_filepath(self, archive_filepath):
-        self.log.info("Capture.archive_filepath(): " + _("Setting Archive filename to: %(filepath)s") % {'filepath': archive_filepath})
-        self.__archive_filepath = archive_filepath
-
-    @property
-    def capture_filepath(self):
-        return self.__capture_filepath
-
-    @capture_filepath.setter
-    def capture_filepath(self, capture_filepath):
-        self.log.info("Capture.archive_filepath(): " + _("Setting Capture filename to: %(filepath)s") % {'filepath': capture_filepath})
-        self.__capture_filepath = capture_filepath
 
     def get_capture_date(self):
         if self.capture['captureDate'] is not None:
@@ -96,28 +60,16 @@ class Capture(object):
 
     def open(self, filepath):
         """Open a previously created capture file and load its content into the object"""
-        try:
-            object_content = file.read_json(filepath)
-            jsonschema.validate(object_content, self.schema)
-            self.capture = object_content
-        except Exception as ex:
-            self.log.error(
-                "Capture.send(): " + _("Unable to read file: %(ca_fp)s") % {
-                    'ca_fp': filepath})
-            self.capture = self.__init_capture
+        open_obj = self.default.open(filepath)
+        if open_obj is None:
+            self.capture = self.__init_alert
+        else:
+            self.capture = open_obj
 
     def save(self):
         """Send an email object, effectively taking an object and writing it to a file in the queue directory"""
-        jsonschema.validate(self.capture, self.schema)
-        if File.write_json(self.capture_filepath, self.capture) is True:
-            self.log.info(
-                "Capture.send(): " + _("Successfully added saved capture file to: %(ca_fp)s") % {
-                    'ca_fp': self.capture_filepath})
+        self.default.save(self.capture)
 
     def archive(self):
         """Append the content of the object into a jsonl file containing previous captures"""
-        jsonschema.validate(self.capture, self.schema)
-        if File.write_jsonl(self.archive_filepath, self.capture) is True:
-            self.log.info(
-                "Capture.send(): " + _("Successfully added capture to archive file: %(ca_fp)s") % {
-                    'ca_fp': self.archive_filepath})
+        self.default.archive(self.capture)

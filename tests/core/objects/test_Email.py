@@ -25,6 +25,7 @@ class TestEmail(TestCase):
         self.set_gettext()
         app = self.get_app()
         email = Email(app.log, dir_emails='/tmp/', dir_schemas='/tmp/')
+
         email_empty = {'status': 'queued', 'content': {'BODY': None, 'FROM': [], 'ATTACHMENTS': [], 'CC': [], 'TO': [], 'SUBJECT': None}, 'hash': None, 'logs': []}
         self.assertEqual(email.email, email_empty)
 

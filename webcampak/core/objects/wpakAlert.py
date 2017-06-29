@@ -15,8 +15,8 @@
 # If not, see http://www.gnu.org/licenses/
 
 import os
-import jsonschema
 from ..utils.wpakFile import File
+from wpakDefault import Default
 
 
 class Alert(object):
@@ -28,28 +28,11 @@ class Alert(object):
         self.__alert_filepath = alert_filepath
         self.__dir_schemas = dir_schemas
 
-        # Load schema into memory
-        self.__schema = File.read_json(self.dir_schemas + 'alert.json')
+        self.default = Default(self.log, schema_filepath = self.__dir_schemas + 'alert.json', object_filepath = self.__alert_filepath, archive_filepath = self.__archive_filepath)
 
         # Init default alert object
         self.__init_alert = {}
         self.__alert = self.__init_alert
-
-    @property
-    def schema(self):
-        return self.__schema
-
-    @schema.setter
-    def schema(self, schema):
-        self.__schema = schema
-
-    @property
-    def dir_schemas(self):
-        return self.__dir_schemas
-
-    @dir_schemas.setter
-    def dir_schemas(self, dir_schemas):
-        self.__dir_schemas = dir_schemas
 
     @property
     def alert(self):
@@ -59,52 +42,21 @@ class Alert(object):
     def alert(self, alert):
         self.__alert = alert
 
-    @property
-    def archive_filepath(self):
-        return self.__archive_filepath
-
-    @archive_filepath.setter
-    def archive_filepath(self, archive_filepath):
-        self.log.info("Capture.archive_filepath(): " + _("Setting Archive filename to: %(filepath)s") % {'filepath': archive_filepath})
-        self.__archive_filepath = archive_filepath
-
-    @property
-    def alert_filepath(self):
-        return self.__alert_filepath
-
-    @alert_filepath.setter
-    def alert_filepath(self, alert_filepath):
-        self.log.info("Capture.archive_filepath(): " + _("Setting Alert filename to: %(filepath)s") % {'filepath': alert_filepath})
-        self.__alert_filepath = alert_filepath
-
-
     def open(self, filepath):
         """Open a previously created alert file and load its content into the object"""
-        try:
-            object_content = file.read_json(filepath)
-            jsonschema.validate(object_content, self.schema)
-            self.alert = object_content
-        except Exception as ex:
-            self.log.error(
-                "Capture.send(): " + _("Unable to read file: %(ca_fp)s") % {
-                    'ca_fp': filepath})
+        open_obj = self.default.open(filepath)
+        if open_obj is None:
             self.alert = self.__init_alert
+        else:
+            self.alert = open_obj
 
     def save(self):
         """Send an email object, effectively taking an object and writing it to a file in the queue directory"""
-        jsonschema.validate(self.alert, self.schema)
-        if File.write_json(self.alert_filepath, self.alert) is True:
-            self.log.info(
-                "Capture.send(): " + _("Successfully added saved alert file to: %(ca_fp)s") % {
-                    'ca_fp': self.alert_filepath})
+        self.default.save(self.alert)
 
     def archive(self):
         """Append the content of the object into a jsonl file containing previous alerts"""
-        jsonschema.validate(self.alert, self.schema)
-        if File.write_jsonl(self.archive_filepath, self.alert) is True:
-            self.log.info(
-                "Capture.send(): " + _("Successfully added alert to archive file: %(ca_fp)s") % {
-                    'ca_fp': self.archive_filepath})
+        self.default.archive(self.alert)
 
     def load_last_alert(self):
         """Get the last alert line from the archive file"""
