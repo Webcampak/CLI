@@ -24,7 +24,7 @@ import rrdtool
 from wpakConfigObj import Config
 from wpakFileUtils import fileUtils
 from wpakTimeUtils import timeUtils
-from wpakTransferUtils import transferUtils
+from wpakTransfer import Transfer
 
 from wpakFTPUtils import FTPUtils
 

@@ -21,7 +21,7 @@ import gettext
 from wpakConfigObj import Config
 from wpakFileUtils import fileUtils
 from wpakTimeUtils import timeUtils
-from wpakTransferUtils import transferUtils
+from wpakTransfer import Transfer
 from wpakPhidgetsUtils import phidgetsUtils
 
 from capture.wpakCaptureUtils import captureUtils

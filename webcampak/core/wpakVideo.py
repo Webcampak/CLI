@@ -21,7 +21,7 @@ import gettext
 from wpakConfigObj import Config
 from wpakTimeUtils import timeUtils
 from wpakFileUtils import fileUtils
-from wpakTransferUtils import transferUtils
+from wpakTransfer import Transfer
 
 from video.wpakVideoUtils import videoUtils
 from video.wpakVideoEmails import videoEmails
