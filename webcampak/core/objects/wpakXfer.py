@@ -32,6 +32,32 @@ class Xfer(object):
 
         # Init default xfer object
         self.__init_xfer = {}
+        self.__init_xfer['status'] = 'queued'
+        self.__init_xfer['retries'] = None
+        self.__init_xfer['source'] = {}
+        self.__init_xfer['source']['sourceid'] = None
+        self.__init_xfer['source']['type'] = None
+        self.__init_xfer['source']['ftpserverid'] = None
+        self.__init_xfer['source']['ftpserverhash'] = None
+        self.__init_xfer['source']['filepath'] = None
+        self.__init_xfer['destination'] = {}
+        self.__init_xfer['destination']['sourceid'] = None
+        self.__init_xfer['destination']['type'] = None
+        self.__init_xfer['destination']['ftpserverid'] = None
+        self.__init_xfer['destination']['ftpserverhash'] = None
+        self.__init_xfer['destination']['filepath'] = None
+        self.__init_xfer['hash'] = None
+        self.__init_xfer['date_queued'] = None
+        self.__init_xfer['date_start'] = None
+        self.__init_xfer['date_completed'] = None
+        self.__init_xfer['xfer_report'] = {}
+        self.__init_xfer['xfer_report']['date_started'] = None
+        self.__init_xfer['xfer_report']['date_completed'] = None
+        self.__init_xfer['xfer_report']['bytes'] = None
+        self.__init_xfer['xfer_report']['seconds'] = None
+        self.__init_xfer['xfer_report']['direction'] = None
+        self.__init_xfer['logs'] = {}
+        
         self.__xfer = self.__init_xfer
 
     @property
