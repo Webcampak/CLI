@@ -27,6 +27,6 @@ class TestSensors(TestCase):
 
         sensors_empty = {'date': None, 'sensors': {}}
 
-        sensors = Sensors(app.log, dir_schemas = '/tmp/')
+        sensors = Sensors(app.log, dir_schemas = '/home/webcampak/webcampak/resources/schemas/')
         self.assertEqual(sensors.sensors, sensors_empty)
 

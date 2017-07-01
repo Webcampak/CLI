@@ -65,6 +65,19 @@ class Default(object):
     def archive_filepath(self, archive_filepath):
         self.__archive_filepath = archive_filepath
 
+    def verify(self, received_object):
+        """Verify an object against its schema, raise an exception if there is an issue"""
+        #self.log.info(received_object)
+        #self.log.info(self.schema)
+        try:
+            return jsonschema.validate(received_object, self.schema)
+        except Exception as ex:
+            self.log.error("Default.verify(): " + _("Schema invalid"))
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            self.log.error(message)
+            exit()
+
     def save(self, received_object):
         """Save an object to the file defined in object_filepath"""
         jsonschema.validate(received_object, self.schema)

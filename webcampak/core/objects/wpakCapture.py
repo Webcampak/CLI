@@ -44,6 +44,9 @@ class Capture(object):
         }
         self.__capture = self.__init_capture
 
+        """Ensure the default object is compliant with the schema, mostly here to prevent errors during code updates"""
+        self.default.verify(self.capture)
+
     @property
     def capture(self):
         return self.__capture

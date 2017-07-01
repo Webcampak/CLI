@@ -24,12 +24,12 @@ class TestEmail(TestCase):
         # App init, necessary to get to the logging service
         self.set_gettext()
         app = self.get_app()
-        email = Email(app.log, dir_emails='/tmp/', dir_schemas='/tmp/')
+        email = Email(app.log, dir_emails='/tmp/', dir_schemas='/home/webcampak/webcampak/resources/schemas/')
 
-        email_empty = {'status': 'queued', 'content': {'BODY': None, 'FROM': [], 'ATTACHMENTS': [], 'CC': [], 'TO': [], 'SUBJECT': None}, 'hash': None, 'logs': []}
+        email_empty = {'status': 'queued', 'content': {'BODY': None, 'FROM': {'name': None, 'email': None}, 'ATTACHMENTS': [], 'CC': [], 'TO': [], 'SUBJECT': None}, 'hash': None, 'logs': []}
         self.assertEqual(email.email, email_empty)
 
-        email_updated = {'status': 'queued', 'content': {'BODY': 'A body', 'FROM': [], 'ATTACHMENTS': [], 'CC': [], 'TO': [{'name': 'TO NAME', 'email': 'TO@EMAIL.COM'}], 'SUBJECT': 'A subject'}, 'hash': None, 'logs': []}
+        email_updated = {'status': 'queued', 'content': {'BODY': 'A body', 'FROM': {'name': None, 'email': None}, 'ATTACHMENTS': [], 'CC': [], 'TO': [{'name': 'TO NAME', 'email': 'TO@EMAIL.COM'}], 'SUBJECT': 'A subject'}, 'hash': None, 'logs': []}
         email.subject = 'A subject'
         email.body = 'A body'
         email.field_to.append({'name': 'TO NAME', 'email': 'TO@EMAIL.COM'})

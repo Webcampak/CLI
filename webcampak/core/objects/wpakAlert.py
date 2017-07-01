@@ -34,6 +34,9 @@ class Alert(object):
         self.__init_alert = {}
         self.__alert = self.__init_alert
 
+        """Ensure the default object is compliant with the schema, mostly here to prevent errors during code updates"""
+        self.default.verify(self.alert)
+
     @property
     def alert(self):
         return self.__alert

@@ -27,7 +27,7 @@ class TestCapture(TestCase):
 
         capture_empty = {'scriptStartDate': None, 'scriptEndDate': None, 'totalCaptureSize': 0, 'processedPicturesCount': 0, 'captureDate': None, 'storedJpgSize': 0, 'captureSuccess': None, 'scriptRuntime': None, 'storedRawSize': 0}
 
-        capture = Capture(app.log, dir_schemas = '/tmp/')
+        capture = Capture(app.log, dir_schemas = '/home/webcampak/webcampak/resources/schemas/')
         self.assertEqual(capture.capture, capture_empty)
 
 

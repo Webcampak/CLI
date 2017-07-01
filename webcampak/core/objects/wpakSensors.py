@@ -34,6 +34,9 @@ class Sensors(object):
         }
         self.__sensors = self.__init_sensors
 
+        """Ensure the default object is compliant with the schema, mostly here to prevent errors during code updates"""
+        self.default.verify(self.sensors)
+
     @property
     def sensors(self):
         return self.__sensors

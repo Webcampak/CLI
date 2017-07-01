@@ -38,7 +38,10 @@ class Email(object):
             'status': 'queued'
             , 'hash': None
             , 'content': {
-                'FROM': []
+                'FROM': {
+                    'name': None
+                    , 'email': None
+                }
                 , 'TO': []
                 , 'CC': []
                 , 'BODY': None
@@ -47,6 +50,9 @@ class Email(object):
             }
             , 'logs': []
         }
+
+        """Ensure the default object is compliant with the schema, mostly here to prevent errors during code updates"""
+        self.default.verify(self.email)
 
     @property
     def email(self):

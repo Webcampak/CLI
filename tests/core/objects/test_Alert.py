@@ -27,7 +27,7 @@ class TestAlert(TestCase):
 
         alert_empty = {}
 
-        alert = Alert(app.log, dir_schemas = '/tmp/')
+        alert = Alert(app.log, dir_schemas = '/home/webcampak/webcampak/resources/schemas/')
         self.assertEqual(alert.alert, alert_empty)
 
 
