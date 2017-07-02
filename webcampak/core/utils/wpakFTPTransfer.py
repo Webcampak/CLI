@@ -228,5 +228,7 @@ class FTP_Transfer:
         self.log.info("FTP_Transfer.close(): Closing FTP Connection")
         try:
             self.ftp_session.close()
+            return True
         except:
             self.log.error("FTP_Transfer.close(): Unable to close FTP Session")
+            return False
