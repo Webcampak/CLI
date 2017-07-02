@@ -18,13 +18,13 @@ import hashlib
 
 from wpakConfigObj import Config
 from wpakXferJob import xferJob
-from wpakFTPTransfer import FTPTransfer
+from utils.wpakFTPTransfer import FTP_Transfer
 
 
 class Transfer:
     def __init__(self, log, config_paths = None, source = None):
         self.log = log
-        self.__config_paths = config_paths
+        self.config_paths = config_paths
         self.__source = source
 
         # self.log = parentClass.log
@@ -41,14 +41,6 @@ class Transfer:
         # self.dirEtc = parentClass.dirEtc
         # self.dirCurrentSource = parentClass.dirCurrentSource
         # self.dirXferQueue = parentClass.dirXferQueue
-
-    @property
-    def config_path(self):
-        return self.__config_paths
-
-    @config_path.setter
-    def config_path(self, config_path):
-        self.__config_paths = config_path
 
     @property
     def source(self):
@@ -117,21 +109,13 @@ class Transfer:
             self.fileUtils.CheckFilepath(newXferJobFile)
             newXferJob.writeXferJobFile(newXferJobFile)
         else:
-            self.log.info("transferUtils.transferFile(): " + _("Transferring file through direct FTP"))
-            currentFTP = FTPTransfer(self.log, self.config_dir)
-            currentFTPConnectionStatus = currentFTP.initByServerId(str(self.currentSourceId), str(serverId))
-            if currentFTPConnectionStatus == True:
-                # We add the path on the remote FTP server
-                destinationFilePath = self.configSourceFTP.getConfig('cfgftpserverslist' + str(serverId))[
-                                          4] + destinationFilePath
-                self.log.info("transferUtils.transferFile(): " + _(
-                    "Transferring file through direct FTP, local file: %(sourceFilePath)s") % {
-                                  'sourceFilePath': sourceFilePath})
-                self.log.info("transferUtils.transferFile(): " + _(
-                    "Transferring file through direct FTP, remote file: %(destinationFilePath)s") % {
-                                  'destinationFilePath': destinationFilePath})
-                ftpTransferSuccess = currentFTP.putFile(sourceFilePath, destinationFilePath)
-                currentFTP.closeFtp()
+            self.log.info("transferUtils.transfer_file(): " + _("Transferring file through direct FTP"))
+            self.log.info("transferUtils.transfer_file(): " + _("Local file: %(sourceFilePath)s") % {'sourceFilePath': sourceFilePath})
+            self.log.info("transferUtils.transfer_file(): " + _("Remote file: %(destinationFilePath)s") % {'destinationFilePath': destinationFilePath})
+            currentFTP = FTP_Transfer(self.log, config_paths = self.config_paths, ftp_server = self.source.servers[serverId])
+            if currentFTP.connect() is True:
+                currentFTP.put(sourceFilePath, destinationFilePath)
+                currentFTP.close()
             else:
                 self.log.error(
                     "transferUtils.transferFile(): " + _("Unable to establish connection with the remote FTP server"))

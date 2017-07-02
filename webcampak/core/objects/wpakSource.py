@@ -61,3 +61,5 @@ class Source(object):
             self.servers[i].ftp_active = cfg_servers.getConfig('cfgftpserverslist' + str(i))[5]
             self.servers[i].xfer_enable = cfg_servers.getConfig('cfgftpserverslist' + str(i))[6]
             self.servers[i].xfer_threads = cfg_servers.getConfig('cfgftpserverslist' + str(i))[7]
+
+            self.log.info(self.servers[i].export())

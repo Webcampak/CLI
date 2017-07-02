@@ -30,11 +30,10 @@ class TestTransfer(TestCase):
         app = self.get_app()
 
         config_paths = Config(app.log, '/home/webcampak/webcampak/config/param_paths.yml')
-
         source = Source(app.log, source_id = 1, config_paths = config_paths)
 
-        transfer = Transfer(app.log, source = source)
-        transfer.transfer_file(datetime.now(), '/tmp/source', '/tmp/destination', 1, 3)
+        transfer = Transfer(app.log, source = source, config_paths = config_paths)
+        transfer.transfer_file(datetime.now(), '/tmp/thisisatest.txt', 'abc/thisisatest.txt', 1, 3)
 
 
 

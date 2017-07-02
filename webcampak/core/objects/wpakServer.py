@@ -15,7 +15,7 @@
 # If not, see http://www.gnu.org/licenses/
 
 import dateutil.parser
-
+import hashlib
 
 class Server(object):
     """ Builds an object containing the source itself, its ID, and configuration settings"""
@@ -107,3 +107,7 @@ class Server(object):
             , 'xfer_enable': self.xfer_enable
             , 'xfer_threads': self.xfer_threads
         }
+
+    def hash(self):
+        return hashlib.sha224(self.host + self.username).hexdigest()
+
