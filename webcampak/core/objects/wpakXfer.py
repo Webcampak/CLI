@@ -56,7 +56,7 @@ class Xfer(object):
         self.__init_xfer['xfer_report']['bytes'] = None
         self.__init_xfer['xfer_report']['seconds'] = None
         self.__init_xfer['xfer_report']['direction'] = None
-        self.__init_xfer['logs'] = {}
+        self.__init_xfer['logs'] = []
         
         self.__xfer = self.__init_xfer
 

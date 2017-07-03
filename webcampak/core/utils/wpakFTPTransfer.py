@@ -50,19 +50,6 @@ class FTP_Transfer:
     def ftp_server(self, ftp_server):
         self.__ftp_server = ftp_server
 
-
-
-            # Calculate the FTP server hash
-
-    # # Hash is an md5 of the remote host and the username
-    # def calculateFTPServerHash(self, ftpServerConfig):
-    #     self.log.debug("FTP_Transfer.calculateFTPServerHash(): Start")
-    #     FTPServer = f.getConfig('cfgftpserverslist' + str(serverId))[1]
-    #     FTPUsername = f.getConfig('cfgftpserverslist' + str(serverId))[2]
-    #
-    #     return hashlib.sha224(FTPServer + FTPUsername).hexdigest()
-
-
     def connect(self):
         """Establish the initial connection to a remote FTP server"""
         self.log.info('FTP_Transfer.connect(): Connecting to server ID: ' + str(self.ftp_server.id))

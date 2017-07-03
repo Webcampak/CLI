@@ -23,7 +23,7 @@ class TestTransfer(TestCase):
         app.run()
         return app
 
-    def test_file(self):
+    def test_transfer_file(self):
         """Test the function handling transfer of files"""
 
         self.set_gettext()
@@ -33,7 +33,13 @@ class TestTransfer(TestCase):
         source = Source(app.log, source_id = 1, config_paths = config_paths)
 
         transfer = Transfer(app.log, source = source, config_paths = config_paths)
-        transfer.transfer_file(datetime.now(), '/tmp/thisisatest.txt', 'abc/thisisatest.txt', 1, 3)
+        transfer.transfer_file(datetime.now(), '/tmp/thisisatest.txt', 'abc/thisisatest.txt', source.servers[1], 3)
+
+        transfer.transfer_file(datetime.now(), '/tmp/thisisatest.txt', 'abc/thisisatest.txt', source.servers[2], 3)
+
+
+
+
 
 
 

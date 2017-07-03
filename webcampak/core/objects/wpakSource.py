@@ -28,7 +28,7 @@ class Source(object):
 
         self.__id = source_id
         self.__servers = {}
-
+        self.__path = self.config_paths.getConfig('parameters')['dir_sources'] + 'source' + str(self.id) + '/'
         self.load_servers()
 
     @property
@@ -46,6 +46,14 @@ class Source(object):
     @servers.setter
     def servers(self, servers):
         self.__servers = servers
+
+    @property
+    def path(self):
+        return self.__path
+
+    @path.setter
+    def path(self, path):
+        self.__path = path
 
     def load_servers(self):
         cfg_servers = Config(self.log, self.config_paths.getConfig('parameters')['dir_etc'] + 'config-source' + str(self.id) + '-ftpservers.cfg')
