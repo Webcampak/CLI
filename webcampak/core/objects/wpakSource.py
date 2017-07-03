@@ -17,6 +17,7 @@
 import dateutil.parser
 from webcampak.core.wpakConfigObj import Config
 from webcampak.core.objects.wpakServer import Server
+from webcampak.core.objects.wpakSourceConfiguration import SourceConfiguration
 
 
 class Source(object):
@@ -29,7 +30,11 @@ class Source(object):
         self.__id = source_id
         self.__servers = {}
         self.__path = self.config_paths.getConfig('parameters')['dir_sources'] + 'source' + str(self.id) + '/'
+        self.__cfg_filepath = self.config_paths.getConfig('parameters')['dir_etc'] + 'config-source' + str(self.id) + '.yml'
         self.load_servers()
+
+        #Load Source Configuration
+        self.cfg = SourceConfiguration(self.log, cfg_filepath=self.cfg_filepath, config_paths = self.config_paths)
 
     @property
     def id(self):
@@ -56,12 +61,20 @@ class Source(object):
         self.__path = path
 
     @property
-    def config(self):
-        return self.__config
+    def cfg(self):
+        return self.__cfg
 
-    @config.setter
-    def config(self, config):
-        self.__config = config
+    @cfg.setter
+    def cfg(self, cfg):
+        self.__cfg = cfg
+
+    @property
+    def cfg_filepath(self):
+        return self.__cfg_filepath
+
+    @cfg_filepath.setter
+    def cfg_filepath(self, cfg_filepath):
+        self.__cfg_filepath = cfg_filepath
 
     def load_servers(self):
         cfg_servers = Config(self.log, self.config_paths.getConfig('parameters')['dir_etc'] + 'config-source' + str(self.id) + '-ftpservers.cfg')
