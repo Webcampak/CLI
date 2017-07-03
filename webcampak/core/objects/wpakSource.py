@@ -55,6 +55,14 @@ class Source(object):
     def path(self, path):
         self.__path = path
 
+    @property
+    def config(self):
+        return self.__config
+
+    @config.setter
+    def config(self, config):
+        self.__config = config
+
     def load_servers(self):
         cfg_servers = Config(self.log, self.config_paths.getConfig('parameters')['dir_etc'] + 'config-source' + str(self.id) + '-ftpservers.cfg')
         for i in range(1, int(cfg_servers.getConfig('cfgftpserverslistnb')) + 1):

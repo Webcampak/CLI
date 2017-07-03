@@ -55,7 +55,7 @@ class Transfer:
         """This function transfer the file, to a remote server, it can either transfer using xfer or direct FTP
         
         Args:
-            transfer_date: a date object, date object to be used for the xfer job filename
+            transfer_date: a date object to be used for the xfer job filename
             source_filepath: a string, filepath on the local filesystem
             destination_filepath: a string, filepath on the remote server
             remote_server.id: a server object, built previously from the file config-sourceX-ftpservers.cfg (X being the source ID)
