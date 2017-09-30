@@ -36,7 +36,6 @@ class phidgetsUtils(object):
         self.captureClass = parentClass
         self.dirLocale = parentClass.dirLocale
         self.dirLocaleMessage = parentClass.dirLocaleMessage
-        self.dirCurrentLocaleMessages = parentClass.dirCurrentLocaleMessages
         self.dirEmails = parentClass.dirEmails
         self.fileUtils = parentClass.fileUtils
 
@@ -68,6 +67,7 @@ class phidgetsUtils(object):
 
     def email_user_restart(self, before_cameras, after_cameras):
         """Send an email to source users to inform them about camera restart"""
+        self.dirCurrentLocaleMessages = self.captureClass.dirCurrentLocaleMessages
         email_content_filepath = self.dirCurrentLocaleMessages + "camera_restart_content.txt"
         email_subject_filepath = self.dirCurrentLocaleMessages + "camera_restart_subject.txt"
         if os.path.isfile(email_content_filepath) == False:
