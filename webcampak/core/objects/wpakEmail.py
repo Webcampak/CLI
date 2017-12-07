@@ -52,7 +52,7 @@ class Email(object):
         }
 
         """Ensure the default object is compliant with the schema, mostly here to prevent errors during code updates"""
-        self.default.verify(self.email)
+        #self.default.verify(self.email)
 
     @property
     def email(self):
