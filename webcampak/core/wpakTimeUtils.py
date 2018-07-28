@@ -66,7 +66,7 @@ class timeUtils:
             "timeUtils.getTimeFromFilename(): " + _("Extract time from: %(fileName)s using format %(dateFormat)s") % {'fileName': fileName, 'dateFormat': dateFormat})
         try:
             if dateFormat == "YYYYMMDD_HHMMSS":
-                fileTime = datetime.strptime(os.path.splitext(os.path.basename(fileName))[0], "%Y%m%d_%H%M%S")
+                fileTime = datetime.strptime(os.path.splitext(os.path.basename(fileName))[0][0:15], "%Y%m%d_%H%M%S")
             else:
                 fileTime = datetime.strptime(os.path.splitext(os.path.basename(fileName))[0], "%Y%m%d%H%M%S")
             if sourceConfig.getConfig('cfgcapturetimezone') != "":  # Update the timezone from UTC to the source's timezone
