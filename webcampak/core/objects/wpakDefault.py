@@ -18,18 +18,30 @@ from builtins import object
 import jsonschema
 from ..utils.wpakFile import File
 
-class Default(object):
-    """ Builds an object used to send emails"""
 
-    def __init__(self, log, schema_filepath = None, object_filepath = None, archive_filepath = None):
+class Default(object):
+    """Builds an object used to send emails"""
+
+    def __init__(
+        self, log, schema_filepath=None, object_filepath=None, archive_filepath=None
+    ):
         self.log = log
         self.__schema_filepath = schema_filepath
         self.__object_filepath = object_filepath
         self.__archive_filepath = archive_filepath
 
-        self.log.info("DefaultObj(): " + _("Setting Schema Filepath to: %(schema_filepath)s") % {'schema_filepath': self.schema_filepath})
-        self.log.info("DefaultObj(): " + _("Setting Object Filepath to: %(object_filepath)s") % {'object_filepath': self.object_filepath})
-        self.log.info("DefaultObj(): " + _("Setting Archive Filepath to: %(archive_filepath)s") % {'archive_filepath': self.archive_filepath})
+        self.log.info(
+            "DefaultObj(): Setting Schema Filepath to: %(schema_filepath)s"
+            % {"schema_filepath": self.schema_filepath}
+        )
+        self.log.info(
+            "DefaultObj(): Setting Object Filepath to: %(object_filepath)s"
+            % {"object_filepath": self.object_filepath}
+        )
+        self.log.info(
+            "DefaultObj(): Setting Archive Filepath to: %(archive_filepath)s"
+            % {"archive_filepath": self.archive_filepath}
+        )
 
         # Load schema into memory
         self.__schema = File.read_json(schema_filepath)
@@ -68,12 +80,12 @@ class Default(object):
 
     def verify(self, received_object):
         """Verify an object against its schema, raise an exception if there is an issue"""
-        #self.log.info(received_object)
-        #self.log.info(self.schema)
+        # self.log.info(received_object)
+        # self.log.info(self.schema)
         try:
             return jsonschema.validate(received_object, self.schema)
         except Exception as ex:
-            self.log.error("Default.verify(): " + _("Schema invalid"))
+            self.log.error("Default.verify(): Schema invalid")
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
             self.log.error(message)
@@ -84,16 +96,18 @@ class Default(object):
         jsonschema.validate(received_object, self.schema)
         if File.write_json(self.object_filepath, received_object) is True:
             self.log.info(
-                "emailObj.send(): " + _("File successfully written to: %(object_filepath)s") % {
-                    'object_filepath': self.object_filepath})
+                "emailObj.send(): File successfully written to: %(object_filepath)s"
+                % {"object_filepath": self.object_filepath}
+            )
 
     def archive(self, received_object):
         """Append the content of the object into a jsonl file containing previous alerts"""
         jsonschema.validate(received_object, self.schema)
         if File.write_jsonl(self.archive_filepath, received_object) is True:
             self.log.info(
-                "Capture.send(): " + _("Successfully added object to archive file: %(archive_filepath)s") % {
-                    'archive_filepath': self.archive_filepath})
+                "Capture.send(): Successfully added object to archive file: %(archive_filepath)s"
+                % {"archive_filepath": self.archive_filepath}
+            )
 
     def open(self, filepath):
         """Open a previously created object and load its content into a python object"""
@@ -103,6 +117,6 @@ class Default(object):
             return object_content
         except Exception as ex:
             self.log.error(
-                "Capture.send(): " + _("Unable to read file: %(ca_fp)s") % {
-                    'ca_fp': filepath})
+                "Capture.send(): Unable to read file: %(ca_fp)s" % {"ca_fp": filepath}
+            )
             return None
