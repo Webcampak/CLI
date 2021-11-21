@@ -15,6 +15,8 @@
 # If not, see http://www.gnu.org/licenses/
 
 
+from builtins import str
+from builtins import object
 import os
 import sys
 import yaml
@@ -22,7 +24,7 @@ import yaml
 from configobj import ConfigObj
 
 # This class is used to set or get values from configobj functions
-class Config:
+class Config(object):
     def __init__(self, log, filePath):
         self.filePath = filePath
         self.log = log

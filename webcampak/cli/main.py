@@ -1,5 +1,7 @@
 """Webcampak main application entry point."""
+from __future__ import print_function
 
+from builtins import object
 from cement.core.foundation import CementApp
 from cement.utils.misc import init_defaults
 from cement.core.exc import FrameworkError, CaughtSignal
@@ -24,7 +26,7 @@ defaults['webcampak']['config_dir'] = '/home/webcampak/webcampak/config/'
 
 
 class wpakApp(CementApp):
-    class Meta:
+    class Meta(object):
         label = 'webcampak'
         config_defaults = defaults
 
@@ -40,7 +42,7 @@ class wpakApp(CementApp):
 
 class wpakTestApp(wpakApp):
     """A test app that is better suited for testing."""
-    class Meta:
+    class Meta(object):
         # default argv to empty (don't use sys.argv)
         argv = []
 

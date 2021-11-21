@@ -1,9 +1,11 @@
 """Webcampak base controller."""
+from __future__ import print_function
 
+from builtins import object
 from cement.core.controller import CementBaseController, expose
 
 class wpakBaseController(CementBaseController):
-    class Meta:
+    class Meta(object):
         label = 'base'
         description = 'Webcampak is a set of tools to reliably capture high definition pictures, at pre-defined interval, over a very long period of time and automatically generate timelapse videos. Built to scale and adapt to a variety of use cases, Webcampak will drive a DSLR camera from projects ranging from 6 months to years. Failsafe mechanisms are available to ensure no pictures get lost during that time.'
         arguments = [

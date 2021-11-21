@@ -14,6 +14,10 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import division
+from builtins import str
+from builtins import object
+from past.utils import old_div
 import os, uuid
 from datetime import tzinfo, timedelta, datetime
 from pytz import timezone
@@ -641,10 +645,10 @@ class videoUtils(object):
         TrDiffHeight = TrStartHeight - TrEndHeight
         TrDiffX = TrStartX - TrEndX
         TrDiffY = TrStartY - TrEndY
-        TrDiffStepWidth = TrDiffWidth / TransitionNbFiles
-        TrDiffStepHeight = TrDiffHeight / TransitionNbFiles
-        TrDiffStepX = TrDiffX / TransitionNbFiles
-        TrDiffStepY = TrDiffY / TransitionNbFiles
+        TrDiffStepWidth = old_div(TrDiffWidth, TransitionNbFiles)
+        TrDiffStepHeight = old_div(TrDiffHeight, TransitionNbFiles)
+        TrDiffStepX = old_div(TrDiffX, TransitionNbFiles)
+        TrDiffStepY = old_div(TrDiffY, TransitionNbFiles)
         UpdatedCropWidth = TrStartWidth
         UpdatedCropHeight = TrStartHeight
         UpdatedCropX = TrStartX

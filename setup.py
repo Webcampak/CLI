@@ -23,7 +23,7 @@ setup(name='webcampak',
         # "nose",
         # "coverage",
         ### Required to function
-        'cement',
+        'cement==2.10.4',
         ],
     setup_requires=[],
     entry_points="""

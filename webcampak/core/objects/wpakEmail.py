@@ -14,8 +14,10 @@
 # You should have received a copy of the GNU General Public License along with Webcampak.
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import absolute_import
+from builtins import object
 from datetime import datetime
-from wpakDefault import Default
+from .wpakDefault import Default
 
 class Email(object):
     """ Builds an object used to send emails"""

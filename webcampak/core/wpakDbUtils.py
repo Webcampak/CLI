@@ -14,11 +14,12 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from builtins import object
 import sqlite3
 
 
 #
-class dbUtils:
+class dbUtils(object):
     def __init__(self, parentClass):
         self.log = parentClass.log
         self.config_dir = parentClass.config_dir

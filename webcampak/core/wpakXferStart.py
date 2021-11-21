@@ -14,20 +14,24 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import os
 from multiprocessing import Process
 import gettext
 
-from wpakConfigObj import Config
-from wpakFileUtils import fileUtils
-from wpakXferUtils import xferUtils
-from wpakFTPTransfer import FTPTransfer
-from wpakTimeUtils import timeUtils
+from .wpakConfigObj import Config
+from .wpakFileUtils import fileUtils
+from .wpakXferUtils import xferUtils
+from .wpakFTPTransfer import FTPTransfer
+from .wpakTimeUtils import timeUtils
 
 
 # This class is used to start & process stored in the transfer queue
 
-class xferStart:
+class xferStart(object):
     def __init__(self, log, appConfig, config_dir, threadUUID):
         self.log = log
         self.appConfig = appConfig
@@ -166,8 +170,8 @@ class xferStart:
         jobJsonContent['job']['status'] = 'processing'
         self.xferUtils.writeJsonFile(firstThreadFile, jobJsonContent)
         # Calculate source and destination file size
-        print "Source: " + jobJsonContent['job']['source']['filepath']
-        print "Destination: " + jobJsonContent['job']['destination']['filepath']
+        print("Source: " + jobJsonContent['job']['source']['filepath'])
+        print("Destination: " + jobJsonContent['job']['destination']['filepath'])
         jobSourceFilesize = self.getJobFilesize(jobJsonContent['job']['source'])
         jobJsonContent = self.xferUtils.logToJson(firstThreadFile, jobJsonContent,
                                                   'Checking file size on source: ' + str(jobSourceFilesize) + ' bytes')
@@ -182,7 +186,7 @@ class xferStart:
             jobJsonContent = self.xferUtils.logToJson(firstThreadFile, jobJsonContent,
                                                       'Source filesize different from destination filesize, copying file')
             # Set or increment the retries count for the job
-            if jobJsonContent['job'].has_key('retries'):
+            if 'retries' in jobJsonContent['job']:
                 jobJsonContent['job']['retries'] = int(jobJsonContent['job']['retries']) - 1
             else:
                 jobJsonContent['job']['retries'] = 0
@@ -246,7 +250,7 @@ class xferStart:
         if (jobJsonContent['job']['xfer_report'] != None):
             self.log.info("(" + str(
                 os.getpid()) + ")xferStart.moveThreadFileAfterTransfer(): Transfer has been successful, storing completed file")
-            if jobJsonContent['job'].has_key('sync-report'):
+            if 'sync-report' in jobJsonContent['job']:
                 #destinationFilePath = self.dirSources + "/source" + str(jobJsonContent['job']['filesourceid']) + "/resources/sync-reports/" + os.path.splitext(jobJsonContent['job']['sync-report']['filename'])[0] + "/"
                 destinationFilePath = self.dirSyncReports + "/completed/" + os.path.splitext(jobJsonContent['job']['sync-report']['filename'])[0] + "/"
             else:

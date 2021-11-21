@@ -14,17 +14,20 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import os
 import gettext
 import json
 import dateutil.parser
 import socket
 
-from wpakSourcesUtils import sourcesUtils
-from wpakDbUtils import dbUtils
-from objects.wpakEmail import Email
-from wpakFTPUtils import FTPUtils
-from wpakAlertsObj import alertObj
+from .wpakSourcesUtils import sourcesUtils
+from .wpakDbUtils import dbUtils
+from .objects.wpakEmail import Email
+from .wpakFTPUtils import FTPUtils
+from .wpakAlertsObj import alertObj
 
 class alertsEmails(object):
     """ This class contains functions used to send email to source users

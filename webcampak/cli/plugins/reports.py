@@ -1,5 +1,6 @@
 """Example Plugin for Webcampak."""
 
+from builtins import object
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
 
@@ -10,7 +11,7 @@ def reports_plugin_hook(app):
     pass
 
 class ExamplePluginController(CementBaseController):
-    class Meta:
+    class Meta(object):
         # name that the controller is displayed at command line
         label = 'reports'
 

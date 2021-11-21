@@ -14,6 +14,10 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from builtins import object
 import os, uuid
 import dateutil.parser
 import time
@@ -21,12 +25,12 @@ import gettext
 import json
 import rrdtool
 
-from wpakConfigObj import Config
-from wpakFileUtils import fileUtils
-from wpakTimeUtils import timeUtils
-from wpakTransferUtils import transferUtils
+from .wpakConfigObj import Config
+from .wpakFileUtils import fileUtils
+from .wpakTimeUtils import timeUtils
+from .wpakTransferUtils import transferUtils
 
-from wpakFTPUtils import FTPUtils
+from .wpakFTPUtils import FTPUtils
 
 
 # This class is used to generate a RRD graph from a source
@@ -184,7 +188,7 @@ class statsRrd(object):
                                             if 'color' in currentCaptureLine['sensors'][currentSensor]:
                                                 SensorColor = currentCaptureLine['sensors'][currentSensor]['color']
 
-                            ValueTableKeys = ValueTable.keys()
+                            ValueTableKeys = list(ValueTable.keys())
                             ValueTableKeys.sort()
 
                             self.log.info("statsrrd.run(): " + _("Preparing the RRD base file: %(SensorRRDFile)s") % {
@@ -202,7 +206,7 @@ class statsRrd(object):
                                 , "DS:GRAPHAREA:GAUGE:600:U:U" \
                                 , "RRA:AVERAGE:0.5:1:" + str(len(ValueTable)))
 
-                            for i in xrange(len(ValueTableKeys)):
+                            for i in range(len(ValueTableKeys)):
                                 self.log.info("statsrrd.run(): " + _(
                                     "Adding Timestamp: %(currentTimestamp)s - Value: %(currentValue)s") % {
                                                   'currentTimestamp': str(ValueTableKeys[i]),

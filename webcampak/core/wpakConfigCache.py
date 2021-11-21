@@ -15,7 +15,9 @@
 # If not, see http://www.gnu.org/licenses/
 
 
-from wpakConfigObj import Config
+from __future__ import absolute_import
+from builtins import object
+from .wpakConfigObj import Config
 
 class configCache(object):
     """ A very simple class used to cache source configuration and avoid re-reading from the same file too frequently

@@ -14,11 +14,18 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import division
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import os
 import shutil
 import time
 import socket
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import platform
 import re
 
@@ -327,19 +334,19 @@ class captureUtils(object):
             'captureJpgFile': captureJpgFile})
         self.fileUtils.CheckFilepath(captureJpgFile)
         shutil.copy(self.dirCurrentSourceTmp + captureFilename + ".jpg", captureJpgFile)
-        os.chmod(captureJpgFile, 0775)
+        os.chmod(captureJpgFile, 0o775)
         if os.path.isfile(self.dirCurrentSourceTmp + captureFilename + ".raw"):
             self.log.info("captureUtils.archivePicture(): " + _("Copying RAW picture from: %(sourceRawFile)s to: %(captureRawFile)s") % {
                 'sourceRawFile': self.dirCurrentSourceTmp + captureFilename + ".raw", 'captureRawFile': captureRawFile})
             self.fileUtils.CheckFilepath(captureRawFile)
             shutil.copyfile(self.dirCurrentSourceTmp + captureFilename + ".raw", captureRawFile)
-            os.chmod(captureRawFile, 0775)        
+            os.chmod(captureRawFile, 0o775)        
         if os.path.isfile(self.dirCurrentSourceTmp + "raw/" + captureDirectory + "/" + captureFilename + ".raw"):
             self.log.info("captureUtils.archivePicture(): " + _("Copying RAW picture from: %(sourceRawFile)s to: %(captureRawFile)s") % {
                 'sourceRawFile': self.dirCurrentSourceTmp + "raw/" + captureDirectory + "/" + captureFilename + ".raw", 'captureRawFile': captureRawFile})
             self.fileUtils.CheckFilepath(captureRawFile)
             shutil.copyfile(self.dirCurrentSourceTmp + "raw/" + captureDirectory + "/" + captureFilename + ".raw", captureRawFile)
-            os.chmod(captureRawFile, 0775)
+            os.chmod(captureRawFile, 0o775)
             
 
     def getArchivedSize(self, captureFilename, fileType):
@@ -381,7 +388,7 @@ class captureUtils(object):
                           'jpgPictureLive': self.dirCurrentSourceLive + "last-capture.jpg"})
         self.fileUtils.CheckFilepath(self.dirCurrentSourceLive + "last-capture.jpg")
         shutil.copy(self.dirCurrentSourceTmp + captureFilename + ".jpg", self.dirCurrentSourceLive + "last-capture.jpg")
-        os.chmod(self.dirCurrentSourceLive + "last-capture.jpg", 0775)
+        os.chmod(self.dirCurrentSourceLive + "last-capture.jpg", 0o775)
         if os.path.isfile(self.dirCurrentSourceTmp + captureFilename + ".raw"):
             self.log.info("captureUtils.createLivePicture(): " + _(
                 "Copying full size RAW picture: %(rawPicture)s to: %(rawPictureLive)s") % {
@@ -389,7 +396,7 @@ class captureUtils(object):
                               'rawPictureLive': self.dirCurrentSourceLive + "last-capture.raw"})
             shutil.copy(self.dirCurrentSourceTmp + captureFilename + ".raw",
                         self.dirCurrentSourceLive + "last-capture.raw")
-            os.chmod(self.dirCurrentSourceLive + "last-capture.raw", 0775)
+            os.chmod(self.dirCurrentSourceLive + "last-capture.raw", 0o775)
 
 
         #    def transferFile(self, sourceFilePath, destinationFilePath, serverId, maxRetries):
@@ -464,7 +471,7 @@ class captureUtils(object):
                 self.pictureTransformations.setFiledestinationPath(hotlinkDestinationFile)
                 self.pictureTransformations.resize(hotlinkSize)
                 # self.pictureTransformations.setFiledestinationPath(previousDestinationFile)
-                os.chmod(self.dirCurrentSourceLive + "webcam-" + hotlinkSize + ".jpg", 0775)
+                os.chmod(self.dirCurrentSourceLive + "webcam-" + hotlinkSize + ".jpg", 0o775)
                 if self.configSource.getConfig('cfgftphotlinkserverid') != "":
                     self.transferUtils.transferFile(self.captureClass.getCaptureTime(),
                                                     self.dirCurrentSourceLive + "webcam-" + hotlinkSize + ".jpg",
@@ -550,14 +557,14 @@ class captureUtils(object):
             destinationRawFilePath = sourceTmpDirectory + "raw/" + captureDirectory + "/" + captureFilename + ".raw"
             self.fileUtils.CheckFilepath(destinationJpgFilePath)
             shutil.copy(sourceJpgFilePath, destinationJpgFilePath)
-            os.chmod(destinationJpgFilePath, 0775)
+            os.chmod(destinationJpgFilePath, 0o775)
             self.log.info(
                 "captureUtils.copyPicture(): " + _("SourceCopy: JPG Picture copied to %(sourceTmpDirectory)s") % {
                     'sourceTmpDirectory': str(destinationJpgFilePath)})
             if os.path.isfile(sourceRawFilePath) and copyRaw == "yes":
                 self.fileUtils.CheckFilepath(destinationRawFilePath)
                 shutil.copy(sourceRawFilePath, destinationRawFilePath)
-                os.chmod(destinationRawFilePath, 0775)
+                os.chmod(destinationRawFilePath, 0o775)
                 self.log.info("captureUtils.copyPicture(): " + _(
                     "SourceCopy: RAW Picture copied to %(destinationRawFilePath)s") % {
                                   'destinationRawFilePath': destinationRawFilePath})
@@ -583,7 +590,7 @@ class captureUtils(object):
             destinationSensorFilePath = sourceTmpDirectory + captureDirectory + "/" + sensorFilename
             self.fileUtils.CheckFilepath(destinationSensorFilePath)
             shutil.copy(sourceSensorFilePath, destinationSensorFilePath)
-            os.chmod(destinationSensorFilePath, 0775)
+            os.chmod(destinationSensorFilePath, 0o775)
             self.log.info(
                 "captureUtils.copySensor(): " + _("SourceCopy: Sensor file copied to %(destinationSensorFilePath)s") % {
                     'destinationSensorFilePath': str(destinationSensorFilePath)})
@@ -659,7 +666,7 @@ class captureUtils(object):
                 dirdate = (
                 int(currentScanFile[:4]), int(currentScanFile[4:6]), int(currentScanFile[6:8]), 0, 0, 0, 0, 0, 0)
                 timestamp = int(time.mktime(dirdate))
-                timeDifferenceInDays = int((int(self.captureClass.getCaptureTime().strftime("%s")) - timestamp) / 86400)
+                timeDifferenceInDays = int(old_div((int(self.captureClass.getCaptureTime().strftime("%s")) - timestamp), 86400))
                 self.log.info("captureUtils.deleteOldPictures(): " + _(
                     "Directory %(currentScanFile)s is %(timeDifferenceInDays)s days old") % {
                                   'currentScanFile': currentScanFile, 'timeDifferenceInDays': timeDifferenceInDays})
@@ -753,7 +760,7 @@ class captureUtils(object):
         # print "Server URL:" + ServerUrl
         socket.setdefaulttimeout(10)
         try:
-            urllib.urlretrieve(ServerUrl, self.dirCurrentSourceTmp + "tmpfile")
+            urllib.request.urlretrieve(ServerUrl, self.dirCurrentSourceTmp + "tmpfile")
             self.log.info(
                 "captureUtils.sendUsageStats(): " + _("Stats Program: Communication with central server successful"))
         except:

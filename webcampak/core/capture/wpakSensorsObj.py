@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from builtins import str
+from builtins import object
 import os
 import json
 import jsonschema
@@ -75,7 +77,7 @@ class sensorsObj(object):
         jsonschema.validate(self.lastSensors, self.schema)
 
     def getSensorsValue(self, index):
-        if (self.lastSensors.has_key(index)):
+        if (index in self.lastSensors):
             return self.lastSensors[index]
         else:
             return None

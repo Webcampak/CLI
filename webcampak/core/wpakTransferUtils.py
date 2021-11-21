@@ -14,14 +14,17 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import hashlib
 
-from wpakConfigObj import Config
-from wpakXferJob import xferJob
-from wpakFTPTransfer import FTPTransfer
+from .wpakConfigObj import Config
+from .wpakXferJob import xferJob
+from .wpakFTPTransfer import FTPTransfer
 
 
-class transferUtils:
+class transferUtils(object):
     def __init__(self, parentClass):
         self.log = parentClass.log
         self.config_dir = parentClass.config_dir

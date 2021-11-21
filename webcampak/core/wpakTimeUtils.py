@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import absolute_import
+from builtins import object
 import os
 from datetime import tzinfo, timedelta, datetime
 import pytz
@@ -22,11 +24,11 @@ import time
 from PIL import Image
 from PIL.ExifTags import TAGS
 
-from wpakConfigObj import Config
+from .wpakConfigObj import Config
 
 
 #
-class timeUtils:
+class timeUtils(object):
     def __init__(self, parentClass):
         self.log = parentClass.log
         self.config_dir = parentClass.config_dir
@@ -95,7 +97,7 @@ class timeUtils:
         if hasattr(img, '_getexif'):
             exifinfo = img._getexif()
         if exifinfo != None:
-            for tag, value in exifinfo.items():
+            for tag, value in list(exifinfo.items()):
                 decoded = TAGS.get(tag, tag)
                 if decoded == "DateTimeDigitized":
                     # print "DECODED:" + str(decoded) + "VALUE" + str(value)

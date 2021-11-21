@@ -14,14 +14,10 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
-from future import standard_library
-standard_library.install_aliases()
-from builtins import object
 import os
 import socket
-import urllib.request, urllib.parse, urllib.error
-from urllib.error import URLError
-from urllib.request import HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler, build_opener
+import urllib
+from urllib2 import URLError, HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler, build_opener
 
 
 class captureWebfile(object):
@@ -100,7 +96,7 @@ class captureWebfile(object):
                 return False
         else:
             try:
-                urllib.request.urlretrieve(self.configSource.getConfig('cfgsourcewebfileurl'),
+                urllib.urlretrieve(self.configSource.getConfig('cfgsourcewebfileurl'),
                                    self.dirCurrentSourceTmp + self.captureFilename + ".jpg")
             except:
                 self.log.info("captureWebfile.capture(): " + _("Error opening the URL"))

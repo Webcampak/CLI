@@ -14,13 +14,16 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import os
 import json
 import dateutil.parser
 import jsonschema
 import subprocess
 
-from wpakFileUtils import fileUtils
+from .wpakFileUtils import fileUtils
 
 
 class alertObj(object):
@@ -72,7 +75,7 @@ class alertObj(object):
         jsonschema.validate(self.lastAlert, self.schema)
 
     def getAlertValue(self, index):
-        if (self.lastAlert.has_key(index)):
+        if (index in self.lastAlert):
             return self.lastAlert[index]
         else:
             return None

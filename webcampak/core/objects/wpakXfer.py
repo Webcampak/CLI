@@ -14,9 +14,11 @@
 # You should have received a copy of the GNU General Public License along with Webcampak.
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import absolute_import
+from builtins import object
 import os
 from ..utils.wpakFile import File
-from wpakDefault import Default
+from .wpakDefault import Default
 
 
 class Xfer(object):

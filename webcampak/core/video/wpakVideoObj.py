@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from builtins import str
+from builtins import object
 import os, uuid, signal
 from datetime import tzinfo, timedelta, datetime
 from pytz import timezone
@@ -86,7 +88,7 @@ class videoObj(object):
         jsonschema.validate(self.lastVideo, self.schema)
 
     def getVideoValue(self, index):
-        if (self.lastVideo.has_key(index)):
+        if (index in self.lastVideo):
             return self.lastVideo[index]
         else:
             return None

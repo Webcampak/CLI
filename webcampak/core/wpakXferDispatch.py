@@ -14,18 +14,22 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from builtins import object
 import os, uuid
 import shutil
 import dateutil.parser
 import gettext
 
-from wpakConfigObj import Config
-from wpakFileUtils import fileUtils
-from wpakXferUtils import xferUtils
-from wpakTimeUtils import timeUtils
+from .wpakConfigObj import Config
+from .wpakFileUtils import fileUtils
+from .wpakXferUtils import xferUtils
+from .wpakTimeUtils import timeUtils
 
 
-class xferDispatch:
+class xferDispatch(object):
     """ Initialize transfer queues and dispatch files to the queue
     Read files from the global queue directory, starting from the oldest ones and stops once all threads are full
     Each transfer queue (or thread) can hold up to "self.maxFilesPerThread" files (defined in XferUtils.py)
@@ -272,7 +276,7 @@ class xferDispatch:
                     if (currentDate - lastJobCompletion).total_seconds() < 1800:
                         self.log.info(
                             "xferDispatch.initializeThreads(): This thread has been active in the last 30 minutes and might still be active")
-                        if (threadJson.has_key('pid') and self.xferUtils.isPidAlive(threadJson['pid'])):
+                        if ('pid' in threadJson and self.xferUtils.isPidAlive(threadJson['pid'])):
                             self.log.info(
                                 "xferDispatch.initializeThreads(): Thread is alive, PID: " + str(threadJson['pid']))
                             threadsCpt = threadsCpt + 1

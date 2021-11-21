@@ -14,14 +14,20 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import absolute_import
+from __future__ import division
+from builtins import str
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import time
 import os
 import socket
 
-from wpakPhidgets import phidgets
+from .wpakPhidgets import phidgets
 from webcampak.core.gphoto.wpakGphoto import Gphoto
-from objects.wpakEmail import Email
-from wpakDbUtils import dbUtils
+from .objects.wpakEmail import Email
+from .wpakDbUtils import dbUtils
 
 class phidgetsUtils(object):
     def __init__(self, parentClass):
@@ -57,7 +63,7 @@ class phidgetsUtils(object):
             if sensor_value is not None:
                 sensor_temperature = (sensor_value/4.095) * 0.22222 - 61.111
                 sensor_luminosity = (sensor_value/4.095)
-                sensor_pressure = ((sensor_value / 4.095)/4) + 10
+                sensor_pressure = (old_div((sensor_value / 4.095),4)) + 10
                 sensor_humidity = ((sensor_value / 4.095) * 0.1906) - 40.2
                 self.log.info("phidgetsUtils.scan_ports(): " + _("Scanning port: %(current_port)s, Temperature value: %(sensor_temperature)s") % {'current_port': str(current_port), 'sensor_temperature': str(sensor_temperature)})
                 self.log.info("phidgetsUtils.scan_ports(): " + _("Scanning port: %(current_port)s, Luminosity value: %(sensor_luminosity)s") % {'current_port': str(current_port), 'sensor_luminosity': str(sensor_luminosity)})

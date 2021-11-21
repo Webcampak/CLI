@@ -15,6 +15,11 @@
 # If not, see http://www.gnu.org/licenses/
 
 
+from __future__ import print_function
+from __future__ import division
+from builtins import str
+from builtins import object
+from past.utils import old_div
 import os
 import shlex, subprocess
 import re
@@ -22,7 +27,7 @@ import datetime
 from dateutil import tz
 import time
 
-class fileUtils:
+class fileUtils(object):
     def __init__(self, parentClass):
         self.log = parentClass.log
         self.config_dir = parentClass.config_dir
@@ -61,7 +66,7 @@ class fileUtils:
         size = 0
         for (current, subDirs, files) in os.walk(Directory):
             size = size + sum(os.path.getsize(os.path.join(current, files)) for files in files)
-        return size / (1024 * 1024)
+        return old_div(size, (1024 * 1024))
 
     # Function: CheckDirDu
     # Description; This function runs a "du" agains the specified directory
@@ -73,8 +78,8 @@ class fileUtils:
         args = shlex.split(DuCommand)
         p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, errors = p.communicate()
-        print output
-        print errors
+        print(output)
+        print(errors)
         return str(re.findall("\d+", output)[0])
 
     # Function: CheckJpegFile

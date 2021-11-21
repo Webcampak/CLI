@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
-from builtins import str
-from builtins import object
 import os
 from datetime import tzinfo, timedelta, datetime
 import shutil
@@ -69,7 +67,7 @@ class captureIPCam(object):
             if hasattr(img, '_getexif'):
                 exifinfo = img._getexif()
             if exifinfo != None:
-                for tag, value in list(exifinfo.items()):
+                for tag, value in exifinfo.items():
                     decoded = TAGS.get(tag, tag)
                     if decoded == "DateTimeDigitized":
                         # print "DECODED:" + str(decoded) + "VALUE" + str(value)

@@ -14,12 +14,14 @@
 # You should have received a copy of the GNU General Public License along with Webcampak.
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import print_function
+from builtins import object
 import subprocess
 import json
 import re
 import logging
 
-class Gphoto():
+class Gphoto(object):
     """
         This class provide an abstraction layer for various gphoto2 calls
     """

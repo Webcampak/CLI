@@ -14,18 +14,21 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import os
 import gettext
 
-from wpakConfigObj import Config
-from wpakFileUtils import fileUtils
-from wpakXferUtils import xferUtils
-from wpakFTPTransfer import FTPTransfer
+from .wpakConfigObj import Config
+from .wpakFileUtils import fileUtils
+from .wpakXferUtils import xferUtils
+from .wpakFTPTransfer import FTPTransfer
 
 
 # This class is used to start & process stored in the transfer queue
 
-class xferStop:
+class xferStop(object):
     def __init__(self, log, appConfig, config_dir, threadUUID):
         self.log = log
         self.appConfig = appConfig

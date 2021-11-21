@@ -14,11 +14,13 @@
 # You should have received a copy of the GNU General Public License along with Webcampak.
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import print_function
+from builtins import object
 import os
 import json
 import subprocess
 
-class File:
+class File(object):
     @staticmethod
     def check_filepath(filepath):
         d = os.path.dirname(filepath)

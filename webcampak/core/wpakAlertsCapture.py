@@ -14,6 +14,11 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import absolute_import
+from __future__ import division
+from builtins import str
+from builtins import object
+from past.utils import old_div
 import os
 import time
 import gettext
@@ -25,15 +30,15 @@ import dateutil.parser
 from tabulate import tabulate
 import socket
 
-from wpakConfigObj import Config
-from wpakConfigCache import configCache
-from wpakTimeUtils import timeUtils
-from wpakSourcesUtils import sourcesUtils
-from wpakFileUtils import fileUtils
-from wpakDbUtils import dbUtils
-from objects.wpakEmail import Email
-from wpakAlertsObj import alertObj
-from wpakAlertsEmails import alertsEmails
+from .wpakConfigObj import Config
+from .wpakConfigCache import configCache
+from .wpakTimeUtils import timeUtils
+from .wpakSourcesUtils import sourcesUtils
+from .wpakFileUtils import fileUtils
+from .wpakDbUtils import dbUtils
+from .objects.wpakEmail import Email
+from .wpakAlertsObj import alertObj
+from .wpakAlertsEmails import alertsEmails
 
 class alertsCapture(object):
     """ This class is used to verify if pictures are properly captured and not running late
@@ -187,7 +192,7 @@ class alertsCapture(object):
                     self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Time based: cfgemailalerttimereminder: %(cfgemailalerttimereminder)s") % {'currentSource': str(currentSource), 'cfgemailalerttimereminder': str(configSource.getConfig('cfgemailalerttimereminder'))})
 
                     # Determine if source id in an error state
-                    minutesDiff = int(secondsDiff / 60)
+                    minutesDiff = int(old_div(secondsDiff, 60))
                     self.log.info("alertsCapture.run(): " + _("Source: %(currentSource)s - Time based: Minutes since last capture: %(minutesDiff)s") % {'currentSource': str(currentSource), 'minutesDiff': str(minutesDiff)})
                     if minutesDiff >= int(configSource.getConfig('cfgemailalerttimefailure')):
                         timeAlertStatus = "ERROR"

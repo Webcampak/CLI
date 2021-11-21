@@ -14,24 +14,27 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import os
 import shutil
 import gettext
 
-from wpakConfigObj import Config
-from wpakTimeUtils import timeUtils
-from wpakFileUtils import fileUtils
-from wpakTransferUtils import transferUtils
+from .wpakConfigObj import Config
+from .wpakTimeUtils import timeUtils
+from .wpakFileUtils import fileUtils
+from .wpakTransferUtils import transferUtils
 
-from video.wpakVideoUtils import videoUtils
-from video.wpakVideoEmails import videoEmails
-from video.wpakVideoObj import videoObj
+from .video.wpakVideoUtils import videoUtils
+from .video.wpakVideoEmails import videoEmails
+from .video.wpakVideoObj import videoObj
 
-from wpakPictureTransformations import pictureTransformations
-from wpakFTPUtils import FTPUtils
+from .wpakPictureTransformations import pictureTransformations
+from .wpakFTPUtils import FTPUtils
 
 
-class Video:
+class Video(object):
     """ This class is used to deal with video creation for the source
     
     Args:

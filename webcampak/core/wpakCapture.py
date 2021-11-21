@@ -14,31 +14,34 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import os
 import time
 import gettext
 
-from wpakConfigObj import Config
-from wpakFileUtils import fileUtils
-from wpakTimeUtils import timeUtils
-from wpakTransferUtils import transferUtils
-from wpakPhidgetsUtils import phidgetsUtils
+from .wpakConfigObj import Config
+from .wpakFileUtils import fileUtils
+from .wpakTimeUtils import timeUtils
+from .wpakTransferUtils import transferUtils
+from .wpakPhidgetsUtils import phidgetsUtils
 
-from capture.wpakCaptureUtils import captureUtils
-from capture.wpakCaptureEmails import captureEmails
-from capture.wpakCaptureObj import captureObj
-from capture.wpakSensorsObj import sensorsObj
+from .capture.wpakCaptureUtils import captureUtils
+from .capture.wpakCaptureEmails import captureEmails
+from .capture.wpakCaptureObj import captureObj
+from .capture.wpakSensorsObj import sensorsObj
 
-from capture.drivers.wpakCaptureGphoto import captureGphoto
-from capture.drivers.wpakCaptureIPCam import captureIPCam
-from capture.drivers.wpakCaptureWebfile import captureWebfile
-from capture.drivers.wpakCaptureTestPicture import captureTestPicture
-from capture.drivers.wpakCaptureWpak import captureWpak
-from capture.drivers.wpakCaptureRtsp import captureRtsp
-from capture.drivers.wpakCapturePhidget import capturePhidget
+from .capture.drivers.wpakCaptureGphoto import captureGphoto
+from .capture.drivers.wpakCaptureIPCam import captureIPCam
+from .capture.drivers.wpakCaptureWebfile import captureWebfile
+from .capture.drivers.wpakCaptureTestPicture import captureTestPicture
+from .capture.drivers.wpakCaptureWpak import captureWpak
+from .capture.drivers.wpakCaptureRtsp import captureRtsp
+from .capture.drivers.wpakCapturePhidget import capturePhidget
 
-from wpakPictureTransformations import pictureTransformations
-from wpakFTPUtils import FTPUtils
+from .wpakPictureTransformations import pictureTransformations
+from .wpakFTPUtils import FTPUtils
 
 
 # This class is used to capture a picture or sensors from a source

@@ -14,6 +14,9 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import os
 import signal
 from datetime import tzinfo, timedelta, datetime
@@ -21,15 +24,15 @@ import pytz
 import json
 import gzip
 
-from wpakConfigObj import Config
-from wpakFileUtils import fileUtils
+from .wpakConfigObj import Config
+from .wpakFileUtils import fileUtils
 
 
 # This class is used to initialize transfer queues and dispatch files to the queue
 # It reads files from the global queue directory, starting from the oldest ones, and stops one all threads are full
 # Each transfer queue (or thread) can hold up to "self.maxFilesPerThread" files 
 
-class xferUtils:
+class xferUtils(object):
     """ This class is contains various utilties of the xfer module
 
     Args:
@@ -164,7 +167,7 @@ class xferUtils:
         """
         self.log.debug("xferUtils.getThreadPid(): " + _("Start"))
         threadJson = self.loadJsonFile(self.dirXferThreads + threadUUID + '.json')
-        if (threadJson.has_key('pid')):
+        if ('pid' in threadJson):
             return threadJson['pid']
         else:
             return None
@@ -248,7 +251,7 @@ class xferUtils:
         """
         self.log.debug("xferUtils.isThreadRunning(): " + _("Start"))
         threadJson = self.loadJsonFile(self.dirXferThreads + threadUUID + '.json')
-        if (threadJson.has_key('pid')):
+        if ('pid' in threadJson):
             if self.isPidAlive(threadJson['pid']):
                 return True
             else:

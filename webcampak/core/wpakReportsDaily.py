@@ -15,6 +15,10 @@
 # If not, see http://www.gnu.org/licenses/
 
 from __future__ import division
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from builtins import object
 import os
 import time
 import gettext
@@ -23,13 +27,13 @@ from datetime import tzinfo, timedelta, datetime
 from tabulate import tabulate
 import socket
 
-from wpakConfigObj import Config
-from wpakTimeUtils import timeUtils
-from wpakSourcesUtils import sourcesUtils
-from wpakFileUtils import fileUtils
-from wpakDbUtils import dbUtils
-from objects.wpakEmail import Email
-from wpakFTPUtils import FTPUtils
+from .wpakConfigObj import Config
+from .wpakTimeUtils import timeUtils
+from .wpakSourcesUtils import sourcesUtils
+from .wpakFileUtils import fileUtils
+from .wpakDbUtils import dbUtils
+from .objects.wpakEmail import Email
+from .wpakFTPUtils import FTPUtils
 
 
 # This class is used to capture a picture or sensors from a source
