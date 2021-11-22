@@ -1,3 +1,4 @@
+future
 cement==2.10.4
 configobj
 pyyaml
