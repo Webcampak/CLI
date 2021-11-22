@@ -1116,7 +1116,7 @@ class captureUtils(object):
         # self.configGeneral.getConfig('cfgbasedir')
         CurrentCPU = platform.processor()
         CurrentCPU = re.sub(r"\s", "", CurrentCPU)
-        CurrentDist = platform.linux_distribution()
+        CurrentDist = "deprecated"
         CurrentDist = re.sub(r"\s", "", str(CurrentDist))
         ServerUrl = (
             "http://stats.webcampak.com/stats.run.html?v="
