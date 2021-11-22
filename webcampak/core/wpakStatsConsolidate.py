@@ -14,6 +14,11 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import absolute_import
+from __future__ import division
+from builtins import str
+from builtins import object
+from past.utils import old_div
 import os, uuid
 import datetime
 import shutil
@@ -22,13 +27,13 @@ from dateutil import tz
 from collections import OrderedDict
 import json
 
-from wpakConfigObj import Config
-from wpakTimeUtils import timeUtils
+from .wpakConfigObj import Config
+from .wpakTimeUtils import timeUtils
 
 
 # This class is used to start & process stored in the transfer queue
 
-class statsConsolidate:
+class statsConsolidate(object):
     def __init__(self, log, appConfig, config_dir):
         self.log = log
         self.appConfig = appConfig
@@ -146,12 +151,12 @@ class statsConsolidate:
                     os.remove(targetDirectory + os.path.splitext(statFile)[0].lower() + ".jsonl")
 
                 configObjStatsFile = ConfigObj(targetDirectory + statFile)
-                for configTime in configObjStatsFile.keys():
+                for configTime in list(configObjStatsFile.keys()):
                     # Exception for picture source file
                     if configTime == 'PicDirScan':
                         # ScannedDay20151220 = 9, 88784158
                         daysStats = OrderedDict()
-                        for configParam in configObjStatsFile[configTime].keys():
+                        for configParam in list(configObjStatsFile[configTime].keys()):
                             currentDay = configParam[10:18]
                             daysStats[currentDay] = {'count': configObjStatsFile[configTime][configParam][0],
                                                      'size': configObjStatsFile[configTime][configParam][1]}
@@ -170,7 +175,7 @@ class statsConsolidate:
                         if 'daysStats' in locals() or 'daysStats' in globals():
                             systemStats['days'] = daysStats
 
-                        for configParam in configObjStatsFile[configTime].keys():
+                        for configParam in list(configObjStatsFile[configTime].keys()):
                             systemStats[configParam] = configObjStatsFile[configTime][configParam]
 
                         # print json.dumps(systemStats)
@@ -195,7 +200,7 @@ class statsConsolidate:
             if newDate not in dayStats:
                 dayStats[newDate] = OrderedDict()
                 dayStats[newDate]['date'] = newDate
-            for dictIndex in currentStatsLine.keys():
+            for dictIndex in list(currentStatsLine.keys()):
                 if dictIndex != 'date' and dictIndex != 'Timestamp':
                     if dictIndex not in dayStats[newDate]:
                         dayStats[newDate][dictIndex] = OrderedDict()
@@ -219,7 +224,7 @@ class statsConsolidate:
             if newDate not in dayStats:
                 dayStats[newDate] = OrderedDict()
                 dayStats[newDate]['date'] = newDate
-            for dictIndex in currentStatsLine.keys():
+            for dictIndex in list(currentStatsLine.keys()):
                 if dictIndex != 'date' and dictIndex != 'Timestamp':
                     if dictIndex not in dayStats[newDate]:
                         dayStats[newDate][dictIndex] = OrderedDict()
@@ -247,7 +252,7 @@ class statsConsolidate:
             if newDate not in dayStats:
                 dayStats[newDate] = OrderedDict()
                 dayStats[newDate]['date'] = newDate
-            for dictIndex in currentStatsLine.keys():
+            for dictIndex in list(currentStatsLine.keys()):
                 if dictIndex != 'date' and dictIndex != 'Timestamp':
                     if dictIndex not in dayStats[newDate]:
                         dayStats[newDate][dictIndex] = OrderedDict()
@@ -263,14 +268,14 @@ class statsConsolidate:
     # Taking the lists perviously built, calculate min, max and avg    
     def crunchHourFile(self, dayStats):
         self.log.info("statsConsolidate.crunchHourFile() - Start")
-        for dayHour in dayStats.keys():
-            for dictIndex in dayStats[dayHour].keys():
+        for dayHour in list(dayStats.keys()):
+            for dictIndex in list(dayStats[dayHour].keys()):
                 if dictIndex != 'date':
                     # print dayStats[dayHour][dictIndex]['list']
                     dayStats[dayHour][dictIndex]['min'] = int(min(dayStats[dayHour][dictIndex]['list']))
                     dayStats[dayHour][dictIndex]['max'] = int(max(dayStats[dayHour][dictIndex]['list']))
                     dayStats[dayHour][dictIndex]['avg'] = int(
-                        sum(dayStats[dayHour][dictIndex]['list']) / len(dayStats[dayHour][dictIndex]['list']))
+                        old_div(sum(dayStats[dayHour][dictIndex]['list']), len(dayStats[dayHour][dictIndex]['list'])))
                     del dayStats[dayHour][dictIndex]['list']
                 else:
                     dayStats[dayHour]['date'] = dayStats[dayHour]['date'].isoformat()
@@ -279,14 +284,14 @@ class statsConsolidate:
     # Taking the lists perviously built, calculate min, max and avg    
     def crunchDayFile(self, dayStats):
         self.log.info("statsConsolidate.crunchDayFile() - Start")
-        for dayHour in dayStats.keys():
-            for dictIndex in dayStats[dayHour].keys():
+        for dayHour in list(dayStats.keys()):
+            for dictIndex in list(dayStats[dayHour].keys()):
                 if dictIndex != 'date':
                     # print dayStats[dayHour][dictIndex]['list']
                     dayStats[dayHour][dictIndex]['min'] = int(min(dayStats[dayHour][dictIndex]['listmin']))
                     dayStats[dayHour][dictIndex]['max'] = int(max(dayStats[dayHour][dictIndex]['listmax']))
                     dayStats[dayHour][dictIndex]['avg'] = int(
-                        sum(dayStats[dayHour][dictIndex]['listavg']) / len(dayStats[dayHour][dictIndex]['listavg']))
+                        old_div(sum(dayStats[dayHour][dictIndex]['listavg']), len(dayStats[dayHour][dictIndex]['listavg'])))
                     del dayStats[dayHour][dictIndex]['listmin']
                     del dayStats[dayHour][dictIndex]['listmax']
                     del dayStats[dayHour][dictIndex]['listavg']
@@ -302,7 +307,7 @@ class statsConsolidate:
             self.log.info(
                 "statsConsolidate.saveHourFile() - Json file:  exists, deleting... " + self.dirStatsConsolidated + scanFile)
             os.remove(self.dirStatsConsolidated + scanFile)
-        for dayHour in reversed(dayStats.keys()):
+        for dayHour in reversed(list(dayStats.keys())):
             with open(self.dirStatsConsolidated + scanFile, "a") as consolidatedStatFile:
                 consolidatedStatFile.write(json.dumps(dayStats[dayHour]) + "\n")
 
@@ -316,10 +321,10 @@ class statsConsolidate:
     def saveDayFile(self, dayStats, scanFile):
         self.log.info("statsConsolidate.saveHourFile() - Start")
         if os.path.isfile(self.dirStatsConsolidated + scanFile):
-            for dayHour in reversed(dayStats.keys()):
+            for dayHour in reversed(list(dayStats.keys())):
                 self.prependLine(self.dirStatsConsolidated + scanFile, json.dumps(dayStats[dayHour]) + "\n")
         else:
-            for dayHour in reversed(dayStats.keys()):
+            for dayHour in reversed(list(dayStats.keys())):
                 with open(self.dirStatsConsolidated + scanFile, "a") as consolidatedStatFile:
                     consolidatedStatFile.write(json.dumps(dayStats[dayHour]) + "\n")
 

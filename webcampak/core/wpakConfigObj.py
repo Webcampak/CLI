@@ -2,19 +2,21 @@
 # -*- coding: utf-8 -*-
 # Copyright 2010-2012 Infracom & Eurotechnia (support@webcampak.com)
 # This file is part of the Webcampak project.
-# Webcampak is free software: you can redistribute it and/or modify it 
-# under the terms of the GNU General Public License as published by 
-# the Free Software Foundation, either version 3 of the License, 
+# Webcampak is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
 # or (at your option) any later version.
 
-# Webcampak is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+# Webcampak is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details.
 
-# You should have received a copy of the GNU General Public License along with Webcampak. 
+# You should have received a copy of the GNU General Public License along with Webcampak.
 # If not, see http://www.gnu.org/licenses/
 
 
+from builtins import str
+from builtins import object
 import os
 import sys
 import yaml
@@ -22,21 +24,28 @@ import yaml
 from configobj import ConfigObj
 
 # This class is used to set or get values from configobj functions
-class Config:
+class Config(object):
     def __init__(self, log, filePath):
         self.filePath = filePath
         self.log = log
-        if os.path.splitext(filePath)[1] == '.yml':
-            self.configType = 'YML'
-            with open(filePath, 'r') as ymlfile:
-                self.currentConfig = yaml.load(ymlfile)
-        elif os.path.splitext(filePath)[1] == '.cfg' or os.path.splitext(filePath)[1] == '.txt':
-            self.configType = 'INI'
+        if os.path.splitext(filePath)[1] == ".yml":
+            self.configType = "YML"
+            with open(filePath, "r") as ymlfile:
+                self.currentConfig = yaml.safe_load(ymlfile)
+        elif (
+            os.path.splitext(filePath)[1] == ".cfg"
+            or os.path.splitext(filePath)[1] == ".txt"
+        ):
+            self.configType = "INI"
             self.currentConfig = ConfigObj(self.filePath)
         else:
-            self.log.error("Config.init(): Unable to identify config file format, exiting...")
+            self.log.error(
+                "Config.init(): Unable to identify config file format, exiting..."
+            )
             sys.exit()
-        self.log.info("Config.init(): Loaded " + self.configType + " config file: " + filePath)
+        self.log.info(
+            "Config.init(): Loaded " + self.configType + " config file: " + filePath
+        )
 
     # Function: getFullConfig
     # Description; Function used to get full configuration file

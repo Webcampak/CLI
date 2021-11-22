@@ -14,6 +14,10 @@
 # You should have received a copy of the GNU General Public License along with Webcampak. 
 # If not, see http://www.gnu.org/licenses/
 
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import os
 from collections import OrderedDict
 import json
@@ -22,13 +26,13 @@ import re
 import psutil
 import glob
 
-from wpakConfigObj import Config
-from wpakFileUtils import fileUtils
-from wpakTimeUtils import timeUtils
+from .wpakConfigObj import Config
+from .wpakFileUtils import fileUtils
+from .wpakTimeUtils import timeUtils
 
 
 # This class is used to collect various metrics from the system
-class statsCollect:
+class statsCollect(object):
     def __init__(self, log, appConfig, config_dir):
         self.log = log
         self.appConfig = appConfig
@@ -90,8 +94,8 @@ class statsCollect:
             args = shlex.split(IfstatCommand)
             p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output, errors = p.communicate()
-            print output
-            print errors
+            print(output)
+            print(errors)
             systemStats['BandwidthIn'] = int(float(re.findall("\d+\.\d+", output)[0]) * 1000)
             systemStats['BandwidthOut'] = int(float(re.findall("\d+\.\d+", output)[1]) * 1000)
             systemStats['BandwidthTotal'] = systemStats['BandwidthIn'] + systemStats['BandwidthOut']
