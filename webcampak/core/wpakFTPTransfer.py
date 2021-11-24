@@ -121,7 +121,7 @@ class FTPTransfer(object):
             return False
 
         self.log.info("FTPTransfer.putFile(): Starting upload in temporary file: " + tmpRemoteFilepath)
-        loadedFile = os.file(localFilepath, 'rb')
+        loadedFile = open(localFilepath, 'rb')
         try:
             self.ftpSession.storbinary('STOR ' + fileUUID, loadedFile)
         except:
