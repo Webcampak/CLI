@@ -20,6 +20,7 @@ from builtins import object
 import os, uuid, signal
 import shutil
 from ftplib import FTP
+import hashlib
 
 from .wpakConfigObj import Config
 from .wpakFileUtils import fileUtils
@@ -56,7 +57,7 @@ class FTPTransfer(object):
         FTPServer = f.getConfig('cfgftpserverslist' + str(serverId))[1]
         FTPUsername = f.getConfig('cfgftpserverslist' + str(serverId))[2]
 
-        return hashlib.sha224(FTPServer + FTPUsername).hexdigest()
+        return hashlib.sha224(str(FTPServer + FTPUsername).encode('utf-8')).hexdigest()
 
     # Get remote file size
     def getFilesize(self, filepath):
