@@ -96,8 +96,8 @@ class statsCollect(object):
             output, errors = p.communicate()
             print(output)
             print(errors)
-            systemStats['BandwidthIn'] = int(float(re.findall("\d+\.\d+", output.decode('utf-8'))[0]) * 1000)
-            systemStats['BandwidthOut'] = int(float(re.findall("\d+\.\d+", output.decode('utf-8'))[1]) * 1000)
+            systemStats['BandwidthIn'] = int(float(re.findall(b"\d+\.\d+", output)[0]) * 1000)
+            systemStats['BandwidthOut'] = int(float(re.findall(b"\d+\.\d+", output)[1]) * 1000)
             systemStats['BandwidthTotal'] = systemStats['BandwidthIn'] + systemStats['BandwidthOut']
             # systemStats['BandwidthTotal'] = str(float(re.findall("\d+\.\d+", output)[0]) + float(re.findall("\d+\.\d+", output)[1]))
             StatsFile.setSensor(cfgcurrentdaytime, 'BandwidthIn', systemStats['BandwidthIn'])
