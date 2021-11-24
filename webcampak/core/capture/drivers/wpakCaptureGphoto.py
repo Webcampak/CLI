@@ -320,8 +320,10 @@ class captureGphoto(object):
             args = shlex.split(GphotoCommand)
             p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output, errors = p.communicate()
-            self.log.info("captureGphoto.triggerCapture() - OUTPUT 1: " + output)
-            self.log.info("captureGphoto.triggerCapture() - OUTPUT 2: " + errors)
+            self.log.info("captureGphoto.triggerCapture() - OUTPUT: ")
+            self.log.info(output)
+            self.log.info("captureGphoto.triggerCapture() - ERRORS: ")
+            self.log.info(errors)
 
             if os.path.isfile(self.dirCurrentSourceTmp + self.captureFilename + ".JPG"):
                 self.log.info(

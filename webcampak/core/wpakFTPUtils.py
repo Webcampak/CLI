@@ -42,4 +42,4 @@ class FTPUtils(object):
         FTPServer = ftpServerConfig.getConfig('cfgftpserverslist' + str(serverId))[1]
         FTPUsername = ftpServerConfig.getConfig('cfgftpserverslist' + str(serverId))[2]
 
-        return hashlib.sha224(FTPServer + FTPUsername).hexdigest()
+        return hashlib.sha224(str(FTPServer + FTPUsername).encode('utf-8')).hexdigest()

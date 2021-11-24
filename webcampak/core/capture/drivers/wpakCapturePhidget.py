@@ -109,9 +109,7 @@ class capturePhidget(object):
                         )
 
                         currentSensor = {}
-                        sensorHash = hashlib.sha224(
-                            sensorLegend + sensorTypeName
-                        ).hexdigest()
+                        sensorHash = hashlib.sha224(str(sensorLegend + sensorTypeName).encode('utf-8')).hexdigest()
                         currentSensor["legend"] = sensorLegend
                         currentSensor["type"] = sensorTypeName
                         currentSensor["value"] = sensorCalculatedValue
