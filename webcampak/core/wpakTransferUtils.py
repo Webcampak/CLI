@@ -69,14 +69,14 @@ class transferUtils(object):
             )
             xferJobDirectory = transferDate.strftime("%Y%m%d")
             xferJobFilenameDate = transferDate.strftime("%Y%m%d%H%M%S")
-            xferJobFileMd5 = hashlib.sha224(
+            xferJobFileMd5 = hashlib.sha224(str(
                 "S"
                 + str(self.currentSourceId)
                 + "local"
                 + str(self.currentSourceId)
                 + "ftp"
                 + str(serverId)
-                + sourceFilePath
+                + sourceFilePath).encode('utf-8')
             ).hexdigest()
             xferJobFileName = (
                 xferJobFilenameDate
