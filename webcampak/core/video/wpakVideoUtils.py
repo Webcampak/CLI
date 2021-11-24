@@ -388,8 +388,10 @@ class videoUtils(object):
             args = shlex.split(Command)
             p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output, errors = p.communicate()
-            self.log.debug("captureGphoto.triggerCapture() - OUTPUT: " + output)
-            self.log.debug("captureGphoto.triggerCapture() - ERRORS: " + errors)
+            self.log.debug("captureGphoto.triggerCapture() - OUTPUT: ")
+            self.log.debug(output)
+            self.log.debug("captureGphoto.triggerCapture() - ERRORS: ")
+            self.log.debug(errors)
             PuzzleDiff = output.strip()
             if float(PuzzleDiff) < float(
                 self.configSourceVideo.getConfig("cfgfiltervalue")
