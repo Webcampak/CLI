@@ -83,7 +83,7 @@ class fileUtils(object):
         output, errors = p.communicate()
         print(output)
         print(errors)
-        return str(re.findall("\d+", output)[0])
+        return str(re.findall(b"\d+", output)[0])
 
     # Function: CheckJpegFile
     # Description; This function is used to check if a file is a JPEG picture (not only by extension) and does not contains errors
