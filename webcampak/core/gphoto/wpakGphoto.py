@@ -57,7 +57,7 @@ class Gphoto(object):
             , '--auto-detect'
         ]
         cmd_output = self.sys_call(sys_command)
-        for line in cmd_output.split('\n'):
+        for line in cmd_output.split(b'\n'):
             result = re.compile('usb:...,...').search(line)
             if result is not None:
                 camera_model = line.replace(result.group(0), '').strip()
