@@ -352,7 +352,7 @@ class reportsDaily(object):
             currentSourceAvailable = None
         else:
             currentSourceAvailable = int(currentSourceReport["source"]["quota"]) - int(
-                currentSourceReport["source"]["usage"]
+                int(str(currentSourceReport["source"]["usage"].deocde("UTF-8")))
             )
 
         headers = ["", "Used", "Available", "Remaining", "% Used"]
