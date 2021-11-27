@@ -115,7 +115,7 @@ class reportsDaily(object):
                 self.dirSources + "source" + str(currentSource) + "/"
             )
             self.log.info(
-                "reportsDaily.run(): ource disk quota is: %(sourceQuota)s"
+                "reportsDaily.run(): Source disk quota is: %(sourceQuota)s"
                 % {"sourceQuota": str(sourceQuota)}
             )
             self.log.info(
