@@ -125,7 +125,7 @@ class xferUtils(object):
         """
         self.log.debug("xferUtils.writeJsonFileGzip(): Start")
         if fileUtils.CheckFilepath(jsonFile) != "":
-            with gzip.open(jsonFile, "wb") as threadJsonFile:
+            with gzip.open(jsonFile, "wt") as threadJsonFile:
                 threadJsonFile.write(json.dumps(jsonContent))
             return True
         return False
