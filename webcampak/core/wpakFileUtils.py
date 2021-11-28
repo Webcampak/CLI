@@ -97,7 +97,7 @@ class fileUtils(object):
         args = shlex.split(Command)
         p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, errors = p.communicate()
-        if "ERROR" in output:
+        if "ERROR" in str(output):
             return False
         else:
             return True
