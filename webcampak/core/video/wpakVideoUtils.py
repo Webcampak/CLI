@@ -1295,11 +1295,12 @@ class videoUtils(object):
         # > experimental -b:a 192k -ar 48000 output.mp4
 
         # Command = "ffmpeg -y -i " + TargetVideoDir + TargetVideoFilename + " -vcodec libx264 -b 2000k -g 300 -bf 3 -refs 6 -b_strategy 1 -coder 1 -qmin 10 -qmax 51 -sc_threshold 40 -flags +loop -cmp +chroma -me_range 16 -me_method umh -subq 7 -i_qfactor 0.71 -qcomp 0.6 -qdiff 4 -directpred 3 -flags2 +dct8x8+wpred+bpyramid+mixed_refs -trellis 1 -partitions +parti8x8+parti4x4+partp8x8+partp4x4+partb8x8 -acodec copy " + TargetVideoDir + TargetVideoFilename + ".mp4 "
+        # Command = "avconv -y -i " + TargetVideoDir + TargetVideoFilename + " -c:v h264 -preset medium -c:a copy " + TargetVideoDir + TargetVideoFilename + ".mp4 "
         Command = (
-            "avconv -y -i "
+            "ffmpeg -i "
             + TargetVideoDir
             + TargetVideoFilename
-            + " -c:v libx264 -preset medium -c:a copy "
+            + " -c:v libx264 -preset medium -c:a copy -y "
             + TargetVideoDir
             + TargetVideoFilename
             + ".mp4 "
@@ -1309,7 +1310,6 @@ class videoUtils(object):
             % {"Command": Command}
         )
 
-        # Command = "avconv -y -i " + TargetVideoDir + TargetVideoFilename + " -c:v h264 -preset medium -c:a copy " + TargetVideoDir + TargetVideoFilename + ".mp4 "
         args = shlex.split(Command)
         p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, errors = p.communicate()
@@ -1357,7 +1357,7 @@ class videoUtils(object):
         )
         # Command = "ffmpeg -itsoffset -2 -i " + TargetVideoDir + TargetVideoFilename + " -vcodec mjpeg -vframes 1 -an -f rawvideo " + TargetVideoDir + TargetVideoFilename + ".jpg "
         Command = (
-            "avconv -itsoffset -2 -i "
+            "ffmpeg -itsoffset -2 -i "
             + TargetVideoDir
             + TargetVideoFilename
             + " -vcodec mjpeg -vframes 1 -an -f rawvideo "
@@ -1386,7 +1386,7 @@ class videoUtils(object):
                 os.remove(TargetVideoDir + TargetVideoFilename + ".jpg")
             # Command = "ffmpeg -itsoffset -7 -i " + TargetVideoDir + TargetVideoFilename + " -vcodec mjpeg -vframes 1 -an -f rawvideo " + TargetVideoDir + TargetVideoFilename + ".jpg "
             Command = (
-                "avconv -itsoffset -7 -i "
+                "ffmpeg -itsoffset -7 -i "
                 + TargetVideoDir
                 + TargetVideoFilename
                 + " -vcodec mjpeg -vframes 1 -an -f rawvideo "
