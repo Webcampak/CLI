@@ -72,7 +72,7 @@ class captureRtsp(object):
             % {"URL": self.configSource.getConfig("cfgsourcewebfileurl")}
         )
         Command = (
-            "avconv -i "
+            "ffmpeg -i "
             + self.configSource.getConfig("cfgsourcewebfileurl")
             + " -ss 00:00:01.500 -f image2 -vframes 1 "
             + self.dirCurrentSourceTmp
