@@ -132,7 +132,7 @@ class videoUtils(object):
             currenthour = self.videoClass.getScriptStartTime().strftime("%H")
             currentday = self.videoClass.getScriptStartTime().strftime("%Y%m%d")
             videoName = self.configSourceVideo.getConfig("cfgcustomvidname")
-            randomVideoName = videoName + str(random.randint(1, 1000))
+            randomVideoName = str(videoName) + str(random.randint(1, 1000))
             if (
                 self.configSourceVideo.getConfig("cfgcustomactive") == "plan04"
                 and currenthour == "04"
