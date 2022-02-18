@@ -54,6 +54,7 @@ class videoUtils(object):
 
         self.configPaths = videoClass.configPaths
         self.dirEtc = self.configPaths.getConfig("parameters")["dir_etc"]
+        self.dirWatermark = self.configPaths.getConfig("parameters")["dir_watermark"]
         self.dirCurrentSourceVideos = self.videoClass.dirCurrentSourceVideos
         self.dirCurrentSourcePictures = self.videoClass.dirCurrentSourcePictures
         self.dirCurrentSourceLive = self.videoClass.dirCurrentSourceLive
