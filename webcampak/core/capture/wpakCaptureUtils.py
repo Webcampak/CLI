@@ -711,7 +711,7 @@ class captureUtils(object):
                     "captureUtils.sendPicture(): Preparing to send RAW file located in  %(rawFileName)s"
                     % {"rawFileName": rawFileName}
                 )
-                self.transferFile(
+                self.transferUtils.transferFile(
                     self.captureClass.getCaptureTime(),
                     rawFileName,
                     "raw/" + captureDirectory + "/" + captureFilename + ".raw",
